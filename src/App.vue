@@ -1,14 +1,22 @@
 <template>
   <div id="app">
-    <router-view />
+    <!-- Navbar will be visible across all pages -->
+    <Navbar />
+    <router-view /> <!-- This is where the different pages will be rendered -->
   </div>
 </template>
 
 <script>
+import Navbar from './components/Navbar.vue'; // Import the Navbar component
+
 export default {
-  name: 'App',
+  components: {
+    Navbar,
+  },
 };
 </script>
 
 <style>
+/* Add any global styles if necessary */
 </style>
+

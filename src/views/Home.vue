@@ -1,10 +1,8 @@
 <template>
-  <div class="vending-machine-container">
-    <!-- Main vending machine layout -->
+  <div class="page-container">
     <div class="vending-machine">
       <!-- Left side: Glass container + Snack output -->
       <div class="snack-section">
-        <!-- Glass container around snack compartments -->
         <div class="glass-container">
           <div class="snack-container">
             <div class="row" v-for="rowIndex in 4" :key="rowIndex">
@@ -14,67 +12,100 @@
                 class="machine"
                 @click="selectMachine(rowIndex, index)"
               >
-              <div class="number-shelf">
-                <span class="machine-number">{{ getMachineNumber(rowIndex, index) }}</span>
-              </div>
+                <div class="number-shelf">
+                  <span class="machine-number">{{ getMachineNumber(rowIndex, index) }}</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Snack output tray below the glass container -->
+        <!-- Snack output tray -->
         <div class="snack-output"></div>
       </div>
 
       <!-- Right side with controls -->
       <div class="controls-container">
-        <!-- Screen -->
-        <div class="screen"></div>
-
-        <!-- Keypad -->
+        <div class="screen" :class="{ zoomed: isZoomed }"></div>
         <div class="keypad">
           <div v-for="key in 9" :key="key" class="keypad-button"></div>
-          <!-- Fourth row of buttons -->
           <div class="keypad-button red"></div>
-          <div class="keypad-button"></div> <!-- Keep this one grey like the rest -->
+          <div class="keypad-button"></div>
           <div class="keypad-button green"></div>
         </div>
-
-        <!-- Cash slot and coin return button aligned next to each other -->
         <div class="cash-coin-container">
           <div class="cash-slot"></div>
           <div class="coin-return"></div>
         </div>
-
-        <!-- Coin return tray -->
         <div class="coin-return-tray"></div>
       </div>
+    </div>
+
+    <!-- Overlay for displaying details and back button (renders after zoom completes) -->
+    <div v-if="showDetails" class="overlay">
+      <p class="zoomed-text"><strong>Machine Number:</strong> {{ selectedMachineNumber }}</p>
+      <p class="zoomed-text"><strong>Location:</strong> {{ selectedMachineDetails.location }}</p>
+      <p class="zoomed-text"><strong>Type:</strong> {{ selectedMachineDetails.type }}</p>
+      <p class="zoomed-text"><strong>Payment Methods:</strong> {{ selectedMachineDetails.paymentMethods.join(', ') }}</p>
+      <p class="zoomed-text"><strong>Rating:</strong> {{ selectedMachineDetails.rating }} stars</p>
+      <button @click="zoomOut" class="back-button">Go Back</button>
     </div>
   </div>
 </template>
 
 <script>
+import { machineData } from '@/data/machineData.js'; // Import the placeholder data
+import Navbar from '@/components/Navbar.vue';
+
 export default {
+
+  components: {
+     Navbar 
+  },
+
+  data() {
+    return {
+      selectedMachineNumber: null,
+      selectedMachineDetails: null, // Store machine details here
+      isZoomed: false, // Toggle zoom effect
+      showDetails: false, // Toggle to show text and button after zoom
+    };
+  },
   methods: {
     selectMachine(row, col) {
       const machineNumber = this.getMachineNumber(row, col);
-      alert(`You clicked on machine number ${machineNumber}`);
+      this.selectedMachineNumber = machineNumber;
+      this.selectedMachineDetails = machineData[machineNumber]; // Fetch machine details
+
+      this.isZoomed = true; // Start zoom
+
+      // After zoom completes (1 second delay), show details
+      setTimeout(() => {
+        this.showDetails = true;
+      }, 1000); // Delay of 1 second (matching the zoom duration)
     },
     getMachineNumber(row, col) {
-      return (row-1)*4 + col + 1; // Calculate a unique number for each machine
+      return (row - 1) * 4 + col + 1; // Calculate unique number for each machine
+    },
+    zoomOut() {
+      this.isZoomed = false; // Reset zoom and return to main view
+      this.showDetails = false; // Hide details when zooming out
     }
   }
 };
 </script>
 
 <style scoped>
-/* Container for the whole vending machine page */
-.vending-machine-container {
+
+/* Center the vending machine and apply dark blue background to the entire page */
+
+.page-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: grey;
+  background-color: #001f3f; /* Dark blue background */
+  margin: 0;
+  padding: 0;
 }
 
 /* Main vending machine box */
@@ -136,6 +167,11 @@ export default {
   position: relative;
 }
 
+/* Hover effect for the compartments */
+.machine:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
 
 /* Container that encases the number to look like a shelf */
 .number-shelf {
@@ -154,12 +190,6 @@ export default {
   font-size: 12px;
   color: #ffffff;
   opacity: 0.9;
-}
-
-/* Hover effect for the compartments */
-.machine:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Snack output tray positioned below the glass container */
@@ -185,7 +215,7 @@ export default {
   align-items: center;
 }
 
-/* Screen */
+/* Zoom effect for the screen */
 .screen {
   width: 110px;
   height: 100px;
@@ -193,6 +223,54 @@ export default {
   border-radius: 4px;
   border: 2px solid #444;
   margin-bottom: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  transform-origin: center;
+  transition: transform 1s ease; /* Smooth zoom transition */
+}
+
+.screen.zoomed {
+  transform: scale(6); /* Enlarges the screen */
+  z-index: 999;
+}
+
+/* Overlay for displaying text and button (only renders after zoom completes) */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  color: white;
+  z-index: 1000; /* Make sure it's above the screen */
+}
+
+/* Text inside the overlay */
+.zoomed-text {
+  font-size: 24px;
+  color: white;
+  margin: 10px 0; /* Add some spacing between the texts */
+  margin-left: 300px;
+}
+
+/* Go back button */
+.back-button {
+  margin-top: 100px;
+  margin-left: 300px;
+  margin-bottom: 200px;
+  padding: 10px;
+  font-size: 16px;
+  background-color: #444;
+  color: white;
+  border: none;
+  cursor: pointer;
 }
 
 /* Keypad grid */
@@ -257,4 +335,5 @@ export default {
   border: 2px solid #666;
   margin-top: 5px;
 }
+
 </style>
