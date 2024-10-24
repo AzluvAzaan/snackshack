@@ -17,8 +17,8 @@
       <li class="navbar-item" :class="{ active: activeLink === 'wheel' }">
         <router-link to="/wheel" @click.native="setActiveLink('wheel')">Wheel</router-link>
       </li>
-      <li class="navbar-item" :class="{ active: activeLink === 'test' }">
-        <router-link to="/test" @click.native="setActiveLink('test')">Test</router-link>
+      <li class="navbar-item" :class="{ active: activeLink === 'login' }">
+        <router-link to="/login" @click.native="setActiveLink('login')">Add a Vending machine</router-link>
       </li>
     </ul>
   </nav>

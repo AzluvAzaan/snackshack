@@ -5,6 +5,9 @@ import Map from '@/views/Map.vue';
 import Wheel from '@/views/Wheel.vue';
 import Test from '@/views/Test.vue';
 import Review from '@/views/Review.vue';
+import Login from '@/views/Login.vue';
+import Admin from '@/views/Admin.vue';
+
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
@@ -28,6 +31,8 @@ const routes = [
     component: Review,
   },
 >>>>>>> Stashed changes
+  { path: '/login', name: 'Login', component: Login },
+  { path: '/admin', name: 'Admin', component: Admin },
 ];
 
 const router = createRouter({
