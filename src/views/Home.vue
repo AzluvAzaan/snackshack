@@ -1,79 +1,70 @@
 <template>
-  <div id="vending-machine-page" class="container-fluid vh-100 d-flex justify-content-center align-items-center">
-    <!-- Animated text on the left (hidden on mobile) -->
-    <div class="animated-text left-text d-none d-md-flex">
-      <div>Find</div>
-      <div>Vending</div>
-      <div>Machines</div>
-    </div>
+<div id="vending-machine-page">
+  <div class="vending-machine">
+    <!-- Logo positioned at the top right corner -->
+    <img src="@/assets/snackshack.png" alt="SnackShack Logo" class="vending-machine-logo">
 
-    <div class="row w-100 d-flex justify-content-center align-items-center">
-      <!-- Vending machine section -->
-      <div class="col-12 col-md-8 col-lg-6 vending-machine-container d-flex justify-content-between align-items-center">
-        <!-- Logo positioned at the top right corner -->
-        <img src="@/assets/snackshack.png" alt="SnackShack Logo" class="vending-machine-logo">
-
-        <!-- Left side: Glass container + Snack output -->
-        <div class="snack-section">
-          <div class="glass-container">
-            <div class="snack-container">
-              <div class="row" v-for="row in rowCount" :key="row">
-                <div class="col-3 machine" v-for="(machine, index) in colCount" :key="index" @click="selectMachine(row, index)">
-                  <div class="number-shelf">
-                    <span class="machine-number">{{ getMachineNumber(row, index) }}</span>
-                  </div>
-                </div>
+    <!-- Left side: Glass container + Snack output -->
+    <div class="snack-section">
+      <div class="glass-container">
+        <div class="snack-container">
+          <div class="row" v-for="rowIndex in 4" :key="rowIndex">
+            <div
+              v-for="(machine, index) in 4"
+              :key="index"
+              class="machine"
+              @click="selectMachine(rowIndex, index)"
+            >
+              <div class="number-shelf">
+                <span class="machine-number">{{ getMachineNumber(rowIndex, index) }}</span>
               </div>
             </div>
           </div>
-          <!-- Snack output tray -->
-          <div class="snack-output mt-3"></div>
-        </div>
-
-        <!-- Right side with controls -->
-        <div class="controls-container">
-          <div class="screen" :class="{ zoomed: isZoomed }"></div>
-          <!-- Keypad -->
-          <div class="keypad mt-3">
-            <div v-for="key in 9" :key="key" class="keypad-button"></div>
-            <div class="keypad-button red"></div>
-            <div class="keypad-button"></div>
-            <div class="keypad-button green"></div>
-          </div>
-
-          <!-- Coin and cash section -->
-          <div class="cash-coin-container mt-3">
-            <div class="cash-slot"></div>
-            <div class="coin-return"></div>
-          </div>
-          <div class="coin-return-tray mt-3"></div>
         </div>
       </div>
+      <!-- Snack output tray -->
+      <div class="snack-output"></div>
     </div>
 
-    <!-- Animated text on the right (hidden on mobile) -->
-    <div class="animated-text right-text d-none d-md-flex">
-      <div>Satisfy</div>
-      <div>Your</div>
-      <div>Cravings</div>
-    </div>
-
-    <!-- Overlay for displaying details and back button (renders after zoom completes) -->
-    <div v-if="showDetails" class="overlay">
-      <p class="zoomed-text"><strong>Machine Number:</strong> {{ selectedMachineNumber }}</p>
-      <p class="zoomed-text"><strong>Location:</strong> {{ selectedMachineDetails.location }}</p>
-      <p class="zoomed-text"><strong>Type:</strong> {{ selectedMachineDetails.type }}</p>
-      <p class="zoomed-text"><strong>Payment Methods:</strong> {{ selectedMachineDetails.paymentMethods.join(', ') }}</p>
-      <p class="zoomed-text"><strong>Rating:</strong> {{ selectedMachineDetails.rating }} stars</p>
-      <button @click="zoomOut" class="btn btn-dark">Go Back</button>
+    <!-- Right side with controls -->
+    <div class="controls-container">
+      <div class="screen" :class="{ zoomed: isZoomed }"></div>
+      <div class="keypad">
+        <div v-for="key in 9" :key="key" class="keypad-button"></div>
+        <div class="keypad-button red"></div>
+        <div class="keypad-button"></div>
+        <div class="keypad-button green"></div>
+      </div>
+      <div class="cash-coin-container">
+        <div class="cash-slot"></div>
+        <div class="coin-return"></div>
+      </div>
+      <div class="coin-return-tray"></div>
     </div>
   </div>
+
+  <!-- Overlay for displaying details and back button (renders after zoom completes) -->
+  <div v-if="showDetails" class="overlay">
+    <p class="zoomed-text"><strong>Machine Number:</strong> {{ selectedMachineNumber }}</p>
+    <p class="zoomed-text"><strong>Location:</strong> {{ selectedMachineDetails.location }}</p>
+    <p class="zoomed-text"><strong>Type:</strong> {{ selectedMachineDetails.type }}</p>
+    <p class="zoomed-text"><strong>Payment Methods:</strong> {{ selectedMachineDetails.paymentMethods.join(', ') }}</p>
+    <p class="zoomed-text"><strong>Rating:</strong> {{ selectedMachineDetails.rating }} stars</p>
+    <button @click="zoomOut" class="back-button">Go Back</button>
+  </div>
+</div>
 </template>
 
 <script>
 import { machineData } from '@/data/machineData.js'; // Import the placeholder data
+import Navbar from '@/components/Navbar.vue';
 
 export default {
+
+  components: {
+     Navbar 
+  },
+
   data() {
     return {
       selectedMachineNumber: null,
@@ -81,14 +72,6 @@ export default {
       isZoomed: false, // Toggle zoom effect
       showDetails: false, // Toggle to show text and button after zoom
     };
-  },
-  computed: {
-    rowCount() {
-      return window.innerWidth < 768 ? 3 : 4; // 3 rows for mobile, 4 for larger screens
-    },
-    colCount() {
-      return 3; // 3 columns for both layouts
-    }
   },
   methods: {
     selectMachine(row, col) {
@@ -104,7 +87,7 @@ export default {
       }, 1000); // Delay of 1 second (matching the zoom duration)
     },
     getMachineNumber(row, col) {
-      return (row - 1) * this.colCount + col + 1; // Calculate unique number for each machine
+      return (row - 1) * 4 + col + 1; // Calculate unique number for each machine
     },
     zoomOut() {
       this.isZoomed = false; // Reset zoom and return to main view
@@ -115,6 +98,7 @@ export default {
 </script>
 
 <style scoped>
+
 html, body {
   margin: 0;
   padding: 0;
@@ -129,90 +113,36 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #2d3f55;
-  position: relative;
-  overflow: hidden;
+  background-color: #001f3f; /* Dark blue background specific to this page */
 }
 
-.vending-machine-container {
+/* Main vending machine box */
+.vending-machine {
   position: relative;
   background-color: #333;
   border-radius: 20px;
-  width: 30vw;
-  max-width: 450px;
-  height: 60vh;
-  max-height: 600px;
+  width: 450px;
+  height: 600px;
   padding: 10px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   border: 3px solid #555;
+  transform: scale(1.3); /* Adjust the scale factor as needed */
   transform-origin: center;
-  transition: width 0.3s ease, height 0.3s ease;
 }
 
+/* Logo styling */
 .vending-machine-logo {
   position: absolute;
   top: 20px;
   right: 0px;
-  width: 8vw;
-  max-width: 140px;
+  width: 140px; /* Adjust size as needed */
   height: auto;
 }
 
-.animated-text {
-  position: absolute;
-  font-size: 5vw;
-  color: #fe7141;
-  opacity: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.animated-text div {
-  margin-bottom: 2vh;
-}
-
-.left-text {
-  left: 5vw;
-  top: 5vh;
-  animation: cascade-down 2s forwards;
-  animation-delay: 0.5s;
-  text-shadow: 
-    1px 1px 0 black,
-    -1px 1px 0 black,
-    1px -1px 0 black,
-    -1px -1px 0 black;
-}
-
-.right-text {
-  right: 5vw;
-  bottom: 5vh;
-  animation: cascade-up 2s forwards;
-  animation-delay: 1.5s;
-  text-shadow: 
-    1px 1px 0 black,
-    -1px 1px 0 black,
-    1px -1px 0 black,
-    -1px -1px 0 black;
-}
-
-@keyframes cascade-down {
-  to {
-    opacity: 1;
-    transform: translateY(25vh);
-  }
-}
-
-@keyframes cascade-up {
-  to {
-    opacity: 1;
-    transform: translateY(-25vh);
-  }
-}
-
+/* Other styles remain unchanged */
 .snack-section {
   display: flex;
   flex-direction: column;
@@ -220,13 +150,12 @@ html, body {
 }
 
 .glass-container {
-  background-color: rgba(173, 216, 230, 0.3);
-  width: 18vw;
-  max-width: 280px;
+  background-color: rgba(173, 216, 230, 0.3); /* Light blue glass effect */
+  width: 280px;
   padding: 10px;
   border-radius: 10px;
-  border: 2px solid rgba(173, 216, 230, 0.6);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(173, 216, 230, 0.6); /* Semi-transparent border */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);   /* Subtle shadow for realism */
   backdrop-filter: blur(4px);
 }
 
@@ -244,18 +173,18 @@ html, body {
 }
 
 .machine {
-  background-image: url('@/assets/vending-machine.png');
-  background-size: cover;
-  background-position: center;
+  background-image: url('@/assets/vending-machine.png'); /* Use the vending machine image */
+  background-size: cover; /* Ensure the image covers the entire element */
+  background-position: center; /* Center the image */
   border: 2px solid #999;
   border-radius: 5px;
-  width: 8vw;
-  max-width: 45px;
-  height: 10vh;
-  max-height: 60px;
+  width: 45px;
+  height: 60px;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
   position: relative;
+  margin-right: 10px;
+  margin-left: 10px;
 }
 
 .machine:hover {
@@ -264,12 +193,12 @@ html, body {
 }
 
 .number-shelf {
-  background-color: rgba(100, 100, 100, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 4px;
-  padding: 2px 5px;
+  background-color: rgba(100, 100, 100, 0.7); /* Darker semi-transparent background */
+  border: 1px solid rgba(255, 255, 255, 0.5); /* Light border for the shelf */
+  border-radius: 4px; /* Rounded corners */
+  padding: 2px 5px; /* Some padding around the number */
   position: absolute;
-  bottom: -20px;
+  bottom: -20px; /* Position the shelf below the machine */
   left: 50%;
   transform: translateX(-50%);
 }
@@ -281,10 +210,8 @@ html, body {
 }
 
 .snack-output {
-  width: 18vw;
-  max-width: 290px;
-  height: 8vh;
-  max-height: 80px;
+  width: 290px;
+  height: 80px;
   background-color: #444;
   border-radius: 4px;
   border: 2px solid #666;
@@ -293,12 +220,10 @@ html, body {
 }
 
 .controls-container {
-  width: 10vw;
-  max-width: 120px;
-  padding-top: 18vh;
-  max-height: 300px;
-  padding-bottom: 15vh;
-  padding-left: 1vw;
+  width: 120px;
+  padding-top: 180px;
+  padding-bottom: 120px;
+  padding-left: 15px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -307,7 +232,7 @@ html, body {
 
 .screen {
   width: 110px;
-  height: 110px; /* Ensure the height matches the width to form a square */
+  height: 100px;
   background-color: #222;
   border-radius: 4px;
   border: 2px solid #444;
@@ -317,11 +242,11 @@ html, body {
   align-items: center;
   position: relative;
   transform-origin: center;
-  transition: transform 1s ease;
+  transition: transform 1s ease; /* Smooth zoom transition */
 }
 
 .screen.zoomed {
-  transform: scale(6) translate(-22%, 15%);
+  transform: scale(6) translate(-22%, 15%); /* Enlarges the screen */
   z-index: 999;
 }
 
@@ -337,13 +262,13 @@ html, body {
   flex-direction: column;
   text-align: center;
   color: white;
-  z-index: 1000;
+  z-index: 1000; /* Make sure it's above the screen */
 }
 
 .zoomed-text {
   font-size: 40px;
   color: white;
-  margin: 10px 0;
+  margin: 10px 0; /* Add some spacing between the texts */
   margin-left: 30px;
 }
 
@@ -414,4 +339,5 @@ html, body {
   border: 2px solid #666;
   margin-top: 5px;
 }
+
 </style>
