@@ -84,6 +84,19 @@
         </div>
         <button type="submit">{{ isEditing ? 'Update' : 'Add' }} Vending Machine</button>
         <button type="button" @click="cancelAddOrEdit">Cancel</button>
+        <div class="form-group">
+        <label for="contents">Contents:</label>
+        <div>
+          <input v-model="newContent" @keyup.enter="addContent" placeholder="Enter item name">
+          <button type="button" @click="addContent">Add Item</button>
+        </div>
+        <ul>
+          <li v-for="(item, index) in newMachine.contents" :key="index">
+            {{ item }}
+            <button type="button" @click="removeContent(index)">Remove</button>
+          </li>
+        </ul>
+      </div>
       </form>
     </div>
 
@@ -112,13 +125,15 @@ export default {
         coordinates: {
           latitude: null,
           longitude: null
-        }
+        },
+        contents: [],
       },
       userMachines: [],
       showAddForm: false,
       isEditing: false,
       editingMachineId: null,
-      selectedFile: null
+      selectedFile: null,
+      newContent: ''
     }
   },
   mounted() {
@@ -160,6 +175,16 @@ export default {
       return await getDownloadURL(storageRef);
     },
 
+    addContent() {
+      if (this.newContent.trim()) {
+        this.newMachine.contents.push(this.newContent.trim());
+        this.newContent = '';
+      }
+    },
+
+    removeContent(index) {
+      this.newMachine.contents.splice(index, 1);
+    },
 
     async addOrUpdateVendingMachine() {
       try {
@@ -174,6 +199,7 @@ export default {
           //let machineData = ...this.newMachine -> { machineName: "xxx", location: "xxx", ... }
           ...this.newMachine,
           imageUrl: imageUrl || this.newMachine.imageUrl, // Use existing URL if no new image
+          contents: this.newMachine.contents,
         };
 
         //Check if editing
@@ -215,8 +241,10 @@ export default {
           latitude: null,
           longitude: null
         },
+        contents: [],
         imageUrl: null 
       };
+      this.newContent = '';
       this.isEditing = false;
       this.editingMachineId = null;
       this.selectedFile = null; 
@@ -254,7 +282,10 @@ export default {
 
     //Edit vending machine
     editMachine(machine) {
-      this.newMachine = { ...machine };
+      this.newMachine = { 
+        ...machine,
+        contents: [...(machine.contents || [])], // Ensure contents is an array
+      };
       this.isEditing = true;
       this.editingMachineId = machine.id;
       this.showAddForm = true;

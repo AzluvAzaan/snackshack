@@ -14,8 +14,8 @@ const routes = [
   { path: '/map', name: 'Map', component: Map },
   { path: '/wheel', name: 'Wheel', component: Wheel },
   { path: '/login', name: 'Login', component: Login },
-  { path: '/admin', name: 'Admin', component: Admin },
-  { path: '/register', name: 'Register', component: Register, meta: { requiresAuth: true } },
+  { path: '/admin', name: 'Admin', component: Admin, meta: { requiresAuth: true } },
+  { path: '/register', name: 'Register', component: Register}
   
 ];
 
