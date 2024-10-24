@@ -8,7 +8,6 @@ import Review from '@/views/Review.vue';
 import Login from '@/views/Login.vue';
 import Admin from '@/views/Admin.vue';
 
-
 const routes = [
   { path: '/', name: 'Home', component: Home },
   { path: '/map', name: 'Map', component: Map },
