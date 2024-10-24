@@ -4,8 +4,6 @@
 //     const app = initializeApp(firebaseConfig);
 //   </script>
 
-
-
 // need to run npm install firebase@latest
 // When using services in the components, import them using:
 // import { database, auth, storage } from '@/firebase';
@@ -15,6 +13,8 @@ import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 
+
+//Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDyYJxjK1AtM01msUxUSqGHlaz9wrBSGzs",
   authDomain: "snackshack-c06ac.firebaseapp.com",
@@ -27,7 +27,6 @@ const firebaseConfig = {
 // const firestore = firebase.initializeApp(firebaseConfig);
 // const db = firestore.firestore();
 // export default db;
-
 
 // //Initialize Firebase
 const app = initializeApp(firebaseConfig);

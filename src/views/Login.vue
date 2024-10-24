@@ -3,7 +3,8 @@
 <template>
   <div class="login-container">
     <h2>Login</h2>
-    <form @submit.prevent="login">
+    <!-- .prevent prevents default -->
+    <form v-on:submit.prevent="login">
       <div class="input-group">
         <label for="email">Email</label>
         <input type="email" v-model="email" required />
@@ -23,8 +24,8 @@
 </template>
 
 <script>
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from '@/firebase'; // Make sure the path is correct
+import { signInWithEmailAndPassword } from "firebase/auth"; //Import function to login with email and password from firebase
+import { auth } from '@/firebase'; //import auth from firebase.js
 
 export default {
   name: 'Login',
@@ -39,10 +40,11 @@ export default {
     async login() {
       try {
         const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
-        console.log("Logged in as:", userCredential.user.email);
-        this.$router.push("/admin"); // Redirect to dashboard or any protected route
+        // console.log("Logged in as:", userCredential.user.email);
+        this.$router.push("/admin"); // Redirect to admin page to add/edit/delete vending machines
       } catch (err) {
-        this.error = err.message; // Display error if login fails
+        //console.log(err.message)
+        this.error = "Login failed, try again!"; // Display error if login fails
       }
     },
     goToRegister() {

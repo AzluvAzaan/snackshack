@@ -71,7 +71,7 @@
           <select v-model="newMachine.type" id="type">
             <option value="drinks">Drinks</option>
             <option value="snacks">Snacks</option>
-            <option value="mixed">Mixed</option>
+            <option value="other">Other</option>
           </select>
         </div>
         <div class="form-group">
@@ -129,53 +129,66 @@ export default {
       } else {
         this.currentUser = null;
         this.userMachines = [];
+        this.$router.push('/login');
       }
     });
   },
   methods: {
     async logout() {
       try {
+        //calls firebase auth signOut method to sign out user
         await signOut(auth);
         console.log("User signed out successfully");
+        //redirects user to home page after sign out
         this.$router.push('/');
       } catch (error) {
-        console.error("Error signing out: ", error);
+        //console.error("Error signing out: ", error);
       }
     },
+    //stores uploaded file as selectedFile
     onFileSelected(event) {
       this.selectedFile = event.target.files[0];
     },
 
     async uploadImage() {
+      //return null if no file is selected
       if (!this.selectedFile) return null;
-
+      //stores image in firebase storage, rename it to current timestamp+file name to prevent duplicate names
       const storageRef = ref(storage, `machine-images/${Date.now()}_${this.selectedFile.name}`);
       await uploadBytes(storageRef, this.selectedFile);
+      //return url of image
       return await getDownloadURL(storageRef);
     },
+
 
     async addOrUpdateVendingMachine() {
       try {
         let imageUrl = null;
+        //checks if image is uploaded, if yes, upload image to firebase storage and get url
         if (this.selectedFile) {
           imageUrl = await this.uploadImage();
         }
 
         const machineData = {
+          //let newMachine = { machineName: "xxx", location: "xxx", ... };
+          //let machineData = ...this.newMachine -> { machineName: "xxx", location: "xxx", ... }
           ...this.newMachine,
           imageUrl: imageUrl || this.newMachine.imageUrl, // Use existing URL if no new image
         };
 
+        //Check if editing
         if (this.isEditing) {
+          //Calls updateDoc method to update document in firestore
           await updateDoc(doc(db, "vendingMachines", this.editingMachineId), {
             ...machineData,
-            updatedAt: new Date()
+            //updatedAt: new Date()
           });
           alert('Vending machine updated successfully!');
         } else {
+          //If not editing, calls addDoc method to add object to firestore
           await addDoc(collection(db, "vendingMachines"), {
             ...machineData,
-            createdAt: new Date(),
+            //createdAt: new Date(),
             userId: this.currentUser.uid
           });
           alert('Vending machine added successfully!');
@@ -189,6 +202,7 @@ export default {
       }
     },
 
+    //Resets form to original state
     clearForm() {
       this.newMachine = {
         machineName: '',
@@ -201,24 +215,33 @@ export default {
           latitude: null,
           longitude: null
         },
-        imageUrl: null // Add this line
+        imageUrl: null 
       };
       this.isEditing = false;
       this.editingMachineId = null;
-      this.selectedFile = null; // Reset selected file
+      this.selectedFile = null; 
     },
+    // Fetches user's owned vending machines from firestore
     async fetchUserMachines() {
       try {
+        //query vending machines under user's id
         const q = query(collection(db, "vendingMachines"), where("userId", "==", this.currentUser.uid));
+        //getDocs method to execute query
         const querySnapshot = await getDocs(q);
+        //store results under userMachines
+        //map() transforms document to JS object
+        // ...doc.data() extracts data from document and turn them into object
         this.userMachines = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        console.log(this.userMachines);
       } catch (error) {
         console.error("Error fetching user machines: ", error);
       }
     },
+    // Delete vending machine from firestore
     async deleteMachine(machineId) {
       if (confirm("Are you sure you want to delete this vending machine?")) {
         try {
+          // call deleteDoc firebase method to delete vending machine via machineId
           await deleteDoc(doc(db, "vendingMachines", machineId));
           alert("Vending machine deleted successfully!");
           this.fetchUserMachines();
@@ -228,12 +251,15 @@ export default {
         }
       }
     },
+
+    //Edit vending machine
     editMachine(machine) {
       this.newMachine = { ...machine };
       this.isEditing = true;
       this.editingMachineId = machine.id;
       this.showAddForm = true;
     },
+    //Cancel adding or editing vending machine
     cancelAddOrEdit() {
       this.clearForm();
       this.showAddForm = false;
