@@ -9,7 +9,6 @@ import Register from '@/views/Register.vue';
 import { auth } from '@/firebase'; //used to check if user is logged in
 
 
-
 const routes = [
   { path: '/', name: 'Home', component: Home },
   { path: '/map', name: 'Map', component: Map },
