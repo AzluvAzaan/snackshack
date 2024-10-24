@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import Home from '@/views/Home.vue';
 import Map from '@/views/Map.vue';
 import Wheel from '@/views/Wheel.vue';
@@ -15,6 +16,8 @@ const routes = [
   { path: '/test', name: 'Test', component: Test },
   { path: '/review', name: 'Review', component: Review },
 =======
+=======
+>>>>>>> Stashed changes
 import Home from './views/Home.vue';
 import Review from './components/review.vue';
 
@@ -29,7 +32,6 @@ const routes = [
     name: 'Review',
     component: Review,
   },
->>>>>>> Stashed changes
   { path: '/login', name: 'Login', component: Login },
   { path: '/admin', name: 'Admin', component: Admin },
 ];
