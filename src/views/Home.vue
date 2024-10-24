@@ -97,7 +97,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 
 html, body {
   margin: 0;
@@ -183,6 +183,8 @@ html, body {
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
   position: relative;
+  margin-right: 10px;
+  margin-left: 10px;
 }
 
 .machine:hover {
