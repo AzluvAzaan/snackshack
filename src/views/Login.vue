@@ -15,7 +15,8 @@
       </div>
       <button type="submit">Login</button>
     </form>
-    <p v-if="error">{{ error }}</p>
+    <!-- Display error if unable to log in-->
+    <p v-if="error" class="error-msg">{{ error }}</p>
     <div class="register-link">
       <p>Don't have an account?</p>
       <button @click="goToRegister">Register</button>
@@ -44,7 +45,7 @@ export default {
         this.$router.push("/admin"); // Redirect to admin page to add/edit/delete vending machines
       } catch (err) {
         //console.log(err.message)
-        this.error = "Login failed, try again!"; // Display error if login fails
+        this.error = "Login failed, try again!"; // Display error if login fails 
       }
     },
     goToRegister() {
@@ -53,3 +54,10 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.error-msg {
+  color: red;
+  margin-top: 10px;
+}
+</style>
