@@ -38,7 +38,6 @@
             class="overlay"
             :style="{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${selectedMachineDetails.imageUrl})` }"
           >
-            <p class="zoomed-text"><strong>Machine Number:</strong> {{ selectedMachineNumber }}</p>
             <p class="zoomed-text"><strong>Machine Name:</strong> {{ selectedMachineDetails.machineName }}</p>
             <p class="zoomed-text"><strong>Description:</strong> {{ selectedMachineDetails.description }}</p>
             <p class="zoomed-text"><strong>Type:</strong> {{ selectedMachineDetails.type }}</p>
@@ -72,136 +71,138 @@
 </template>
 
 <script>
-import { machineData, loadMachineData } from '@/data/machineData';
-import firestore from '@/firestore';
+  import { machineData, loadMachineData } from '@/data/machineData';
+  import firestore from '@/firestore';
 
-export default {
-  data() {
-    return {
-      machines: [], // Holds vending machine data for the component
-      selectedMachineNumber: null,
-      selectedMachineDetails: null,
-      isZoomed: false,
-      showDetails: false,
-      errorFlash: false,
-      screenDisplay: '',
-      hoverKey: null,
-      keys: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-    };
-  },
-
-  async created() {
-    await loadMachineData(); // Ensure machineData is loaded from Firestore
-    this.machines = machineData; // Assign the fetched data to the local machines array
-  },
-
-  methods: {
-    requestLocationAccess() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          this.handleLocationSuccess,
-          this.handleLocationError
-        );
-      } else {
-        console.log("Geolocation is not supported by this browser.");
-      }
+  export default {
+    data() {
+      return {
+        machines: [], // Holds vending machine data for the component
+        closestMachines: [], // Sorted list of the 16 closest machines
+        selectedMachineNumber: null,
+        selectedMachineDetails: null,
+        isZoomed: false,
+        showDetails: false,
+        errorFlash: false,
+        screenDisplay: '',
+        hoverKey: null,
+        keys: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      };
     },
 
-    handleLocationSuccess(position) {
-      const userLat = position.coords.latitude;
-      const userLng = position.coords.longitude;
-      this.findClosestMachines(userLat, userLng);
+    async created() {
+      await loadMachineData(); // Ensure machineData is loaded from Firestore
+      this.machines = machineData; // Assign the fetched data to the local machines array
+      this.requestLocationAccess(); // Request location and populate closest machines
     },
 
-    handleLocationError(error) {
-      console.log("Error getting location:", error);
-    },
+    methods: {
+      requestLocationAccess() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            this.handleLocationSuccess,
+            this.handleLocationError
+          );
+        } else {
+          console.log("Geolocation is not supported by this browser.");
+        }
+      },
 
-    findClosestMachines(userLat, userLng) {
-      const vendingLocations = this.machines.map((machine) => ({
-        lat: machine.coordinates.latitude,
-        lng: machine.coordinates.longitude,
-        machine,
-      }));
-      
-      const service = new google.maps.DistanceMatrixService();
-      service.getDistanceMatrix(
-        {
-          origins: [{ lat: userLat, lng: userLng }],
-          destinations: vendingLocations.map(loc => loc),
-          travelMode: 'WALKING',
-        },
-        this.processDistances
-      );
-    },
+      handleLocationSuccess(position) {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+        this.findClosestMachines(userLat, userLng);
+      },
 
-    processDistances(response, status) {
-      if (status === "OK") {
-        const distances = response.rows[0].elements.map((element, index) => ({
-          distance: element.distance.value,
-          machine: this.machines[index]
+      handleLocationError(error) {
+        console.log("Error getting location:", error);
+      },
+
+      async findClosestMachines(userLat, userLng) {
+        // Prepare array of machine locations
+        const vendingLocations = this.machines.map(machine => ({
+          ...machine,
+          distance: this.calculateDistance(userLat, userLng, machine.coordinates.latitude, machine.coordinates.longitude)
         }));
         
-        distances.sort((a, b) => a.distance - b.distance);
-        this.closestMachines = distances.slice(0, 16).map(d => d.machine);
+        // Sort machines by calculated distance and select the closest 16
+        vendingLocations.sort((a, b) => a.distance - b.distance);
+        this.closestMachines = vendingLocations.slice(0, 16);
+      },
+
+      calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371e3; // Radius of Earth in meters
+        const φ1 = lat1 * (Math.PI / 180);
+        const φ2 = lat2 * (Math.PI / 180);
+        const Δφ = (lat2 - lat1) * (Math.PI / 180);
+        const Δλ = (lon2 - lon1) * (Math.PI / 180);
+
+        const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                  Math.cos(φ1) * Math.cos(φ2) *
+                  Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return R * c; // Distance in meters
+      },
+
+      selectMachine(row, col) {
+        const machineIndex = (row - 1) * 4 + col; // Calculate index within 4x4 layout
+        const selectedMachine = this.closestMachines[machineIndex]; // Access the correct machine in closestMachines
+        if (selectedMachine) {
+          this.selectedMachineNumber = selectedMachine.id;
+          this.selectedMachineDetails = selectedMachine;
+          this.isZoomed = true;
+
+          setTimeout(() => {
+            this.showDetails = true;
+          }, 1000);
+        }
+      },
+
+      getMachineNumber(row, col) {
+        return (row - 1) * 4 + col + 1;
+      },
+
+      zoomOut() {
+        this.isZoomed = false;
+        this.showDetails = false;
+        this.screenDisplay = ''; // Clear screen display on zoom out
+      },
+
+      viewOnMap() {
+        this.$router.push({ name: 'Map' });
+      },
+
+      handleKeypadInput(key) {
+        if (this.screenDisplay.length < 2) {
+          this.screenDisplay += key;
+        }
+      },
+
+      handleBackspace() {
+        this.screenDisplay = this.screenDisplay.slice(0, -1);
+      },
+
+      handleSubmit() {
+        const machineNumber = parseInt(this.screenDisplay, 10);
+        if (machineNumber >= 1 && machineNumber <= 16) {
+          const row = Math.ceil(machineNumber / 4);
+          const col = (machineNumber - 1) % 4;
+          this.selectMachine(row, col);
+        } else {
+          this.flashError();
+        }
+      },
+
+      flashError() {
+        this.errorFlash = true;
+        this.screenDisplay = '';
+        setTimeout(() => {
+          this.errorFlash = false;
+        }, 2000);
       }
-    },
-
-    selectMachine(row, col) {
-      const machineNumber = this.getMachineNumber(row, col);
-      this.selectedMachineNumber = machineNumber;
-      this.selectedMachineDetails = this.machines[machineNumber - 1];
-      this.isZoomed = true;
-
-      setTimeout(() => {
-        this.showDetails = true;
-      }, 1000);
-    },
-
-    getMachineNumber(row, col) {
-      return (row - 1) * 4 + col + 1;
-    },
-
-    zoomOut() {
-      this.isZoomed = false;
-      this.showDetails = false;
-      this.screenDisplay = ''; // Clear screen display on zoom out
-    },
-
-    viewOnMap() {
-      this.$router.push({ name: 'Map' });
-    },
-
-    handleKeypadInput(key) {
-      if (this.screenDisplay.length < 2) {
-        this.screenDisplay += key;
-      }
-    },
-
-    handleBackspace() {
-      this.screenDisplay = this.screenDisplay.slice(0, -1);
-    },
-
-    handleSubmit() {
-      const machineNumber = parseInt(this.screenDisplay, 10);
-      if (machineNumber >= 1 && machineNumber <= 16) {
-        const row = Math.ceil(machineNumber / 4);
-        const col = (machineNumber - 1) % 4;
-        this.selectMachine(row, col);
-      } else {
-        this.flashError();
-      }
-    },
-
-    flashError() {
-      this.errorFlash = true;
-      this.screenDisplay = '';
-      setTimeout(() => {
-        this.errorFlash = false;
-      }, 2000);
     }
-  }
-};
+  };
 </script>
 
 <style>
