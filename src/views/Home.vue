@@ -72,75 +72,127 @@
 </template>
 
 <script>
-import { machineData } from '@/data/machineData.js';
-import Navbar from '@/components/Navbar.vue';
+  import { machineData } from '@/data/machineData.js';
+  import Navbar from '@/components/Navbar.vue';
 
-export default {
-  components: {
-    Navbar
-  },
-  data() {
-    return {
-      selectedMachineNumber: null,
-      selectedMachineDetails: null,
-      isZoomed: false,
-      showDetails: false,
-      errorFlash: false,
-      screenDisplay: '',
-      hoverKey: null,
-      keys: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-    };
-  },
-  methods: {
-    selectMachine(row, col) {
-      const machineNumber = this.getMachineNumber(row, col);
-      this.selectedMachineNumber = machineNumber;
-      this.selectedMachineDetails = machineData[machineNumber];
+  export default {
+    components: {
+      Navbar
+    },
 
-      this.isZoomed = true;
+    created() {
+      this.requestLocationAccess();
+    },
 
-      setTimeout(() => {
-        this.showDetails = true;
-      }, 1000);
+    data() {
+      return {
+        selectedMachineNumber: null,
+        selectedMachineDetails: null,
+        isZoomed: false,
+        showDetails: false,
+        errorFlash: false,
+        screenDisplay: '',
+        hoverKey: null,
+        keys: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      };
     },
-    getMachineNumber(row, col) {
-      return (row - 1) * 4 + col + 1;
-    },
-    zoomOut() {
-      this.isZoomed = false;
-      this.showDetails = false;
-      this.screenDisplay = ''; // Clear screen display on zoom out
-    },
-    viewOnMap() {
-      this.$router.push({ name: 'Map' });
-    },
-    handleKeypadInput(key) {
-      if (this.screenDisplay.length < 2) {
-        this.screenDisplay += key;
+    methods: {
+      requestLocationAccess() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            this.handleLocationSuccess,
+            this.handleLocationError
+          );
+        } else {
+          console.log("Geolocation is not supported by this browser.");
+        }
+      },
+      handleLocationSuccess(position) {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+        this.findClosestMachines(userLat, userLng);
+      },
+      handleLocationError(error) {
+        console.log("Error getting location:", error);
+      },
+      findClosestMachines(userLat, userLng) {
+        const vendingLocations = Object.values(machineData).map((machine) => ({
+          lat: machine.coordinates.latitude,
+          lng: machine.coordinates.longitude,
+          machine,
+        }));
+        
+        const service = new google.maps.DistanceMatrixService();
+        service.getDistanceMatrix(
+          {
+            origins: [{ lat: userLat, lng: userLng }],
+            destinations: vendingLocations.map(loc => loc),
+            travelMode: 'WALKING',
+          },
+          this.processDistances
+        );
+      },
+      processDistances(response, status) {
+        if (status === "OK") {
+          const distances = response.rows[0].elements.map((element, index) => ({
+            distance: element.distance.value,
+            machine: Object.values(machineData)[index]
+          }));
+          
+          distances.sort((a, b) => a.distance - b.distance);
+          this.closestMachines = distances.slice(0, 16).map(d => d.machine);
+        }
+      },
+
+      selectMachine(row, col) {
+        const machineNumber = this.getMachineNumber(row, col);
+        this.selectedMachineNumber = machineNumber;
+        this.selectedMachineDetails = machineData[machineNumber];
+
+        this.isZoomed = true;
+
+        setTimeout(() => {
+          this.showDetails = true;
+        }, 1000);
+      },
+      getMachineNumber(row, col) {
+        return (row - 1) * 4 + col + 1;
+      },
+      zoomOut() {
+        this.isZoomed = false;
+        this.showDetails = false;
+        this.screenDisplay = ''; // Clear screen display on zoom out
+      },
+      viewOnMap() {
+        this.$router.push({ name: 'Map' });
+      },
+      handleKeypadInput(key) {
+        if (this.screenDisplay.length < 2) {
+          this.screenDisplay += key;
+        }
+      },
+      handleBackspace() {
+        this.screenDisplay = this.screenDisplay.slice(0, -1);
+      },
+      handleSubmit() {
+        const machineNumber = parseInt(this.screenDisplay, 10);
+        if (machineNumber >= 1 && machineNumber <= 16) {
+          const row = Math.ceil(machineNumber / 4);
+          const col = (machineNumber - 1) % 4;
+          this.selectMachine(row, col);
+        } else {
+          this.flashError();
+        }
+      },
+      flashError() {
+        this.errorFlash = true;
+        this.screenDisplay = '';
+        setTimeout(() => {
+          this.errorFlash = false;
+        }, 2000); // Flash error twice within 800ms
       }
-    },
-    handleBackspace() {
-      this.screenDisplay = this.screenDisplay.slice(0, -1);
-    },
-    handleSubmit() {
-      const machineNumber = parseInt(this.screenDisplay, 10);
-      if (machineNumber >= 1 && machineNumber <= 16) {
-        const row = Math.ceil(machineNumber / 4);
-        const col = (machineNumber - 1) % 4;
-        this.selectMachine(row, col);
-      } else {
-        this.flashError();
-      }
-    },
-    flashError() {
-      this.errorFlash = true;
-      this.screenDisplay = '';
-      setTimeout(() => {
-        this.errorFlash = false;
-      }, 2000); // Flash error twice within 800ms
     }
-  }
-};
+  };
 </script>
 
 <style>
@@ -302,6 +354,7 @@ html, body {
 
 .overlay {
   position: fixed;
+  border-radius: 4px;
   top: 0;
   left: 0;
   width: 100%;
