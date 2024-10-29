@@ -112,6 +112,10 @@ export default {
     this.fetchVendingMachines();
   },
 
+  created() {
+    this.searchQuery = this.$route.query.snack || ''; // Set search bar text to snack query if available
+  },
+
   computed: {
     filteredMachines() {
       let machines = this.vendingMachines;

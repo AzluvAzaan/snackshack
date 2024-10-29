@@ -44,7 +44,7 @@
             <p :class="{'healthy': snacks[selectedSnackIndex].isHealthy}">
               This snack is {{ snacks[selectedSnackIndex].isHealthy ? 'healthy' : 'unhealthy' }}.
             </p>
-            <button class="btn directions-btn">
+            <button @click="navigateToMap(snacks[selectedSnackIndex].type)" class="btn directions-btn">
               <font-awesome-icon icon="compass" /> Get Me There
             </button>
             <button @click="openModal" class="btn menu-btn">What's on the Menu?</button>
@@ -210,6 +210,12 @@ export default {
         spread: 100,
         origin: { x: 0.5, y: 0.8 },
         zIndex: 9999,
+      });
+    },
+    navigateToMap(snackType) {
+      this.$router.push({
+        name: 'Map', // Ensure the route name for map.vue is set to "map"
+        query: { snack: snackType }
       });
     },
   },
