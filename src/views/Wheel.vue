@@ -132,7 +132,7 @@ export default {
         { id: 5, name: 'Doritos Nacho Cheese', type: 'Doritos', img: DoritosNC, quantity: 5, calories: 200, fat: 11, sugar: 2, sodium: 250, isHealthy: false },
         { id: 6, name: 'Lay\s Classic', type: 'Lays', img: LaysC, quantity: 4, calories: 150, fat: 5, sugar: 10, sodium: 150, isHealthy: true },
         { id: 7, name: 'M&Ms', type: 'M&Ms', img: MandM, quantity: 10, calories: 250, fat: 12, sugar: 15, sodium: 200, isHealthy: false },
-        { id: 8, name: 'Tong Garden Salted Cashew Nuts', type: 'Mixed Nuts' img: TongSC, quantity: 6, calories: 140, fat: 6, sugar: 6, sodium: 180, isHealthy: true },
+        { id: 8, name: 'Tong Garden Salted Cashew Nuts', type: 'Mixed Nuts', img: TongSC, quantity: 6, calories: 140, fat: 6, sugar: 6, sodium: 180, isHealthy: true },
         { id: 9, name: 'Twisties Chicken', type: 'Twisties', img: TwistiesC, quantity: 8, calories: 160, fat: 8, sugar: 12, sodium: 100, isHealthy: false },
         { id: 10, name: 'Houten Chilli Tapioca', type: 'Potato Chips', img: Houten, quantity: 5, calories: 200, fat: 11, sugar: 2, sodium: 250, isHealthy: false },
         { id: 11, name: 'Super Ring', type: 'Super Rings', img: Super, quantity: 4, calories: 150, fat: 5, sugar: 10, sodium: 150, isHealthy: true },
