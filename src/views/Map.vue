@@ -44,7 +44,7 @@
           <p>{{ machine.status }}</p>
         </div>
         <div class="rating">
-          <span>⭐ {{ machine.rating }} ({{ machine.reviews }})</span>
+          <span>⭐ {{ machineReviews.machine }} </span>
         </div>
         <p>{{ machine.description }}</p>
         <p v-if = "this.userLocation">{{ calculateDistance(machine.coordinates) }}km away</p>
@@ -73,7 +73,7 @@
           <p>{{ selectedMachine.status }}</p>
         </div>
         <div class="rating">
-          <span>⭐ {{ selectedMachine.rating }} ({{ selectedMachine.reviews }})</span>
+          <span>⭐ {{ machineReviews.selectedMachine }} </span>
         </div>
         <p><strong>Address:</strong> {{ selectedMachine.locDes }}</p>
         <p><strong>Description:</strong> {{ selectedMachine.description }}</p>
@@ -97,6 +97,7 @@ export default {
   data() {
     return {
       vendingMachines: [],
+      machineReviews: {},
       selectedMachine: null,
       infoWindow: null,
       markers: [],
@@ -173,8 +174,6 @@ export default {
               lat: position.coords.latitude,
               lng: position.coords.longitude,
             };
-            console.log("User location:", this.userLocation); // Debugging line to confirm location is set
-
             this.map.setCenter(this.userLocation);
           },
           (error) => {
@@ -357,23 +356,6 @@ export default {
     z-index: 1; /* Make sure overlay is above the background but below text */
   }
 
-
-  .small-image {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 50px;
-    height: 50px;
-    border-radius: 20%;
-    object-fit: cover;
-    display: block;
-    opacity: 1;
-  }
-
-  .small-image:hover {
-    transform: scale(1.2);
-  }
-
   .vending-card:hover {
     transform: scale(1.05);
   }
@@ -430,7 +412,6 @@ export default {
     z-index: 2
   }
   
-
   .action-btn:hover {
     background-color: #ffd633;
   }
@@ -514,12 +495,6 @@ export default {
     z-index: 2;
     top: 10px;
     right: 10px;
-  }
-
-  .machine-image {
-    width: 40%;
-    border-radius: 10px;
-    margin-bottom: 15px;
   }
 
   .details-modal h2 {
