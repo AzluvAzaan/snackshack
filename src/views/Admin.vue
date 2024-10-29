@@ -1,166 +1,167 @@
 <template>
-
-  <div class="admin-container container py-4 min-vh-100">
-    <!-- Alert for add/edit/delete/cancel vending machine functions messages -->
-    <div v-if="alert.show" :class="`alert alert-${alert.type} alert-dismissible fade show`" role="alert">
-      {{ alert.message }}
-      <button type="button" class="btn-close" @click="closeAlert" aria-label="Close"></button>
-    </div>
-
-
-    <div class="row mb-4 align-items-center">
-      <div class="col-12 col-md-8">
-        <h1 class="mb-0">Admin Page</h1>
+<div id="admin-page">
+    <div class="admin-container container py-4 min-vh-100">
+      <!-- Alert for add/edit/delete/cancel vending machine functions messages -->
+      <div v-if="alert.show" :class="`alert alert-${alert.type} alert-dismissible fade show`" role="alert">
+        {{ alert.message }}
+        <button type="button" class="btn-close" @click="closeAlert" aria-label="Close"></button>
       </div>
-      <div class="col-12 col-md-4 d-flex justify-content-md-end align-items-center mt-3 mt-md-0">
-        <p v-if="currentUser" class="mb-0 me-3">Logged in as: {{ currentUser.email }}</p>
-        <!-- Logout button to log out user-->
-        <button @click="logout" class="btn btn-danger">Logout</button>
-      </div>
-    </div>
 
-    <!-- Vending Machine + Add Machine Button-->
-    <div class="row mb-4">
-      <div class="col-12">
-        <h2>Your Vending Machines</h2>
-        <button @click="showAddForm = true" class="btn btn-primary mb-3">Add a new Vending Machine</button>
-      </div>
-    </div>
-  
-    <!-- Add/Edit Vending Machine Form -->
-    <div v-if="showAddForm" class="add-form card mb-4">
-      <div class="card-body">
-        <h3 class="card-title mb-4">{{ isEditing ? 'Edit' : 'Add' }} Vending Machine</h3>
-        <form @submit.prevent="addOrUpdateVendingMachine">
-          <!-- Form Fields for Machine Details -->
-          <div class="row">
-            <div class="col-12 col-sm-4 mb-3">
-              <label for="machineName" class="form-label">Machine Name:</label>
-              <input v-model="newMachine.machineName" id="machineName" class="form-control" required>
-            </div>
 
-            <!-- Select Status of Current Machine-->
-            <div class="col-6 col-sm-4 mb-3">
-              <div class="mb-3">
-                <label for="status" class="form-label">Status:</label>
-                <select v-model="newMachine.status" id="status" class="form-select" required>
-                  <option value="Running">Running</option>
-                  <option value="Maintenance">Maintenance</option>
-                  <option value="Out Of Order">Out of Order</option>
+      <div class="row mb-4 align-items-center">
+        <div class="col-12 col-md-8">
+          <h1 class="mb-0">Admin Page</h1>
+        </div>
+        <div class="col-12 col-md-4 d-flex justify-content-md-end align-items-center mt-3 mt-md-0">
+          <p v-if="currentUser" class="mb-0 me-3">Logged in as: {{ currentUser.email }}</p>
+          <!-- Logout button to log out user-->
+          <button @click="logout" class="btn btn-danger">Logout</button>
+        </div>
+      </div>
+
+      <!-- Vending Machine + Add Machine Button-->
+      <div class="row mb-4">
+        <div class="col-12">
+          <h2>Your Vending Machines</h2>
+          <button @click="showAddForm = true" class="btn btn-primary mb-3">Add a new Vending Machine</button>
+        </div>
+      </div>
+    
+      <!-- Add/Edit Vending Machine Form -->
+      <div v-if="showAddForm" class="add-form card mb-4">
+        <div class="card-body">
+          <h3 class="card-title mb-4">{{ isEditing ? 'Edit' : 'Add' }} Vending Machine</h3>
+          <form @submit.prevent="addOrUpdateVendingMachine">
+            <!-- Form Fields for Machine Details -->
+            <div class="row">
+              <div class="col-12 col-sm-4 mb-3">
+                <label for="machineName" class="form-label">Machine Name:</label>
+                <input v-model="newMachine.machineName" id="machineName" class="form-control" required>
+              </div>
+
+              <!-- Select Status of Current Machine-->
+              <div class="col-6 col-sm-4 mb-3">
+                <div class="mb-3">
+                  <label for="status" class="form-label">Status:</label>
+                  <select v-model="newMachine.status" id="status" class="form-select" required>
+                    <option value="Running">Running</option>
+                    <option value="Maintenance">Maintenance</option>
+                    <option value="Out Of Order">Out of Order</option>
+                  </select>
+                </div>
+              </div>
+              <!-- Select Machine Type Field-->
+              <div class="col-6 col-sm-4 mb-3">
+                <label for="type" class="form-label">Type:</label>
+                <select v-model="newMachine.type" id="type" class="form-select" required>
+                  <option value="Drinks">Drinks</option>
+                  <option value="Snacks">Snacks</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
             </div>
-            <!-- Select Machine Type Field-->
-            <div class="col-6 col-sm-4 mb-3">
-              <label for="type" class="form-label">Type:</label>
-              <select v-model="newMachine.type" id="type" class="form-select" required>
-                <option value="Drinks">Drinks</option>
-                <option value="Snacks">Snacks</option>
-                <option value="Other">Other</option>
-              </select>
+            <!-- Description and Location Field -->
+            <div class="row">
+              <div class="col-md-6 col-lg-4 mb-3">
+                <label for="description" class="form-label">Description:</label>
+                <textarea v-model="newMachine.description" id="description" class="form-control" required></textarea>
+              </div>
+              <div class="col-md-6 col-lg-4 mb-3">
+                <label for="image" class="form-label">Machine Image:</label>
+                <input type="file" @change="onFileSelected" accept="image/*" id="image" class="form-control">
+              </div>
+              <!-- Payment Type Field-->
+              <div class="col-4 mb-3">
+                <label class="form-label">Payment Types:</label>
+                <div class="form-check">
+                  <input type="checkbox" v-model="newMachine.paymentType" value="Card" class="form-check-input" id="cardPayment">
+                  <label class="form-check-label" for="cardPayment">Card</label>
+                </div>
+                <div class="form-check">
+                  <input type="checkbox" v-model="newMachine.paymentType" value="Coin" class="form-check-input" id="coinPayment">
+                  <label class="form-check-label" for="coinPayment">Coin</label>
+                </div>
+                <div class="form-check">
+                  <input type="checkbox" v-model="newMachine.paymentType" value="Note" class="form-check-input" id="notePayment">
+                  <label class="form-check-label" for="notePayment">Note</label>
+                </div>
+                <div class="form-check">
+                  <input type="checkbox" v-model="newMachine.paymentType" value="Others" class="form-check-input" id="otherPayment">
+                  <label class="form-check-label" for="otherPayment">Other</label>
+                </div>
             </div>
-          </div>
-          <!-- Description and Location Field -->
+            </div>
+            <!-- Location, Lat, Long input field and Link for people who needs help-->
+            <div class="row">
+              <div class="col-12 col-lg-4 mb-3">
+                <label for="locDes" class="form-label">Location:</label>
+                <textarea v-model="newMachine.locDes" id="locDes" class="form-control" required></textarea>
+              </div>
+              <div class="col-12 col-lg-4 col-md-6 mb-3">
+                <label for="latitude" class="form-label">Latitude:</label>
+                <input v-model="newMachine.coordinates.latitude" id="latitude" type="number" step="any" class="form-control" required>
+              </div>
+              <div class="col-12 col-lg-4 col-md-6 mb-3">
+                <label for="longitude" class="form-label">Longitude:</label>
+                <input v-model="newMachine.coordinates.longitude" id="longitude" type="number" step="any" class="form-control" required>
+              </div>
+              <div class="mb-3">
+              <a href="https://support.google.com/maps/answer/18539?hl=en&co=GENIE.Platform%3chaDDesktop&oco=1" target="_blank" rel="noopener noreferrer" class="btn btn-link">
+                Don't know your coordinates? Click here!
+              </a>
+            </div>
+            </div>
+            
           <div class="row">
-            <div class="col-md-6 col-lg-4 mb-3">
-              <label for="description" class="form-label">Description:</label>
-              <textarea v-model="newMachine.description" id="description" class="form-control" required></textarea>
-            </div>
-            <div class="col-md-6 col-lg-4 mb-3">
-              <label for="image" class="form-label">Machine Image:</label>
-              <input type="file" @change="onFileSelected" accept="image/*" id="image" class="form-control">
-            </div>
-            <!-- Payment Type Field-->
-            <div class="col-4 mb-3">
-              <label class="form-label">Payment Types:</label>
-              <div class="form-check">
-                <input type="checkbox" v-model="newMachine.paymentType" value="Card" class="form-check-input" id="cardPayment">
-                <label class="form-check-label" for="cardPayment">Card</label>
+            <!-- Add Items to this vending machine-->
+            <div class="col-12 col-md-6 col-lg-4 mb-3">
+              <label for="addItem" class="form-label">Add Item:</label>
+              <div class="input-group">
+                <input v-model="newContent" @keyup.enter="addContent" placeholder="Enter item name" class="form-control">
+                <button type="button" @click="addContent" class="btn btn-outline-secondary">Add Item</button>
               </div>
-              <div class="form-check">
-                <input type="checkbox" v-model="newMachine.paymentType" value="Coin" class="form-check-input" id="coinPayment">
-                <label class="form-check-label" for="coinPayment">Coin</label>
-              </div>
-              <div class="form-check">
-                <input type="checkbox" v-model="newMachine.paymentType" value="Note" class="form-check-input" id="notePayment">
-                <label class="form-check-label" for="notePayment">Note</label>
-              </div>
-              <div class="form-check">
-                <input type="checkbox" v-model="newMachine.paymentType" value="Others" class="form-check-input" id="otherPayment">
-                <label class="form-check-label" for="otherPayment">Other</label>
-              </div>
-          </div>
-          </div>
-          <!-- Location, Lat, Long input field and Link for people who needs help-->
-          <div class="row">
-            <div class="col-12 col-lg-4 mb-3">
-              <label for="locDes" class="form-label">Location:</label>
-              <textarea v-model="newMachine.locDes" id="locDes" class="form-control" required></textarea>
-            </div>
-            <div class="col-12 col-lg-4 col-md-6 mb-3">
-              <label for="latitude" class="form-label">Latitude:</label>
-              <input v-model="newMachine.coordinates.latitude" id="latitude" type="number" step="any" class="form-control" required>
-            </div>
-            <div class="col-12 col-lg-4 col-md-6 mb-3">
-              <label for="longitude" class="form-label">Longitude:</label>
-              <input v-model="newMachine.coordinates.longitude" id="longitude" type="number" step="any" class="form-control" required>
-            </div>
-            <div class="mb-3">
-            <a href="https://support.google.com/maps/answer/18539?hl=en&co=GENIE.Platform%3chaDDesktop&oco=1" target="_blank" rel="noopener noreferrer" class="btn btn-link">
-              Don't know your coordinates? Click here!
-            </a>
-          </div>
-          </div>
-          
-        <div class="row">
-          <!-- Add Items to this vending machine-->
-          <div class="col-12 col-md-6 col-lg-4 mb-3">
-            <label for="addItem" class="form-label">Add Item:</label>
-            <div class="input-group">
-              <input v-model="newContent" @keyup.enter="addContent" placeholder="Enter item name" class="form-control">
-              <button type="button" @click="addContent" class="btn btn-outline-secondary">Add Item</button>
             </div>
           </div>
+          <!-- Display items currently in this vending machine + remove button-->
+          <div class="mb-3">
+            <label class="form-label">Contents in this Machine:</label>
+              <ol class="list-group list-group-numbered">
+                <li v-for="(item, index) in newMachine.contents" :key="index" class="list-group-item d-flex justify-content-between align-items-start">
+                  <div class="ms-2 me-auto">{{ item }}</div>
+                  <button type="button" @click="removeContent(index)" class="btn btn-sm btn-danger">Remove</button>
+                </li>
+              </ol>
+          </div>
+          <!-- Submit form and cancel button  -->
+          <div class="d-flex justify-content-start gap-2">
+            <button type="submit" class="btn btn-primary">{{ isEditing ? 'Update' : 'Add' }} Vending Machine</button>
+            <button type="button" @click="cancelAddOrEdit" class="btn btn-danger">Cancel</button>
+          </div>
+          </form>
         </div>
-        <!-- Display items currently in this vending machine + remove button-->
-        <div class="mb-3">
-          <label class="form-label">Contents in this Machine:</label>
-            <ol class="list-group list-group-numbered">
-              <li v-for="(item, index) in newMachine.contents" :key="index" class="list-group-item d-flex justify-content-between align-items-start">
-                <div class="ms-2 me-auto">{{ item }}</div>
-                <button type="button" @click="removeContent(index)" class="btn btn-sm btn-danger">Remove</button>
-              </li>
-            </ol>
-        </div>
-        <!-- Submit form and cancel button  -->
-        <div class="d-flex justify-content-start gap-2">
-          <button type="submit" class="btn btn-primary">{{ isEditing ? 'Update' : 'Add' }} Vending Machine</button>
-          <button type="button" @click="cancelAddOrEdit" class="btn btn-danger">Cancel</button>
-        </div>
-        </form>
       </div>
-    </div>
-      
-    <!-- Vending Machines in Bootstrap Card -->
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3  row-cols-xl-4 g-4 justify-content-start">
-      <div v-for="machine in userMachines" :key="machine.id" class="col">
-        <!-- Details of each vending machine in bootstrap Card-->
-        <div class="card h-100">
-          <img :src="machine.imageUrl" class="card-img-top" alt="No Machine Image Uploaded" style="height: 200px; object-fit: cover;">
-          <div class="card-body">
-            <h5 class="card-title">{{ machine.machineName }}</h5>
-            <p class="card-text">{{ machine.description }}</p>
-            <p class="card-text"><strong>Location:</strong> {{ machine.locDes }}</p>
-            <p class="card-text"><strong>Status:</strong> {{ machine.status }}</p>
-            <p class="card-text"><strong>Type:</strong> {{ machine.type }}</p>
-            <p class="card-text"><strong>Payment:</strong> {{ machine.paymentType.join(', ') }}</p>
-            <p class="card-text"><strong>Items:</strong> {{ machine.contents.join(', ') }}</p>
-          </div>
-          <div class="card-footer">
-            <!-- Edit, See Image, Delete buttons for vending machines-->
-            <button @click="editMachine(machine)" class="btn btn-sm btn-secondary me-1">Edit</button>
-            <button @click="showImage(machine)" v-if="machine.imageUrl" class="btn btn-sm btn-dark me-1">See Image</button>
-            <button @click="deleteMachine(machine.id)" class="btn btn-sm btn-danger">Delete</button>
+        
+      <!-- Vending Machines in Bootstrap Card -->
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3  row-cols-xl-4 g-4 justify-content-start">
+        <div v-for="machine in userMachines" :key="machine.id" class="col">
+          <!-- Details of each vending machine in bootstrap Card-->
+          <div class="card h-100">
+            <img :src="machine.imageUrl" class="card-img-top" alt="No Machine Image Uploaded" style="height: 200px; object-fit: cover;">
+            <div class="card-body">
+              <h5 class="card-title">{{ machine.machineName }}</h5>
+              <p class="card-text">{{ machine.description }}</p>
+              <p class="card-text"><strong>Location:</strong> {{ machine.locDes }}</p>
+              <p class="card-text"><strong>Status:</strong> {{ machine.status }}</p>
+              <p class="card-text"><strong>Type:</strong> {{ machine.type }}</p>
+              <p class="card-text"><strong>Payment:</strong> {{ machine.paymentType.join(', ') }}</p>
+              <p class="card-text"><strong>Items:</strong> {{ machine.contents.join(', ') }}</p>
+            </div>
+            <div class="card-footer">
+              <!-- Edit, See Image, Delete buttons for vending machines-->
+              <button @click="editMachine(machine)" class="btn btn-sm btn-secondary me-1">Edit</button>
+              <button @click="showImage(machine)" v-if="machine.imageUrl" class="btn btn-sm btn-dark me-1">See Image</button>
+              <button @click="deleteMachine(machine.id)" class="btn btn-sm btn-danger">Delete</button>
+            </div>
           </div>
         </div>
       </div>
@@ -405,7 +406,19 @@ export default {
   };
 
 </script>
-<style scoped>
+<style>
+
+
+#admin-page {
+  color: white;
+  margin: 0;
+  padding: 0;
+  padding-top: 3em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #001f3f; /* Dark blue background specific to this page */
+}
 .btn {
   transition: transform 0.3s ease-in-out;
 }

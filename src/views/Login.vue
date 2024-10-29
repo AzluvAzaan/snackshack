@@ -26,7 +26,6 @@
   </div>
 </template>
 
-
 <script>
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from '@/firebase';
