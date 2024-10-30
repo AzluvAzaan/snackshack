@@ -4,11 +4,11 @@
       <h1>Vending Machines Near You</h1>
 
       <!-- Search Bar -->
-      <input 
-        type="text" 
-        class="search-bar" 
-        placeholder="Find Your Favourite Machine!" 
-        v-model="searchQuery" 
+      <input
+        type="text"
+        class="search-bar"
+        placeholder="Find Your Favourite Machine!"
+        v-model="searchQuery"
         @input="filterMachines"
       />
 
@@ -26,39 +26,13 @@
       <!-- Results Message -->
       <p v-if="searchQuery && filteredMachines.length === 0">No search results  for "{{ lowerCaseQuery }}".</p>
       <p v-else-if="searchQuery && filteredMachines.length === 1">{{ filteredMachines.length }} result for "{{ lowerCaseQuery }}".</p>
-      <p v-else-if="searchQuery"> {{ filteredMachines.length }} result(s) for "{{ lowerCaseQuery }}".</p>     
-      <h1>Vending Machines Near You</h1>
-
-      <!-- Search Bar -->
-      <input 
-        type="text" 
-        class="search-bar" 
-        placeholder="Find Your Favourite Machine!" 
-        v-model="searchQuery" 
-        @input="filterMachines"
-      />
-
-      <!-- Filter By Section -->
-      <div class="filter-container">
-        <span>Filter By:</span>
-        <select class="filter-type" v-model="filterType">
-          <option value="">Select Type</option>
-          <option value="Drinks">Drinks</option>
-          <option value="Snacks">Snacks</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-
-      <!-- Results Message -->
-      <p v-if="searchQuery && filteredMachines.length === 0">No search results  for "{{ lowerCaseQuery }}".</p>
-      <p v-else-if="searchQuery && filteredMachines.length === 1">{{ filteredMachines.length }} result for "{{ lowerCaseQuery }}".</p>
-      <p v-else-if="searchQuery"> {{ filteredMachines.length }} result(s) for "{{ lowerCaseQuery }}".</p>     
+      <p v-else-if="searchQuery"> {{ filteredMachines.length }} result(s) for "{{ lowerCaseQuery }}".</p>    
 
       <!-- Loop through vending machines to create cards -->
-      <div 
-        class="vending-card" 
-        v-for="(machine, index) in filteredMachines" 
-        :key="index" 
+      <div
+        class="vending-card"
+        v-for="(machine, index) in filteredMachines"
+        :key="index"
         @click="selectMachine(machine)"
         @mouseover="bounceMarker(machine.id)"
         @mouseleave="stopBounce(machine.id)"
@@ -69,23 +43,12 @@
         <div :class="getStatusClass(machine.status)">
           <p>{{ machine.status }}</p>
         </div>
-        <h2>{{ machine.machineName }}</h2>
-        <p>{{ machine.type }}</p>
-        <div :class="getStatusClass(machine.status)">
-          <p>{{ machine.status }}</p>
-        </div>
         <div class="rating">
           <span>⭐ {{ machineReviews.machine }} </span>
         </div>
         <p>{{ machine.description }}</p>
         <p v-if = "this.userLocation">{{ calculateDistance(machine.coordinates) }}km away</p>
-        <p v-if = "this.userLocation">{{ calculateDistance(machine.coordinates) }}km away</p>
         <div class="actions">
-          <button class="action-btn" @click="getDirections(machine)">Directions</button>
-          <router-link to="/review">
-            <button class="action-btn">Review</button>
-          </router-link>
-          <button class="action-btn" @click="selectMachine(machine)">Details</button>
           <button class="action-btn" @click="getDirections(machine)">Directions</button>
           <router-link to="/review">
             <button class="action-btn">Review</button>
@@ -110,7 +73,7 @@
           <p>{{ selectedMachine.status }}</p>
         </div>
         <div class="rating">
-          <span>⭐ {{ selectedMachine.rating }} ({{ selectedMachine.reviews }})</span>
+          <span>⭐ {{ machineReviews.selectedMachine }} </span>
         </div>
         <p><strong>Address:</strong> {{ selectedMachine.locDes }}</p>
         <p><strong>Description:</strong> {{ selectedMachine.description }}</p>
@@ -134,6 +97,7 @@ export default {
   data() {
     return {
       vendingMachines: [],
+      machineReviews: {},
       selectedMachine: null,
       infoWindow: null,
       markers: [],
@@ -146,6 +110,10 @@ export default {
 
   mounted() {
     this.fetchVendingMachines();
+  },
+
+  created() {
+    this.searchQuery = this.$route.query.snack || ''; // Set search bar text to snack query if available
   },
 
   computed: {
@@ -210,8 +178,6 @@ export default {
               lat: position.coords.latitude,
               lng: position.coords.longitude,
             };
-            console.log("User location:", this.userLocation); // Debugging line to confirm location is set
-
             this.map.setCenter(this.userLocation);
           },
           (error) => {
@@ -250,10 +216,10 @@ export default {
       const lat1 = toRad(this.userLocation.lat);
       const lat2 = toRad(machineCoords.latitude);
 
-      const a = 
+      const a =
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.sin(dLng / 2) * Math.sin(dLng / 2) * Math.cos(lat1) * Math.cos(lat2); 
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+        Math.sin(dLng / 2) * Math.sin(dLng / 2) * Math.cos(lat1) * Math.cos(lat2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       return (R * c).toFixed(2); // Distance in km, rounded to 2 decimal places
     },
 
@@ -272,7 +238,7 @@ export default {
           let marker = object[1]
           marker.setAnimation(null);
         }
-      } 
+      }
     },
 
 
@@ -310,18 +276,11 @@ export default {
     bottom:0px;
     left:0px;
     right:0px;
-    position:fixed;
-    top:0px;
-    bottom:0px;
-    left:0px;
-    right:0px;
     display: flex;
     height: 100vh;
   }
 
   .sidebar {
-    width: 300px;
-    height: 83vh;
     width: 300px;
     height: 83vh;
     padding: 20px;
@@ -341,28 +300,8 @@ export default {
 
   .sidebar h2 {
     font-size: 1.1rem;
-    font-size: 2.0rem;
-    text-align: center;
     margin-bottom: 1rem;
     color: #ffcc00;
-  }
-
-  .sidebar h2 {
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-    color: #ffcc00;
-  }
-
-  .search-bar {
-    width: 92%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-
-  .sort-by, .filter-type {
-    margin-bottom: 15px;
   }
 
   .search-bar {
@@ -382,14 +321,9 @@ export default {
     padding: 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
-    border: 1px solid #ccc;
   }
 
   .vending-card {
-    position: relative;
-    color: white;
-    background-size: cover;
-    background-position: center;
     position: relative;
     color: white;
     background-size: cover;
@@ -413,7 +347,7 @@ export default {
     border-radius: 10px;
     z-index: 1; /* Overlay below text */
   }
-  
+ 
   .vending-card::after {
     content: '';
     position: absolute;
@@ -457,8 +391,11 @@ export default {
     font-weight: bold;
     position: relative;
     z-index: 2;
-    position: relative;
-    z-index: 2;
+  }
+
+  .vending-card p {
+    margin: 0.5rem 0;
+    font-size: 1rem;
   }
 
   .actions {
@@ -478,8 +415,7 @@ export default {
     position: relative;
     z-index: 2
   }
-  
-
+ 
   .action-btn:hover {
     background-color: #ffd633;
   }
@@ -565,12 +501,6 @@ export default {
     right: 10px;
   }
 
-  .machine-image {
-    width: 40%;
-    border-radius: 10px;
-    margin-bottom: 15px;
-  }
-
   .details-modal h2 {
     font-size: 1.8rem;
     margin-bottom: 1rem;
@@ -602,8 +532,6 @@ export default {
     margin-right: 5px;
     color: black;
     transition: background-color 0.3s ease;
-    position: relative;
-    z-index: 2
   }
 
   .details-modal .action-btn:hover {
