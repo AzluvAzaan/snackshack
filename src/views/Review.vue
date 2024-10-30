@@ -1,5 +1,15 @@
 <template>
+
     <div class="review-container">
+      <div class="collective-bar-graph">
+        <h2>Ratings Distribution</h2>
+        <div v-for="star in 5" :key="star" class="collective-bar-container">
+          <span class="collective-bar-label">{{ star }} Star{{ star > 1 ? 's' : '' }}</span>
+          <div class="collective-bar" :style="{ width: calculateCollectiveBarWidth(star) }"></div>
+          <span class="collective-bar-count">{{ countRatings(star) }}</span>
+        </div>
+      </div>
+
       <!-- Write a Review Button -->
       <button v-if="!showForm" @click="showForm = true" class="write-review-btn">
         Write a Review
@@ -18,6 +28,7 @@
             v-model="username"
             placeholder="Enter your username"
           />
+
         </div>
   
         <!-- Review Textarea -->
@@ -30,12 +41,11 @@
           ></textarea>
         </div>
   
-        <!-- Star Rating (Allows Half Stars) -->
         <div class="form-group">
           <label for="rating">Rating:</label>
           <div class="stars">
             <span
-              v-for="star in 10"
+              v-for="star in 5"
               :key="star"
               @click="setRating(star)"
               @mouseover="hoverRating(star)"
@@ -56,26 +66,24 @@
             <!-- Placeholder image for user profile -->
             <img class="reviewer-avatar" src="../assets/person-icon.png" alt="User Profile" />
             <div>
-              <h3>{{ review.username }}</h3>
-              <div class="stars">
+              <!-- <h3>{{ review.username }}</h3> -->
+              <div class="stars-review`">
                 <span
                   v-for="star in 5"
                   :key="star"
-                  :class="{ filled: star <= review.rating / 2 }"
+                  :class="{ filled: star <= review.rating }"
                 >&#9733;</span>
                 <span class="posted-time">{{ timeSince(review.timestamp) }} ago</span>
               </div>
             </div>
           </div>
-          <!-- Like Button at the top right -->
-          <button @click="likeReview(index)" class="like-btn">
-            Like ({{ review.likes }})
-          </button>
         </div>
   
         <p class="review-text">{{ review.text }}</p>
       </div>
     </div>
+
+
   </template>
 
 <script>
@@ -111,8 +119,8 @@ export default {
           text: this.reviewText,
           rating: this.rating,
           timestamp: new Date(),  // Save the current time for the review
-          likes: 0,  // Initialize likes count
         };
+        console.log('New review rating:', newReview.rating);
         this.reviews.push(newReview); // Add the new review to the list
         this.showForm = false; // Hide the form after submission
         this.resetForm(); // Reset form fields
@@ -125,10 +133,6 @@ export default {
       this.username = '';
       this.reviewText = '';
       this.rating = 0;
-    },
-    // Increments the like counter for a review
-    likeReview(index) {
-      this.reviews[index].likes++;
     },
     // Computes the time since a review was posted
     timeSince(date) {
@@ -152,11 +156,27 @@ export default {
       }
       return 'just now';
     },
+    countRatings(star) {
+      return this.reviews.filter(review => review.rating === star).length;
+    },
+    calculateCollectiveBarWidth(star) {
+      const maxCount = Math.max(...[1, 2, 3, 4, 5].map(this.countRatings));
+      const count = this.countRatings(star);
+      const maxWidth = 100; // Maximum width in percentage
+      return maxCount ? `${(count / maxCount) * maxWidth}%` : '0%';
+    },
   },
 };
 </script>
 
 <style scoped>
+*{
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+               Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  margin:0;
+  padding: 0;
+}
 .review-container {
   max-width: 600px;
   margin: 20px auto;
@@ -173,6 +193,8 @@ export default {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  display: block;
+  margin:auto;
 }
 
 .write-review-btn:hover {
@@ -228,6 +250,21 @@ textarea {
   color: gold;
 }
 
+.stars-review span{
+  display: flex;
+  align-items: center;
+}
+
+.stars-review span {
+  cursor: pointer;
+  font-size: 24px;
+  color: #ccc;
+}
+
+.stars-review span.filled {
+  color: gold;
+}
+
 button {
   padding: 10px 15px;
   background-color: #007bff;
@@ -261,34 +298,55 @@ button:hover {
 }
 
 .reviewer-avatar {
-  width: 50px;
-  height: 50px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   margin-right: 10px;
 }
 
 .review-text {
-  margin-top: 10px;
-  font-size: 16px;
+  margin-top: 5px;
+  font-size: 18px;
+  margin-left: 35px;
 }
 
-.like-btn {
-  background-color: red;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.like-btn:hover {
-  background-color: rgb(207, 74, 74);
-}
 
 .posted-time {
-  font-size: 14px;
-  color: #777;
+  /* font-size: 5px; */
+  /* color: pink; */
   margin-left: 10px;
+  /* margin-bottom: 50px; */
+}
+
+/* Styles for the collective bar graph */
+.collective-bar-graph {
+  display: block;
+  /* margin-top: 100px; */
+  /* max-width: 500px; */
+  /* margin: auto; */
+}
+
+.collective-bar-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.collective-bar-label {
+  width: 80px;
+  font-weight: bold;
+}
+
+.collective-bar {
+  height: 20px;
+  background-color: gold;
+  margin-right: 10px;
+  border-radius: 5px;
+  transition: width 0.3s ease;
+  max-width: 450px;
+}
+
+.collective-bar-count {
+  font-weight: bold;
 }
 </style>
