@@ -1,6 +1,33 @@
 <template>
   <div class="app container-fluid">
+  <div class="app container-fluid">
     <div class="sidebar">
+      <h1>Vending Machines Near You</h1>
+
+      <!-- Search Bar -->
+      <input 
+        type="text" 
+        class="search-bar" 
+        placeholder="Find Your Favourite Machine!" 
+        v-model="searchQuery" 
+        @input="filterMachines"
+      />
+
+      <!-- Filter By Section -->
+      <div class="filter-container">
+        <span>Filter By:</span>
+        <select class="filter-type" v-model="filterType">
+          <option value="">Select Type</option>
+          <option value="Drinks">Drinks</option>
+          <option value="Snacks">Snacks</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <!-- Results Message -->
+      <p v-if="searchQuery && filteredMachines.length === 0">No search results  for "{{ lowerCaseQuery }}".</p>
+      <p v-else-if="searchQuery && filteredMachines.length === 1">{{ filteredMachines.length }} result for "{{ lowerCaseQuery }}".</p>
+      <p v-else-if="searchQuery"> {{ filteredMachines.length }} result(s) for "{{ lowerCaseQuery }}".</p>     
       <h1>Vending Machines Near You</h1>
 
       <!-- Search Bar -->
@@ -32,7 +59,12 @@
       <div 
         class="vending-card" 
         v-for="(machine, index) in filteredMachines" 
+        v-for="(machine, index) in filteredMachines" 
         :key="index" 
+        @click="selectMachine(machine)"
+        @mouseover="bounceMarker(machine.id)"
+        @mouseleave="stopBounce(machine.id)"
+        :style="{ backgroundImage: `url(${machine.imageUrl})` }"
         @click="selectMachine(machine)"
         @mouseover="bounceMarker(machine.id)"
         @mouseleave="stopBounce(machine.id)"
@@ -43,12 +75,23 @@
         <div :class="getStatusClass(machine.status)">
           <p>{{ machine.status }}</p>
         </div>
+        <h2>{{ machine.machineName }}</h2>
+        <p>{{ machine.type }}</p>
+        <div :class="getStatusClass(machine.status)">
+          <p>{{ machine.status }}</p>
+        </div>
         <div class="rating">
-          <span>⭐ {{ machine.rating }} ({{ machine.reviews }})</span>
+          <span>⭐ {{ machineReviews.machine }} </span>
         </div>
         <p>{{ machine.description }}</p>
         <p v-if = "this.userLocation">{{ calculateDistance(machine.coordinates) }}km away</p>
+        <p v-if = "this.userLocation">{{ calculateDistance(machine.coordinates) }}km away</p>
         <div class="actions">
+          <button class="action-btn" @click="getDirections(machine)">Directions</button>
+          <router-link to="/review">
+            <button class="action-btn">Review</button>
+          </router-link>
+          <button class="action-btn" @click="selectMachine(machine)">Details</button>
           <button class="action-btn" @click="getDirections(machine)">Directions</button>
           <router-link to="/review">
             <button class="action-btn">Review</button>
@@ -165,6 +208,11 @@ export default {
         center: this.userLocation,
         zoom: 16,
       });
+    async initMap() {
+      this.map = new google.maps.Map(document.getElementById('map'), {
+        center: this.userLocation,
+        zoom: 16,
+      });
 
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -264,10 +312,91 @@ export default {
     },
   },
 };
+      this.vendingMachines.forEach((machine) => {
+        const marker = new google.maps.Marker({
+          position: { lat: machine.coordinates.latitude, lng: machine.coordinates.longitude },
+          map: this.map,
+          title: machine.machineName,
+        });
+
+        this.markers.push([machine.id, marker])
+
+        marker.addListener('click', () => {
+          this.selectMachine(machine)
+        });
+
+      })
+    },
+
+    calculateDistance(machineCoords) {
+      const toRad = (value) => (value * Math.PI) / 180;
+      const R = 6371; // Earth’s mean radius in km
+
+      const dLat = toRad(machineCoords.latitude - this.userLocation.lat);
+      const dLng = toRad(machineCoords.longitude - this.userLocation.lng);
+      const lat1 = toRad(this.userLocation.lat);
+      const lat2 = toRad(machineCoords.latitude);
+
+      const a = 
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.sin(dLng / 2) * Math.sin(dLng / 2) * Math.cos(lat1) * Math.cos(lat2); 
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+      return (R * c).toFixed(2); // Distance in km, rounded to 2 decimal places
+    },
+
+    bounceMarker(id){
+      for(let object of this.markers){
+        if(object[0] == id){
+          let marker = object[1]
+          marker.setAnimation(google.maps.Animation.BOUNCE);
+        }
+      }
+    },
+
+    stopBounce(id){
+      for(let object of this.markers){
+        if(object[0] == id){
+          let marker = object[1]
+          marker.setAnimation(null);
+        }
+      } 
+    },
+
+
+    getStatusClass(status) {
+      switch (status) {
+        case 'Running':
+          return 'status status-running';
+        case 'Maintenance':
+          return 'status status-maintenance';
+        case 'Out Of Order':
+          return 'status status-out-of-order';
+        default:
+          return '';
+      }
+    },
+
+    selectMachine(machine) {
+      this.selectedMachine = machine;
+    },
+    closeDetails() {
+      this.selectedMachine = null;
+    },
+
+    getDirections(machine) {
+      window.open('https://www.google.com/maps/dir/?api=1&destination=${machine.coordinates.latitude},${machine.coordinates.longitude}')
+    },
+  },
+};
 </script>
 
 <style scoped>
   .app {
+    position:fixed;
+    top:0px;
+    bottom:0px;
+    left:0px;
+    right:0px;
     position:fixed;
     top:0px;
     bottom:0px;
@@ -280,6 +409,8 @@ export default {
   .sidebar {
     width: 300px;
     height: 83vh;
+    width: 300px;
+    height: 83vh;
     padding: 20px;
     background-color: #30394f;
     color: white;
@@ -289,6 +420,14 @@ export default {
   }
 
   .sidebar h1 {
+    font-size: 2.0rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #ffcc00;
+  }
+
+  .sidebar h2 {
+    font-size: 1.1rem;
     font-size: 2.0rem;
     text-align: center;
     margin-bottom: 1rem;
@@ -314,13 +453,31 @@ export default {
   }
 
   select {
+  .search-bar {
+    width: 92%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+
+  .sort-by, .filter-type {
+    margin-bottom: 15px;
+  }
+
+  select {
     width: 100%;
     padding: 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
+    border: 1px solid #ccc;
   }
 
   .vending-card {
+    position: relative;
+    color: white;
+    background-size: cover;
+    background-position: center;
     position: relative;
     color: white;
     background-size: cover;
@@ -398,11 +555,33 @@ export default {
 
   .status-out-of-order {
     color: #dc3545; /* Red */
+  .status {
+    border-radius: 5px;
+    display: inline-block;
+  }
+
+  .status p {
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .status-running {
+    color: #28a745; /* Green */
+  }
+
+  .status-maintenance {
+    color: #ffa500; /* Orange */
+  }
+
+  .status-out-of-order {
+    color: #dc3545; /* Red */
   }
 
   .rating span {
     color: #ffc107;
     font-weight: bold;
+    position: relative;
+    z-index: 2;
     position: relative;
     z-index: 2;
   }
@@ -553,6 +732,8 @@ export default {
     margin-right: 5px;
     color: black;
     transition: background-color 0.3s ease;
+    position: relative;
+    z-index: 2
   }
 
   .details-modal .action-btn:hover {

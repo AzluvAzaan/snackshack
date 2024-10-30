@@ -66,6 +66,9 @@ export default {
 </script>
 
 <style scoped>
+
+@import 'bootstrap/dist/css/bootstrap.css';
+
 .register-container {
   min-height: 100vh;
   background-color: #001f3f; /* Dark blue background */

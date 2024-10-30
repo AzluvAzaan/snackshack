@@ -406,8 +406,10 @@ export default {
   };
 
 </script>
-<style>
 
+<style scoped>
+
+@import 'bootstrap/dist/css/bootstrap.css';
 
 #admin-page {
   color: white;
