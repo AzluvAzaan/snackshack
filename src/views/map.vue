@@ -4,11 +4,11 @@
       <h1>Vending Machines Near You</h1>
 
       <!-- Search Bar -->
-      <input 
-        type="text" 
-        class="search-bar" 
-        placeholder="Find Your Favourite Machine!" 
-        v-model="searchQuery" 
+      <input
+        type="text"
+        class="search-bar"
+        placeholder="Find Your Favourite Machine!"
+        v-model="searchQuery"
         @input="filterMachines"
       />
 
@@ -26,13 +26,13 @@
       <!-- Results Message -->
       <p v-if="searchQuery && filteredMachines.length === 0">No search results  for "{{ lowerCaseQuery }}".</p>
       <p v-else-if="searchQuery && filteredMachines.length === 1">{{ filteredMachines.length }} result for "{{ lowerCaseQuery }}".</p>
-      <p v-else-if="searchQuery"> {{ filteredMachines.length }} result(s) for "{{ lowerCaseQuery }}".</p>     
+      <p v-else-if="searchQuery"> {{ filteredMachines.length }} result(s) for "{{ lowerCaseQuery }}".</p>    
 
       <!-- Loop through vending machines to create cards -->
-      <div 
-        class="vending-card" 
-        v-for="(machine, index) in filteredMachines" 
-        :key="index" 
+      <div
+        class="vending-card"
+        v-for="(machine, index) in filteredMachines"
+        :key="index"
         @click="selectMachine(machine)"
         @mouseover="bounceMarker(machine.id)"
         @mouseleave="stopBounce(machine.id)"
@@ -44,15 +44,13 @@
           <p>{{ machine.status }}</p>
         </div>
         <div class="rating">
-          <span>⭐ {{ machine.rating }} ({{ machine.reviews }})</span>
+          <span>⭐ {{ machineReviews.machine }} </span>
         </div>
         <p>{{ machine.description }}</p>
         <p v-if = "this.userLocation">{{ calculateDistance(machine.coordinates) }}km away</p>
         <div class="actions">
           <button class="action-btn" @click="getDirections(machine)">Directions</button>
-          <router-link to="/review">
-            <button class="action-btn">Review</button>
-          </router-link>
+          <button class="action-btn" @click="writeReview(machine.id)">Review</button>
           <button class="action-btn" @click="selectMachine(machine)">Details</button>
         </div>
       </div>
@@ -73,7 +71,7 @@
           <p>{{ selectedMachine.status }}</p>
         </div>
         <div class="rating">
-          <span>⭐ {{ selectedMachine.rating }} ({{ selectedMachine.reviews }})</span>
+          <span>⭐ {{ machineReviews.selectedMachine }} </span>
         </div>
         <p><strong>Address:</strong> {{ selectedMachine.locDes }}</p>
         <p><strong>Description:</strong> {{ selectedMachine.description }}</p>
@@ -97,6 +95,7 @@ export default {
   data() {
     return {
       vendingMachines: [],
+      machineReviews: {},
       selectedMachine: null,
       infoWindow: null,
       markers: [],
@@ -109,6 +108,10 @@ export default {
 
   mounted() {
     this.fetchVendingMachines();
+  },
+
+  created() {
+    this.searchQuery = this.$route.query.snack || ''; // Set search bar text to snack query if available
   },
 
   computed: {
@@ -173,8 +176,6 @@ export default {
               lat: position.coords.latitude,
               lng: position.coords.longitude,
             };
-            console.log("User location:", this.userLocation); // Debugging line to confirm location is set
-
             this.map.setCenter(this.userLocation);
           },
           (error) => {
@@ -213,10 +214,10 @@ export default {
       const lat1 = toRad(this.userLocation.lat);
       const lat2 = toRad(machineCoords.latitude);
 
-      const a = 
+      const a =
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.sin(dLng / 2) * Math.sin(dLng / 2) * Math.cos(lat1) * Math.cos(lat2); 
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+        Math.sin(dLng / 2) * Math.sin(dLng / 2) * Math.cos(lat1) * Math.cos(lat2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       return (R * c).toFixed(2); // Distance in km, rounded to 2 decimal places
     },
 
@@ -235,7 +236,7 @@ export default {
           let marker = object[1]
           marker.setAnimation(null);
         }
-      } 
+      }
     },
 
 
@@ -258,6 +259,12 @@ export default {
     closeDetails() {
       this.selectedMachine = null;
     },
+    writeReview(machineID){
+      this.$router.push({
+        name: 'Review',
+        query: { machine: machineID }
+      });
+    },    
 
     getDirections(machine) {
       window.open('https://www.google.com/maps/dir/?api=1&destination=${machine.coordinates.latitude},${machine.coordinates.longitude}')
@@ -344,7 +351,7 @@ export default {
     border-radius: 10px;
     z-index: 1; /* Overlay below text */
   }
-  
+ 
   .vending-card::after {
     content: '';
     position: absolute;
@@ -355,23 +362,6 @@ export default {
     background-color: rgba(0, 0, 0, 0.5); /* Adjust the opacity for darkness */
     border-radius: 10px;
     z-index: 1; /* Make sure overlay is above the background but below text */
-  }
-
-
-  .small-image {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 50px;
-    height: 50px;
-    border-radius: 20%;
-    object-fit: cover;
-    display: block;
-    opacity: 1;
-  }
-
-  .small-image:hover {
-    transform: scale(1.2);
   }
 
   .vending-card:hover {
@@ -429,8 +419,7 @@ export default {
     position: relative;
     z-index: 2
   }
-  
-
+ 
   .action-btn:hover {
     background-color: #ffd633;
   }
@@ -514,12 +503,6 @@ export default {
     z-index: 2;
     top: 10px;
     right: 10px;
-  }
-
-  .machine-image {
-    width: 40%;
-    border-radius: 10px;
-    margin-bottom: 15px;
   }
 
   .details-modal h2 {
