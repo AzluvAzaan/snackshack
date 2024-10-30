@@ -7,7 +7,8 @@ import {
   getDocs, 
   deleteDoc, 
   doc, 
-  updateDoc 
+  updateDoc,
+  increment
 } from 'firebase/firestore';
 import { 
   ref, 
@@ -64,7 +65,7 @@ export default {
     
     async getReviewsForMachine(machineId) {
         const reviewsCollection = collection(db, "reviews");
-        const q = query(reviewsCollection, where("machineId", "==", machineId));
+        const q = query(reviewsCollection, where("machineID", "==", machineId));
         const querySnapshot = await getDocs(q);
         return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     },
@@ -75,8 +76,31 @@ export default {
         return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     },
 
-    async addReview(reviewData) {
-        return await addDoc(collection(db, "reviews"), reviewData);
-    }
+    async addReview(reviewData, numReviews) {
+        try {
+          // Add the review
+          const reviewRef = await addDoc(collection(db, "reviews"), reviewData);
+    
+          // Update the review count for the vending machine
+          const machineRef = doc(db, 'vendingMachines', reviewData.machineID);
+          await updateDoc(machineRef, {
+            numReviews: increment(1)  // Assuming 'reviews' is the field name for the review count
+          });
+    
+          return reviewRef;
+        } catch (error) {
+          console.error("Error adding review:", error);
+          throw error;  // Re-throw the error so it can be caught by the calling function
+        }
+      },
+
+    async updateMachineRating(machineId, avgRating) {
+        try {
+          const machineRef = doc(db, 'vendingMachines', machineId);
+          await updateDoc(machineRef, { avgRating: avgRating });
+        } catch (error) {
+          console.error("Error updating machine rating:", error);
+        }
+      },
 
   };
