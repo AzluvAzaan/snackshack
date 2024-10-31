@@ -36,7 +36,7 @@
             <div class="row">
               <div class="col-12 col-sm-4 mb-3">
                 <label for="machineName" class="form-label">Machine Name:</label>
-                <input v-model="newMachine.machineName" id="machineName" class="form-control" required>
+                <input v-model="newMachine.machineName" id="machineName" class="form-control " required>
               </div>
 
               <!-- Select Status of Current Machine-->
@@ -106,7 +106,7 @@
                 <input v-model="newMachine.coordinates.longitude" id="longitude" type="number" step="any" class="form-control" required>
               </div>
               <div class="mb-3">
-              <a href="https://support.google.com/maps/answer/18539?hl=en&co=GENIE.Platform%3chaDDesktop&oco=1" target="_blank" rel="noopener noreferrer" class="btn btn-link">
+              <a href="https://support.google.com/maps/answer/18539?hl=en&co=GENIE.Platform%3chaDDesktop&oco=1" target="_blank" rel="noopener noreferrer" class="btn btn-link coordinate-link ">
                 Don't know your coordinates? Click here!
               </a>
             </div>
@@ -118,7 +118,7 @@
               <label for="addItem" class="form-label">Add Item:</label>
               <div class="input-group">
                 <input v-model="newContent" @keyup.enter="addContent" placeholder="Enter item name" class="form-control">
-                <button type="button" @click="addContent" class="btn btn-outline-secondary">Add Item</button>
+                <button type="button" @click="addContent" class="btn btn-info">Add Item</button>
               </div>
             </div>
           </div>
@@ -126,7 +126,7 @@
           <div class="mb-3">
             <label class="form-label">Contents in this Machine:</label>
               <ol class="list-group list-group-numbered">
-                <li v-for="(item, index) in newMachine.contents" :key="index" class="list-group-item d-flex justify-content-between align-items-start">
+                <li v-for="(item, index) in newMachine.contents" :key="index" class="list-group-item d-flex justify-content-between align-items-start border border-secondary rounded mb-2 p-2 item-outline">
                   <div class="ms-2 me-auto">{{ item }}</div>
                   <button type="button" @click="removeContent(index)" class="btn btn-sm btn-danger">Remove</button>
                 </li>
@@ -372,6 +372,10 @@ export default {
           //alert("Vending machine deleted successfully!");
           this.showAlert("Vending machine deleted successfully!", 'success');
           this.fetchUserMachines();
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          }); 
         } catch (error) {
           //console.error("Error deleting vending machine: ", error);
           this.showAlert("Error deleting vending machine. Please try again.", 'danger');
@@ -446,10 +450,239 @@ export default {
 }
 .btn {
   transition: transform 0.3s ease-in-out;
+  border-radius: 15px;
 }
 
 .btn:hover {
   transform: translateY(-5px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
+
+/* Had to do below because importing bootstrap.css caused issues with other pages */
+
+body, #admin-page {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+
+.card {
+  transition: all 0.3s ease-in-out;
+  border: none;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  color: black;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+}
+
+.card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-title {
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.card-text {
+  margin-bottom: 0.5rem;
+}
+
+.card-footer {
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  padding: 1rem 1.5rem;
+}
+
+.btn {
+  transition: all 0.3s ease-in-out;
+  border-radius: 50px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-sm {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-dark {
+  background-color: #343a40;
+  border-color: #343a40;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.alert {
+  border-radius: 15px;
+  margin-bottom: 2rem;
+}
+
+.form-control {
+  border-radius: 50px;
+  padding: 0.75rem 1.25rem;
+}
+
+.form-control:focus {
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-control, .form-select {
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+}
+
+.form-check-input {
+  width: 1em;
+  height: 1em;
+  margin-top: 0.25em;
+  vertical-align: top;
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  appearance: none;
+  color-adjust: exact;
+  transition: background-color 0.15s ease-in-out, background-position 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-check-input[type="checkbox"] {
+  border-radius: 0.25em;
+}
+
+.form-check-input:checked {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.form-check-input:checked[type="checkbox"] {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+}
+
+.form-check-label {
+  margin-bottom: 0;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+label {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+/* Add some spacing between form elements */
+.mb-3 {
+  margin-bottom: 1rem !important;
+}
+
+/* Ensure text is visible on the form */
+.form-label {
+  color: #212529;
+  font-weight: bold;
+}
+
+.coordinate-link {
+  color: #007bff; /* Bootstrap's primary blue color */
+  text-decoration: none;
+}
+
+.coordinate-link:hover {
+  text-decoration: underline;
+  color: #0056b3; /* Darker blue on hover */
+}
+
+.item-outline {
+  box-shadow: 0 0 0 2px #ced4da;
+}
+
+.alert {
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border-left: 5px solid #28a745;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-left: 5px solid #dc3545;
+}
+
+.alert-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border-left: 5px solid #17a2b8;
+}
+
+.alert-warning {
+  background-color: #fff3cd;
+  color: #856404;
+  border-left: 5px solid #ffc107;
+}
+
+.alert-dismissible {
+  padding-right: 4rem;
+}
+
+.alert-dismissible .close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.75rem 1.25rem;
+  color: inherit;
+}
+
+
 </style>
+
+
