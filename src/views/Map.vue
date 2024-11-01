@@ -7,7 +7,7 @@
       <input
         type="text"
         class="search-bar"
-        placeholder="Find Your Favourite Machine!"
+        placeholder="Find Your Favourite Food/Machine!"
         v-model="searchQuery"
         @input="filterMachines"
       />
@@ -78,7 +78,7 @@
         <p><strong>Contents:</strong> {{ selectedMachine.contents.join(' | ') }}</p>
         <div class="actions">
           <button class="action-btn" @click="getDirections(selectedMachine.coordinates)">Directions</button>
-          <button class="action-btn" @click="writeReview(machine.id)">Review</button>
+          <button class="action-btn" @click="writeReview(selectedMachine.id)">Review</button>
         </div>
       </div>
     </div>
@@ -364,6 +364,7 @@ export default {
 
   .vending-card:hover {
     transform: scale(1.05);
+    cursor: pointer;
   }
 
   .status {
@@ -435,6 +436,17 @@ export default {
   }
 
   /* Modal Styles */
+  @keyframes popup {
+    0% {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
   .details-modal {
     position: fixed;
     top: 60px;
@@ -450,6 +462,7 @@ export default {
     overflow-y: auto;
     z-index: 1000;
     transition: all 0.3s ease;
+    animation: popup 0.3s ease forwards;
   }
 
   .details-modal::before {
@@ -460,7 +473,6 @@ export default {
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.5); /* Adjust for darker effect */
-    border-radius: 10px;
     z-index: 1; /* Overlay below text */
   }
 
@@ -472,7 +484,6 @@ export default {
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.5); /* Adjust the opacity for darkness */
-    border-radius: 10px;
     z-index: 1; /* Make sure overlay is above the background but below text */
   }
 
