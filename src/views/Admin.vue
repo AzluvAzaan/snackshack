@@ -13,12 +13,24 @@
           <h1 class="mb-0">Admin Page</h1>
         </div>
         <div class="col-12 col-md-4 d-flex justify-content-md-end align-items-center mt-3 mt-md-0">
-          <p v-if="currentUser" class="mb-0 me-3">Logged in as: {{ currentUser.email }}</p>
           <!-- Logout button to log out user-->
           <button @click="logout" class="btn btn-danger">Logout</button>
         </div>
       </div>
 
+      <div class="row mb-4 align-items-center">
+       <!-- <p v-if="currentUser" class="mb-0 me-3">Logged in as: {{ currentUser.email }}</p> -->
+       <div v-if="currentUser && userDetails" class="user-info">
+            <p><strong>Logged in as: </strong> {{ currentUser.email }}</p>
+            <p>
+              <strong>Contact Number: </strong> 
+              <span v-if="!editingContact">{{ userDetails.contact }}</span>
+              <input v-else v-model="newContactNumber" type="tel" class="form-control d-inline-block w-auto mx-2">
+              <button v-if="!editingContact" @click="startEditContact" class="btn btn-sm btn-primary ms-2">Edit</button>
+              <button v-else @click="updateContact" class="btn btn-sm btn-success mx-2">Save</button>
+              <button v-if="editingContact" @click="cancelEditContact" class="btn btn-sm btn-secondary">Cancel</button>
+            </p>
+      </div>
       <!-- Vending Machine + Add Machine Button-->
       <div class="row mb-4">
         <div class="col-12">
@@ -175,6 +187,7 @@
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <script>
@@ -182,12 +195,12 @@ import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from '@/firebase';
 import firestore from '@/firestore';
 
-
 export default {
   name: 'Admin',
   data() {
     return {
-      currentUser: null, 
+      currentUser: null,
+      userDetails: null,
       // New Vending Machine Object
       newMachine: {
         machineName: '',
@@ -214,6 +227,8 @@ export default {
         type: 'success'
       },
       searchQuery: '',
+      editingContact: false,
+      newContactNumber: '',
       }
     },
     computed: {
@@ -237,9 +252,11 @@ export default {
       if (user) {
         this.currentUser = user;
         this.fetchUserMachines();
+        this.fetchUserData(user.uid);
       } else {
     // Return them back to login page
         this.currentUser = null;
+        this.userDetails = null;
         this.userMachines = [];
         this.$router.push('/login');
       }
@@ -257,6 +274,46 @@ export default {
         //console.error("Error signing out: ", error);
       }
     },
+
+    async fetchUserData(userId) {
+      try {
+        const userData = await firestore.getUserData(userId);
+        if (userData) {
+          this.userDetails = userData;
+          //console.log("User data fetched:", this.userDetails);
+        } else {
+          //console.log("No user data found");
+          this.userDetails = null;
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    },
+
+    startEditContact() {
+      this.editingContact = true;
+      this.newContactNumber = this.userDetails.contact;
+    },
+  
+    async updateContact() {
+      try {
+        await firestore.updateUserData(this.currentUser.uid, {
+          contact: this.newContactNumber
+        });
+        this.userDetails.contact = this.newContactNumber;
+        this.editingContact = false;
+        this.showAlert('Contact number updated successfully', 'success');
+      } catch (error) {
+        console.error('Error updating contact number:', error);
+        this.showAlert('Failed to update contact number', 'danger');
+      }
+    },
+    cancelEditContact() {
+      this.editingContact = false;
+      this.newContactNumber = '';
+      this.showAlert('Cancelled update contact number', 'info');
+    },
+
     //stores uploaded file as selectedFile
     onFileSelected(event) {
       this.selectedFile = event.target.files[0];
@@ -410,7 +467,11 @@ export default {
     cancelAddOrEdit() {
       this.clearForm();
       this.showAddForm = false;
-      this.showAlert('Operation cancelled', 'info');
+      this.showAlert('Adding/Editing vending machine cancelled', 'info');
+      window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+      });
     },
 
     //Shows alert message at top of page 
@@ -448,6 +509,7 @@ export default {
   align-items: center;
   background-color: #001f3f; /* Dark blue background specific to this page */
 }
+
 .btn {
   transition: transform 0.3s ease-in-out;
   border-radius: 15px;

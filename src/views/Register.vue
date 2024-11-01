@@ -9,6 +9,10 @@
             <input type="email" class="form-control" id="email" v-model="email" required>
           </div>
           <div class="mb-3">
+            <label for="contactNumber" class="form-label">Contact Number</label>
+            <input type="tel" class="form-control" id="contactNumber" v-model="contactNumber" required>
+          </div>
+          <div class="mb-3">
             <label for="password" class="form-label">Password</label>
             <input type="password" class="form-control" id="password" v-model="password" required>
           </div>
@@ -33,15 +37,17 @@
 <script>
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from '@/firebase';
+import firestore from '@/firestore';
 
 export default {
   name: 'Register',
   data() {
     return {
       email: "",
+      contactNumber: "",
       password: "",
       confirmPassword: "",
-      error: "",
+      error: ""
     };
   },
   methods: {
@@ -52,7 +58,13 @@ export default {
       }
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, this.email, this.password);
-        console.log("Registered as:", userCredential.user.email);
+        const user = userCredential.user;
+
+        await firestore.storeUserData(user.uid, {
+          email: this.email,
+          contactNumber: this.contactNumber
+        });
+        //console.log("Registered as:", userCredential.user.email);
         this.$router.push("/login"); // Redirect to login page after successful registration
       } catch (err) {
         this.error = err.message;
@@ -68,6 +80,10 @@ export default {
 <style scoped>
 
 @import 'bootstrap/dist/css/bootstrap.css';
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
 
 .register-container {
   min-height: 100vh;

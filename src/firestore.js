@@ -8,7 +8,9 @@ import {
   deleteDoc, 
   doc, 
   updateDoc,
-  increment
+  increment,
+  setDoc,
+  getDoc
 } from 'firebase/firestore';
 import { 
   ref, 
@@ -102,5 +104,38 @@ export default {
           console.error("Error updating machine rating:", error);
         }
       },
+
+    async storeUserData(userId, userData) {
+    try {
+        await setDoc(doc(db, "users", userId), userData);
+        console.log("User data stored successfully");
+    } catch (error) {
+        console.error("Error storing user data:", error);
+        throw error;
+    }
+    },
+
+    async getUserData(userId) {
+        try {
+          const userRef = doc(db, "users", userId);
+          const userSnap = await getDoc(userRef);
+          
+          if (userSnap.exists()) {
+            return userSnap.data();
+          } else {
+            console.log("No such user!");
+            return null;
+          }
+        } catch (error) {
+          console.error("Error getting user data:", error);
+          throw error;
+        }
+      },
+
+      async updateUserData(userId, userData) {
+        const userRef = doc(db, 'users', userId);
+        await updateDoc(userRef, userData);
+      },
+
 
   };
