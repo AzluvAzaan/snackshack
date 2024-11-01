@@ -1,4 +1,3 @@
-
 <template>
   <body>
     <div id="app">
@@ -33,17 +32,13 @@
         <transition name="fade">
           <div class="snack-description">
             <h2>{{ snacks[selectedSnackIndex].name }}</h2>
-            <p>Quantity Left: {{ snacks[selectedSnackIndex].quantity }}</p>
             <p>Snack Information:</p>
             <ul>
               <li>Calories: {{ snacks[selectedSnackIndex].calories }}</li>
-              <li>Fat: {{ snacks[selectedSnackIndex].fat }}</li>
-              <li>Sugar: {{ snacks[selectedSnackIndex].sugar }}</li>
-              <li>Sodium: {{ snacks[selectedSnackIndex].sodium }}</li>
+              <li>Fat: {{ snacks[selectedSnackIndex].fat }}<span style="font-size: small;">g</span></li>
+              <li>Sugar: {{ snacks[selectedSnackIndex].sugar }}<span style="font-size: small;">g</span></li>
+              <li>Sodium: {{ snacks[selectedSnackIndex].sodium }}<span style="font-size: small;">mg</span></li>
             </ul>
-            <p :class="{'healthy': snacks[selectedSnackIndex].isHealthy}">
-              This snack is {{ snacks[selectedSnackIndex].isHealthy ? 'healthy' : 'unhealthy' }}.
-            </p>
             <button @click="navigateToMap(snacks[selectedSnackIndex].type)" class="btn directions-btn">
               <font-awesome-icon icon="compass" /> Get Me There
             </button>
@@ -55,13 +50,12 @@
       <!-- Modal Structure -->
       <div v-if="showModal" class="modal-overlay" @click="closeModal">
         <div class="modal-content" @click.stop>
-          <h1>Items on the Conveyor Belt:</h1>
+          <h1>Menu</h1>
           <ul>
             <li v-for="snack in snacks" :key="snack.id" @click="turnIntoCard(snack)" class="modal-snack-item">
               <img :src="snack.img" alt="Snack image" class="modal-snack-image" />
               <div class="modal-snack-details">
                 <h5>{{ snack.name }}</h5>
-                <p>Quantity: {{ snack.quantity }}</p>
               </div>
             </li>
           </ul>
@@ -74,14 +68,11 @@
         <div class="card-modal-content" @click.stop>
           <h1>{{ selectedSnackDetail.name }}</h1>
           <img :src="selectedSnackDetail.img" alt="Snack image" class="card-snack-image" />
-          <p>Quantity: {{ selectedSnackDetail.quantity }}</p>
           <p>Calories: {{ selectedSnackDetail.calories }}</p>
-          <p>Fat: {{ selectedSnackDetail.fat }}g</p>
-          <p>Sugar: {{ selectedSnackDetail.sugar }}g</p>
-          <p>Sodium: {{ selectedSnackDetail.sodium }}mg</p>
-          <p :class="{'healthy': selectedSnackDetail.isHealthy}">
-            This snack is {{ selectedSnackDetail.isHealthy ? 'healthy' : 'unhealthy' }}.
-          </p>
+          <p>Fat: {{ selectedSnackDetail.fat }}<span style="font-size: small;">g</span></p>
+          <p>Sugar: {{ selectedSnackDetail.sugar }}<span style="font-size: small;">g</span></p>
+          <p>Sodium: {{ selectedSnackDetail.sodium }}<span style="font-size: small;">mg</span></p>
+          
           <div class="button-ctn">
             <button @click="showDetailModal = false; showModal = true" class="btn back-btn">Back</button>
             <button @click="closeDetailModal" class="btn close-btn">Close</button>
@@ -125,26 +116,26 @@ export default {
   data() {
     return {
       snacks: [
-        { id: 1, name: 'Pocky Chocolate Flavour', type: 'Pocky', img: pockyC, quantity: 4, calories: 150, fat: 5, sugar: 10, sodium: 150, isHealthy: true },
-        { id: 2, name: 'Pocky Cookies & Cream Flavour', type: 'Pocky', img: pockyCC, quantity: 10, calories: 250, fat: 12, sugar: 15, sodium: 200, isHealthy: false },
-        { id: 3, name: "Lay's Barbecue Chips", type: 'Lays', img: LaysB, quantity: 6, calories: 140, fat: 6, sugar: 6, sodium: 180, isHealthy: true },
-        { id: 4, name: 'Lay\'s Sour Cream & Onion', type: 'Lays', img: LaysSC, quantity: 8, calories: 160, fat: 8, sugar: 12, sodium: 100, isHealthy: false },
-        { id: 5, name: 'Doritos Nacho Cheese', type: 'Doritos', img: DoritosNC, quantity: 5, calories: 200, fat: 11, sugar: 2, sodium: 250, isHealthy: false },
-        { id: 6, name: 'Lay\s Classic', type: 'Lays', img: LaysC, quantity: 4, calories: 150, fat: 5, sugar: 10, sodium: 150, isHealthy: true },
-        { id: 7, name: 'M&Ms', type: 'M&Ms', img: MandM, quantity: 10, calories: 250, fat: 12, sugar: 15, sodium: 200, isHealthy: false },
-        { id: 8, name: 'Tong Garden Salted Cashew Nuts', type: 'Mixed Nuts', img: TongSC, quantity: 6, calories: 140, fat: 6, sugar: 6, sodium: 180, isHealthy: true },
-        { id: 9, name: 'Twisties Chicken', type: 'Twisties', img: TwistiesC, quantity: 8, calories: 160, fat: 8, sugar: 12, sodium: 100, isHealthy: false },
-        { id: 10, name: 'Houten Chilli Tapioca', type: 'Potato Chips', img: Houten, quantity: 5, calories: 200, fat: 11, sugar: 2, sodium: 250, isHealthy: false },
-        { id: 11, name: 'Super Ring', type: 'Super Rings', img: Super, quantity: 4, calories: 150, fat: 5, sugar: 10, sodium: 150, isHealthy: true },
-        { id: 12, name: 'Milo', type: 'Milo', img: Milo, quantity: 10, calories: 250, fat: 12, sugar: 15, sodium: 200, isHealthy: false },
-        { id: 13, name: '100 Plus', type: '100 Plus', img: Hplus, quantity: 6, calories: 140, fat: 6, sugar: 6, sodium: 180, isHealthy: true },
-        { id: 14, name: 'POKKA Sparkling Fuji Apple', type: 'Sparkling Apple', img: FujiApple, quantity: 8, calories: 160, fat: 8, sugar: 12, sodium: 100, isHealthy: false },
-        { id: 15, name: 'Coca-Cola', type: 'Coca-Cola', img: Coke, quantity: 5, calories: 200, fat: 11, sugar: 2, sodium: 250, isHealthy: false },
-        { id: 16, name: 'Red Bull', type: "Red Bull", img: Redbull, quantity: 4, calories: 150, fat: 5, sugar: 10, sodium: 150, isHealthy: true },
-        { id: 17, name: 'Orange Juice', type: "Orange Juice", img: ijooz, quantity: 10, calories: 250, fat: 12, sugar: 15, sodium: 200, isHealthy: false },
-        { id: 18, name: 'POKKA Green Tea', type: "Green Tea", img:PGT, quantity: 6, calories: 140, fat: 6, sugar: 6, sodium: 180, isHealthy: true },
-        { id: 19, name: 'POKKA Ice Lemon Tea', type: "Ice Lemon Tea", img: PILT, quantity: 8, calories: 160, fat: 8, sugar: 12, sodium: 100, isHealthy: false },
-        { id: 20, name: 'POKKA Milk Tea', type: "Thai Milk Tea", img: PMT, quantity: 5, calories: 200, fat: 11, sugar: 2, sodium: 250, isHealthy: false },
+        { id: 1, name: 'Pocky Chocolate Flavour', type: 'Pocky', img: pockyC, calories: 160, fat: 8, sugar: 11, sodium: 70,},
+        { id: 2, name: 'Pocky Cookies & Cream Flavour', type: 'Pocky', img: pockyCC, calories: 150, fat: 6, sugar: 12, sodium: 50},
+        { id: 3, name: "Lay's Barbecue Chips", type: 'Lays', img: LaysB, calories: 150, fat: 9, sugar: 2, sodium: 200,},
+        { id: 4, name: 'Lay\'s Sour Cream & Onion', type: 'Lays', img: LaysSC, calories: 160, fat: 10, sugar: 1, sodium: 170},
+        { id: 5, name: 'Doritos Nacho Cheese', type: 'Doritos', img: DoritosNC, calories: 145, fat: 7.7, sugar: 0.7, sodium: 193.5},
+        { id: 6, name: 'Lay\s Classic', type: 'Lays', img: LaysC, calories: 160, fat: 10, sugar: 1, sodium: 170,},
+        { id: 7, name: 'M&Ms', type: 'M&Ms', img: MandM, calories: 190, fat: 8, sugar: 26, sodium: 30},
+        { id: 8, name: 'Tong Garden Salted Cashew Nuts', type: 'Mixed Nuts', img: TongSC, calories: 250, fat: 19, sugar: 2, sodium: 85,},
+        { id: 9, name: 'Twisties Chicken', type: 'Twisties', img: TwistiesC, calories: 80, fat: 4.4, sugar: 2, sodium: 93},
+        { id: 10, name: 'Houten Chilli Tapioca', type: 'Potato Chips', img: Houten, calories: 160, fat: 8, sugar: 8, sodium: 150},
+        { id: 11, name: 'Super Ring', type: 'Super Rings', img: Super, calories: 80, fat: 5.5, sugar: 1.5, sodium: 100,},
+        { id: 12, name: 'Milo', type: 'Milo', img: Milo, calories: 150, fat: 3.6, sugar: 16.6, sodium: 0.2},
+        { id: 13, name: '100 Plus', type: '100 Plus', img: Hplus, calories: 72, fat: 0, sugar: 17.6, sodium: 137,},
+        { id: 14, name: 'POKKA Sparkling Fuji Apple', type: 'Sparkling Apple', img: FujiApple, calories: 107, fat: 0, sugar: 24.4, sodium: 24.1},
+        { id: 15, name: 'Coca-Cola', type: 'Coca-Cola', img: Coke, calories: 139, fat: 0, sugar: 35, sodium: 0},
+        { id: 16, name: 'Red Bull', type: "Red Bull", img: Redbull, calories: 110, fat: 0, sugar: 27, sodium: 100,},
+        { id: 17, name: 'Orange Juice', type: "Orange Juice", img: ijooz, calories: 142, fat: 0.63, sugar: 26.4, sodium: 3},
+        { id: 18, name: 'POKKA Green Tea', type: "Green Tea", img:PGT, calories: 120, fat: 0, sugar: 30, sodium: 30,},
+        { id: 19, name: 'POKKA Ice Lemon Tea', type: "Ice Lemon Tea", img: PILT, calories: 200, fat: 0, sugar: 48.6, sodium: 26},
+        { id: 20, name: 'POKKA Milk Tea', type: "Thai Milk Tea", img: PMT, calories: 210, fat: 3.6, sugar: 38, sodium: 106},
       ],
       selectedSnackIndex: 0,
       isAnimating: false,
@@ -285,6 +276,8 @@ body {
   padding: 20px;
   border-radius: 15px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin: 10px;
+  margin-bottom: 10px;
 }
 .snack-details-row {
   display: flex;
@@ -304,16 +297,14 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background-color: #39CCCC;
+  background-color: #FFFDD0;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   font-family: Arial, Helvetica, sans-serif; 
   color: #333333;
 }
-.healthy {
-  color: green;
-}
+
 .rainbow-btn {
   background: linear-gradient(90deg, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9);
   color: black;
