@@ -7,7 +7,7 @@
       <input
         type="text"
         class="search-bar"
-        placeholder="Find Your Favourite Machine!"
+        placeholder="Find Your Favourite Food/Machine!"
         v-model="searchQuery"
         @input="filterMachines"
       />
@@ -49,7 +49,7 @@
         <p>{{ machine.description }}</p>
         <p v-if = "this.userLocation">{{ calculateDistance(machine.coordinates) }}km away</p>
         <div class="actions">
-          <button class="action-btn" @click="getDirections(machine)">Directions</button>
+          <button class="action-btn" @click="getDirections(machine.coordinates)">Directions</button>
           <button class="action-btn" @click="writeReview(machine.id)">Review</button>
           <button class="action-btn" @click="selectMachine(machine)">Details</button>
         </div>
@@ -76,11 +76,10 @@
         <p><strong>Address:</strong> {{ selectedMachine.locDes }}</p>
         <p><strong>Description:</strong> {{ selectedMachine.description }}</p>
         <p><strong>Contents:</strong> {{ selectedMachine.contents.join(' | ') }}</p>
+        <p><strong>Payment Methods:</strong> {{ selectedMachine.paymentType.join(' | ') }}</p>
         <div class="actions">
-          <button class="action-btn" @click="getDirections(selectedMachine)">Directions</button>
-          <router-link to="/review">
-            <button class="action-btn">Review</button>
-          </router-link>
+          <button class="action-btn" @click="getDirections(selectedMachine.coordinates)">Directions</button>
+          <button class="action-btn" @click="writeReview(selectedMachine.id)">Review</button>
         </div>
       </div>
     </div>
@@ -266,8 +265,8 @@ export default {
       });
     },    
 
-    getDirections(machine) {
-      window.open('https://www.google.com/maps/dir/?api=1&destination=${machine.coordinates.latitude},${machine.coordinates.longitude}')
+    getDirections(coordinates) {
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${coordinates.latitude},${coordinates.longitude}`)
     },
   },
 };
@@ -366,6 +365,7 @@ export default {
 
   .vending-card:hover {
     transform: scale(1.05);
+    cursor: pointer;
   }
 
   .status {
@@ -437,6 +437,17 @@ export default {
   }
 
   /* Modal Styles */
+  @keyframes popup {
+    0% {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
   .details-modal {
     position: fixed;
     top: 60px;
@@ -452,6 +463,7 @@ export default {
     overflow-y: auto;
     z-index: 1000;
     transition: all 0.3s ease;
+    animation: popup 0.3s ease forwards;
   }
 
   .details-modal::before {
@@ -462,7 +474,6 @@ export default {
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.5); /* Adjust for darker effect */
-    border-radius: 10px;
     z-index: 1; /* Overlay below text */
   }
 
@@ -474,7 +485,6 @@ export default {
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.5); /* Adjust the opacity for darkness */
-    border-radius: 10px;
     z-index: 1; /* Make sure overlay is above the background but below text */
   }
 
