@@ -49,10 +49,8 @@
         <p>{{ machine.description }}</p>
         <p v-if = "this.userLocation">{{ calculateDistance(machine.coordinates) }}km away</p>
         <div class="actions">
-          <button class="action-btn" @click="getDirections(machine)">Directions</button>
-          <router-link to="/review">
-            <button class="action-btn">Review</button>
-          </router-link>
+          <button class="action-btn" @click="getDirections(machine.coordinates)">Directions</button>
+          <button class="action-btn" @click="writeReview(machine.id)">Review</button>
           <button class="action-btn" @click="selectMachine(machine)">Details</button>
         </div>
       </div>
@@ -79,10 +77,8 @@
         <p><strong>Description:</strong> {{ selectedMachine.description }}</p>
         <p><strong>Contents:</strong> {{ selectedMachine.contents.join(' | ') }}</p>
         <div class="actions">
-          <button class="action-btn" @click="getDirections(selectedMachine)">Directions</button>
-          <router-link to="/review">
-            <button class="action-btn">Review</button>
-          </router-link>
+          <button class="action-btn" @click="getDirections(selectedMachine.coordinates)">Directions</button>
+          <button class="action-btn" @click="writeReview(machine.id)">Review</button>
         </div>
       </div>
     </div>
@@ -261,9 +257,15 @@ export default {
     closeDetails() {
       this.selectedMachine = null;
     },
+    writeReview(machineID){
+      this.$router.push({
+        name: 'Review',
+        query: { machine: JSON.stringify(machineID) }
+      });
+    },    
 
-    getDirections(machine) {
-      window.open('https://www.google.com/maps/dir/?api=1&destination=${machine.coordinates.latitude},${machine.coordinates.longitude}')
+    getDirections(coordinates) {
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${coordinates.latitude},${coordinates.longitude}`)
     },
   },
 };
