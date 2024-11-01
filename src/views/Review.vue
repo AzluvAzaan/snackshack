@@ -1,6 +1,7 @@
 <template>
 
     <div class="review-container">
+      <h1>Write a Review for {{ machine.name }}</h1>
       <div class="collective-bar-graph">
         <h2>Ratings Distribution</h2>
         <div v-for="star in 5" :key="star" class="collective-bar-container">
@@ -95,9 +96,16 @@ export default {
       reviewText: '',    // Stores the review content
       rating: 0,         // Stores the star rating (in half-stars)
       hoverRatingValue: 0, // Stores the value of hovered star
-      reviews: [],       // Array to store multiple reviews
+      reviews: {},       // Array to store multiple reviews
     };
   },
+
+  computed: {
+    machineID() {
+      return this.$route.query.machine;
+    }
+  },
+
   methods: {
     // Sets the star rating, allowing half-star increments
     setRating(star) {
