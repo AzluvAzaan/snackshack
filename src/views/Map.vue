@@ -49,7 +49,7 @@
         <p>{{ machine.description }}</p>
         <p v-if = "this.userLocation">{{ calculateDistance(machine.coordinates) }}km away</p>
         <div class="actions">
-          <button class="action-btn" @click="getDirections(machine)">Directions</button>
+          <button class="action-btn" @click="getDirections(machine.coordinates)">Directions</button>
           <button class="action-btn" @click="writeReview(machine.id)">Review</button>
           <button class="action-btn" @click="selectMachine(machine)">Details</button>
         </div>
