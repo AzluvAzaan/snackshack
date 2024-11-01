@@ -76,9 +76,10 @@
         <p><strong>Address:</strong> {{ selectedMachine.locDes }}</p>
         <p><strong>Description:</strong> {{ selectedMachine.description }}</p>
         <p><strong>Contents:</strong> {{ selectedMachine.contents.join(' | ') }}</p>
+        <p><strong>Payment Methods:</strong> {{ selectedMachine.paymentType.join(' | ') }}</p>
         <div class="actions">
           <button class="action-btn" @click="getDirections(selectedMachine.coordinates)">Directions</button>
-          <button class="action-btn" @click="writeReview(machine.id)">Review</button>
+          <button class="action-btn" @click="writeReview(selectedMachine.id)">Review</button>
         </div>
       </div>
     </div>
