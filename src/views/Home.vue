@@ -1,72 +1,93 @@
 <template>
   <div id="vending-machine-page">
-    <div class="vending-machine">
-      <!-- Logo positioned at the top right corner -->
-      <img src="@/assets/snackshack.png" alt="SnackShack Logo" class="vending-machine-logo">
+    <div class="typing-text-container left">
+      <span
+        class="typing-text"
+        v-for="(line, index) in leftText"
+        :key="'left-' + index"
+        :style="{ animationDelay: `${index * 1}s` }"
+      >
+        {{ line }}
+      </span>
+    </div>      
+      <div class="vending-machine">
+        <!-- Logo positioned at the top right corner -->
+        <img src="@/assets/snackshack.png" alt="SnackShack Logo" class="vending-machine-logo">
 
-      <!-- Left side: Glass container + Snack output -->
-      <div class="snack-section">
-        <div class="glass-container">
-          <div class="snack-container">
-            <div class="row" v-for="rowIndex in 4" :key="rowIndex">
-              <div
-                v-for="(machine, index) in 4"
-                :key="index"
-                class="machine"
-                @click="selectMachine(rowIndex, index)"
-              >
-                <div class="number-shelf">
-                  <span class="machine-number">{{ getMachineNumber(rowIndex, index) }}</span>
+        <!-- Left side: Glass container + Snack output -->
+        <div class="snack-section">
+          <div class="glass-container">
+            <div class="snack-container">
+              <div class="row" v-for="rowIndex in 4" :key="rowIndex">
+                <div
+                  v-for="(machine, index) in 4"
+                  :key="index"
+                  class="machine"
+                  @click="selectMachine(rowIndex, index)"
+                >
+                  <div class="number-shelf">
+                    <span class="machine-number">{{ getMachineNumber(rowIndex, index) }}</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+          <!-- Snack output tray -->
+          <div class="snack-output"></div>
         </div>
-        <!-- Snack output tray -->
-        <div class="snack-output"></div>
-      </div>
 
-      <!-- Right side with controls -->
-      <div class="controls-container">
-        <div class="screen" :class="{ zoomed: isZoomed }">
-          <div v-if="screenDisplay || errorFlash" class="screen-display" :class="{ error: errorFlash }">
-            {{ errorFlash ? 'ERROR' : screenDisplay }}
+        <!-- Right side with controls -->
+        <div class="controls-container">
+          <div class="screen" :class="{ zoomed: isZoomed }">
+            <div v-if="screenDisplay || errorFlash" class="screen-display" :class="{ error: errorFlash }">
+              {{ errorFlash ? 'ERROR' : screenDisplay }}
+            </div>
+            <!-- Overlay for displaying details and back button (renders after zoom completes) -->
+            <div
+              v-if="showDetails"
+              class="overlay"
+              :style="{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${selectedMachineDetails.imageUrl})` }"
+            >
+              <p class="zoomed-text"><strong>Machine Name:</strong> {{ selectedMachineDetails.machineName }}</p>
+              <p class="zoomed-text"><strong>Description:</strong> {{ selectedMachineDetails.description }}</p>
+              <p class="zoomed-text"><strong>Type:</strong> {{ selectedMachineDetails.type }}</p>
+              <p class="zoomed-text"><strong>Payment Type:</strong> {{ selectedMachineDetails.paymentType.join(', ') }}</p>
+              <button @click="zoomOut" class="back-button">Go Back</button>
+              <button @click="viewOnMap" class="view-map-button">View on Map</button>
+            </div>
           </div>
-          <!-- Overlay for displaying details and back button (renders after zoom completes) -->
-          <div
-            v-if="showDetails"
-            class="overlay"
-            :style="{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${selectedMachineDetails.imageUrl})` }"
-          >
-            <p class="zoomed-text"><strong>Machine Name:</strong> {{ selectedMachineDetails.machineName }}</p>
-            <p class="zoomed-text"><strong>Description:</strong> {{ selectedMachineDetails.description }}</p>
-            <p class="zoomed-text"><strong>Type:</strong> {{ selectedMachineDetails.type }}</p>
-            <p class="zoomed-text"><strong>Payment Type:</strong> {{ selectedMachineDetails.paymentType.join(', ') }}</p>
-            <button @click="zoomOut" class="back-button">Go Back</button>
-            <button @click="viewOnMap" class="view-map-button">View on Map</button>
+          <div class="keypad">
+            <div
+              v-for="key in keys"
+              :key="key"
+              class="keypad-button"
+              @click="handleKeypadInput(key)"
+              @mouseover="hoverKey = key"
+              @mouseleave="hoverKey = null"
+              :class="{ hover: hoverKey === key }"
+            ></div>
+            <div class="keypad-button red" @click="handleBackspace"></div>
+            <div class="keypad-button" @click="handleKeypadInput(0)"></div>
+            <div class="keypad-button green" @click="handleSubmit"></div>
           </div>
+          <div class="cash-coin-container">
+            <div class="cash-slot"></div>
+            <div class="coin-return"></div>
+          </div>
+          <div class="coin-return-tray"></div>
         </div>
-        <div class="keypad">
-          <div
-            v-for="key in keys"
-            :key="key"
-            class="keypad-button"
-            @click="handleKeypadInput(key)"
-            @mouseover="hoverKey = key"
-            @mouseleave="hoverKey = null"
-            :class="{ hover: hoverKey === key }"
-          ></div>
-          <div class="keypad-button red" @click="handleBackspace"></div>
-          <div class="keypad-button" @click="handleKeypadInput(0)"></div>
-          <div class="keypad-button green" @click="handleSubmit"></div>
-        </div>
-        <div class="cash-coin-container">
-          <div class="cash-slot"></div>
-          <div class="coin-return"></div>
-        </div>
-        <div class="coin-return-tray"></div>
       </div>
-    </div>
+    <div class="typing-text-container right">
+      <span
+        class="typing-text"
+        v-for="(line, index) in rightText"
+        :key="'right-' + index"
+        :style="{ animationDelay: `${leftText.length * 1 + index * 1}s` }"
+      >
+        {{ line }}
+      </span>
+      <span class="caret" v-show="rightTextTyping"></span>
+    </div>  
   </div>
 </template>
 
@@ -77,6 +98,8 @@
   export default {
     data() {
       return {
+        leftText: ["Find", "vending", "machines", "near", "you."],
+        rightText: ["Satisfy", "your", "cravings."],
         machines: [], // Holds vending machine data for the component
         closestMachines: [], // Sorted list of the 16 closest machines
         selectedMachineNumber: null,
@@ -89,7 +112,7 @@
         keys: [1, 2, 3, 4, 5, 6, 7, 8, 9],
       };
     },
-
+  
     async created() {
       await loadMachineData(); // Ensure machineData is loaded from Firestore
       this.machines = machineData; // Assign the fetched data to the local machines array
@@ -214,30 +237,30 @@ html, body {
 }
 
 #vending-machine-page {
-  margin: 0;
-  padding: 0;
-  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
   background-color: #001f3f;
+  height: 100vh;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
+/* Vending machine container */
 .vending-machine {
   position: relative;
   background-color: #333;
   border-radius: 20px;
-  width: 90vw; /* Set width relative to viewport */
-  max-width: 450px; /* Cap the maximum width */
-  height: 80vh; /* Use viewport height for responsive height */
-  max-height: 600px; /* Cap the maximum height */
+  width: 450px;
+  height: 600px;
   padding: 10px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   border: 3px solid #555;
-  margin: auto; /* Center the machine */
+  z-index: 1;
 }
 
 .vending-machine-logo {
@@ -471,4 +494,58 @@ html, body {
   border: 2px solid #666;
   margin-top: 5px;
 }
+
+/* Typing text container */
+.typing-text-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  color: orange;
+  font-family: "Courier New", monospace;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.typing-text-container.left {
+  top: 45%;
+  left: 14%;
+  transform: translateY(-50%);
+}
+
+.typing-text-container.right {
+  top: 45%;
+  right: 12%;
+  transform: translateY(-50%);
+}
+
+/* Typing animation for each line */
+.typing-text {
+  font-size: 3rem;
+  overflow: hidden;
+  white-space: nowrap;
+  display: inline-block;
+  animation: typing 1s steps(20, end) forwards;
+}
+
+/* Delay each line to type in sequence */
+.typing-text:nth-child(1) { animation-delay: 0s; }
+.typing-text:nth-child(2) { animation-delay: 0.5s; }
+.typing-text:nth-child(3) { animation-delay: 1.5s; }
+.typing-text:nth-child(4) { animation-delay: 2s; }
+.typing-text:nth-child(5) { animation-delay: 2.5s; }
+
+/* Right text delays after left text finishes */
+.typing-text-container.right .typing-text:nth-child(1) { animation-delay: 3s; }
+.typing-text-container.right .typing-text:nth-child(2) { animation-delay: 3.5s; }
+.typing-text-container.right .typing-text:nth-child(3) { animation-delay: 4s; }
+
+/* Keyframes for typing effect */
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
 </style>
+
