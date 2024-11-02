@@ -227,16 +227,17 @@ html, body {
   position: relative;
   background-color: #333;
   border-radius: 20px;
-  width: 450px;
-  height: 600px;
+  width: 90vw; /* Set width relative to viewport */
+  max-width: 450px; /* Cap the maximum width */
+  height: 80vh; /* Use viewport height for responsive height */
+  max-height: 600px; /* Cap the maximum height */
   padding: 10px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   border: 3px solid #555;
-  transform: scale(1.3);
-  transform-origin: center;
+  margin: auto; /* Center the machine */
 }
 
 .vending-machine-logo {
