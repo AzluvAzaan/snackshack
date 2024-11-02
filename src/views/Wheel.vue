@@ -121,7 +121,7 @@ export default {
         { id: 3, name: "Lay's Barbecue Chips", type: 'Lays', img: LaysB, calories: 150, fat: 9, sugar: 2, sodium: 200,},
         { id: 4, name: 'Lay\'s Sour Cream & Onion', type: 'Lays', img: LaysSC, calories: 160, fat: 10, sugar: 1, sodium: 170},
         { id: 5, name: 'Doritos Nacho Cheese', type: 'Doritos', img: DoritosNC, calories: 145, fat: 7.7, sugar: 0.7, sodium: 193.5},
-        { id: 6, name: 'Lay\s Classic', type: 'Lays', img: LaysC, calories: 160, fat: 10, sugar: 1, sodium: 170,},
+        { id: 6, name: 'Lay\'s Classic', type: 'Lays', img: LaysC, calories: 160, fat: 10, sugar: 1, sodium: 170,},
         { id: 7, name: 'M&Ms', type: 'M&Ms', img: MandM, calories: 190, fat: 8, sugar: 26, sodium: 30},
         { id: 8, name: 'Tong Garden Salted Cashew Nuts', type: 'Mixed Nuts', img: TongSC, calories: 250, fat: 19, sugar: 2, sodium: 85,},
         { id: 9, name: 'Twisties Chicken', type: 'Twisties', img: TwistiesC, calories: 80, fat: 4.4, sugar: 2, sodium: 93},
@@ -141,7 +141,7 @@ export default {
       isAnimating: false,
       beltWidth: 0,
       showModal: false,
-      selectedCard: null,
+      selectedSnackDetail: {}, // Initialize selectedSnackDetail
       showDetailModal: false,
     };
   },
@@ -174,13 +174,20 @@ export default {
       }
       if (this.isAnimating) return;
       this.isAnimating = true;
-      const randomIndex = Math.floor(Math.random() * this.snacks.length);
+
+
+      let randomIndex;
+      do {
+        randomIndex = Math.floor(Math.random() * this.snacks.length);
+      } while (randomIndex === this.selectedSnackIndex); // Avoid the same snack
+
       this.selectedSnackIndex = randomIndex;
+
       const snackWidth = 150;
       const targetPosition = randomIndex * snackWidth;
       gsap.to(this.$refs.belt, {
         x: `-${targetPosition}px`,
-        duration: 0.8,
+        duration: 0.9,
         ease: 'power2.out',
         onComplete: () => {
           this.checkResetPosition();
