@@ -10,7 +10,8 @@ import {
   updateDoc,
   increment,
   setDoc,
-  getDoc
+  getDoc,
+  writeBatch, 
 } from 'firebase/firestore';
 import { 
   ref, 
@@ -135,6 +136,19 @@ export default {
       async updateUserData(userId, userData) {
         const userRef = doc(db, 'users', userId);
         await updateDoc(userRef, userData);
+      },
+
+      async deleteAllReviewsForMachine(machineId) {
+        const reviewsRef = collection(db, 'reviews');
+        const q = query(reviewsRef, where('machineID', '==', machineId));
+        const querySnapshot = await getDocs(q);
+      
+        const batch = writeBatch(db);
+        querySnapshot.forEach((doc) => {
+          batch.delete(doc.ref);
+        });
+      
+        await batch.commit();
       },
 
 

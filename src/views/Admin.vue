@@ -6,8 +6,7 @@
         {{ alert.message }}
         <button type="button" class="btn-close" @click="closeAlert" aria-label="Close"></button>
       </div>
-
-
+      <!-- Admin Page Header --> 
       <div class="row mb-4 align-items-center">
         <div class="col-12 col-md-8">
           <h1 class="mb-0">Admin Page</h1>
@@ -17,7 +16,6 @@
           <button @click="logout" class="btn btn-danger">Logout</button>
         </div>
       </div>
-
       <div class="row mb-4 align-items-center">
        <!-- <p v-if="currentUser" class="mb-0 me-3">Logged in as: {{ currentUser.email }}</p> -->
        <div v-if="currentUser && userDetails" class="user-info">
@@ -175,6 +173,7 @@
               <p class="card-text"><strong>Type:</strong> {{ machine.type }}</p>
               <p class="card-text"><strong>Payment:</strong> {{ machine.paymentType.join(', ') }}</p>
               <p class="card-text"><strong>Items:</strong> {{ machine.contents.join(', ') }}</p>
+              <p class="card-text"><strong>Average Rating:</strong> {{ machine.avgRating }} ({{machine.numReviews}})</p>
             </div>
             <div class="card-footer">
               <!-- Edit, See Image, Delete buttons for vending machines-->
@@ -362,6 +361,12 @@ export default {
           contents: this.newMachine.contents,
         };
 
+        if (!this.isEditing) {
+      // Only set these values when adding a new machine
+          machineData.avgRating = 0;
+          machineData.numReviews = 0;
+        }
+
         if (this.isEditing) {
           await firestore.updateVendingMachine(this.editingMachineId, machineData);
           //alert('Vending machine updated successfully!');
@@ -397,7 +402,9 @@ export default {
           longitude: null
         },
         contents: [],
-        imageUrl: null 
+        imageUrl: null,
+        avgRating: 0,  
+        numReviews: 0  
       };
       this.newContent = '';
       this.isEditing = false;
@@ -426,6 +433,8 @@ export default {
           
           // Delete the machine document from Firestore
           await firestore.deleteVendingMachine(machineId);
+          // Delete all reviews associated with the machine
+          await firestore.deleteAllReviewsForMachine(machineId);
           //alert("Vending machine deleted successfully!");
           this.showAlert("Vending machine deleted successfully!", 'success');
           this.fetchUserMachines();
@@ -471,7 +480,7 @@ export default {
       window.scrollTo({
             top: 0,
             behavior: 'smooth'
-      });
+    });
     },
 
     //Shows alert message at top of page 
