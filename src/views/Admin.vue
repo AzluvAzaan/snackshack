@@ -140,10 +140,18 @@
           </form>
         </div>
       </div>
+      <!-- Search input -->
+      <div class="mb-3">
+        <input 
+          type="text" 
+          v-model="searchQuery" 
+          class="form-control" 
+          placeholder="Search vending machines...">
+      </div>
         
       <!-- Vending Machines in Bootstrap Card -->
       <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3  row-cols-xl-4 g-4 justify-content-start">
-        <div v-for="machine in userMachines" :key="machine.id" class="col">
+        <div v-for="machine in filteredMachines" :key="machine.id" class="col">
           <!-- Details of each vending machine in bootstrap Card-->
           <div class="card h-100">
             <img :src="machine.imageUrl" class="card-img-top" alt="No Machine Image Uploaded" style="height: 200px; object-fit: cover;">
@@ -204,9 +212,24 @@ export default {
         show: false,
         message: '',
         type: 'success'
-      }
+      },
+      searchQuery: '',
       }
     },
+    computed: {
+    filteredMachines() {
+      if (!this.searchQuery) {
+        return this.userMachines;
+      }
+      const query = this.searchQuery.toLowerCase();
+      return this.userMachines.filter(machine => 
+        machine.machineName.toLowerCase().includes(query) ||
+        machine.description.toLowerCase().includes(query) ||
+        machine.locDes.toLowerCase().includes(query) ||
+        machine.type.toLowerCase().includes(query)
+      );
+    }
+  },
   mounted() {
     // Checks if user is logged in and fetches user's machines if they are
     // Firebase authentication metho
