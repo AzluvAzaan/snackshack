@@ -9,6 +9,7 @@
       <!-- Admin Page Header --> 
       <div class="row mb-4 align-items-center">
         <div class="col-12 col-md-8">
+          
           <h1 class="mb-0">Admin Page</h1>
         </div>
         <div class="col-12 col-md-4 d-flex justify-content-md-end align-items-center mt-3 mt-md-0">
@@ -150,20 +151,40 @@
           </form>
         </div>
       </div>
-      <!-- Search input -->
+      <!-- Search input and Sort select -->
       <div class="mb-3">
-        <input 
-          type="text" 
-          v-model="searchQuery" 
-          class="form-control" 
-          placeholder="Search vending machines...">
+        <div class="row g-2">
+          <div class="col-md-8">
+            <div class="input-group">
+              <span class="input-group-text">
+                <font-awesome-icon icon="fa-solid fa-magnifying-glass" />
+              </span>
+              <input 
+                type="text" 
+                v-model="searchQuery" 
+                class="form-control darker-placeholder" 
+                placeholder="Search vending machines by Name, Location, Description, Type and Status of Machine">
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="input-group">
+              <span class="input-group-text">
+                <font-awesome-icon icon="fa-solid fa-sort" />
+              </span>
+              <select v-model="sortOption" class="form-select">
+                <option value="">Sort by (Default)</option>
+                <option value="Asc">Rating: Low to High</option>
+                <option value="Desc">Rating: High to Low</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
-        
       <!-- Vending Machines in Bootstrap Card -->
       <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3  row-cols-xl-4 g-4 justify-content-start">
-        <div v-for="machine in filteredMachines" :key="machine.id" class="col">
+        <div v-for="machine in filteredAndSortedMachines" :key="machine.id" class="col">
           <!-- Details of each vending machine in bootstrap Card-->
-          <div class="card h-100">
+          <div class="card h-100" :class="getRatingColorClass(machine.avgRating)">
             <img :src="machine.imageUrl" class="card-img-top" alt="No Machine Image Uploaded" style="height: 200px; object-fit: cover;">
             <div class="card-body">
               <h5 class="card-title">{{ machine.machineName }}</h5>
@@ -173,7 +194,7 @@
               <p class="card-text"><strong>Type:</strong> {{ machine.type }}</p>
               <p class="card-text"><strong>Payment:</strong> {{ machine.paymentType.join(', ') }}</p>
               <p class="card-text"><strong>Items:</strong> {{ machine.contents.join(', ') }}</p>
-              <p class="card-text"><strong>Average Rating:</strong> {{ machine.avgRating }} ({{machine.numReviews}})</p>
+              <p class="card-text"><strong>Average Rating:</strong> {{ machine.avgRating }} <font-awesome-icon icon="fa-solid fa-star" /> ({{machine.numReviews}})</p>
             </div>
             <div class="card-footer">
               <!-- Edit, See Image, Delete buttons for vending machines-->
@@ -228,21 +249,49 @@ export default {
       searchQuery: '',
       editingContact: false,
       newContactNumber: '',
+      sortOption: '',
       }
     },
     computed: {
-    filteredMachines() {
-      if (!this.searchQuery) {
-        return this.userMachines;
+      filteredAndSortedMachines() {
+      let result = this.userMachines;
+      
+      // Apply search filter
+      if (this.searchQuery) {
+        const query = this.searchQuery.toLowerCase();
+        result = result.filter(machine => 
+          machine.machineName.toLowerCase().includes(query) ||
+          machine.description.toLowerCase().includes(query) ||
+          machine.locDes.toLowerCase().includes(query) ||
+          machine.type.toLowerCase().includes(query) ||
+          machine.status.toLowerCase().includes(query)
+        );
       }
-      const query = this.searchQuery.toLowerCase();
-      return this.userMachines.filter(machine => 
-        machine.machineName.toLowerCase().includes(query) ||
-        machine.description.toLowerCase().includes(query) ||
-        machine.locDes.toLowerCase().includes(query) ||
-        machine.type.toLowerCase().includes(query)
-      );
-    }
+      
+      // Apply sorting
+      if (this.sortOption) {
+        result.sort((a, b) => {
+          if (this.sortOption === 'Asc') {
+            return (a.avgRating || 0) - (b.avgRating || 0);
+          } else if (this.sortOption === 'Desc') {
+            return (b.avgRating || 0) - (a.avgRating || 0);
+          }
+        });
+      }
+      
+      return result;
+    },
+
+    getRatingColorClass() {
+    return (rating) => {
+      if (!rating) return ''; // No glow for 0 or undefined rating
+      if (rating < 1.5) return 'glow-red';
+      if (rating < 2.5) return 'glow-orange';
+      if (rating < 3.5) return 'glow-yellow';
+      if (rating < 4.5) return 'glow-light-green';
+      return 'glow-green';
+      };
+    },
   },
   mounted() {
     // Checks if user is logged in and fetches user's machines if they are
@@ -753,6 +802,26 @@ label {
   color: inherit;
 }
 
+.glow-red {
+  box-shadow: 0 0 20px 8px rgba(255, 0, 0, 0.5);
+}
+.glow-orange {
+  box-shadow: 0 0 20px 8px rgba(255, 165, 0, 0.5);
+}
+.glow-yellow {
+  box-shadow: 0 0 20px 8px rgba(255, 255, 0, 0.5);
+}
+.glow-light-green {
+  box-shadow: 0 0 20px 8px rgba(144, 238, 144, 0.5);
+}
+.glow-green {
+  box-shadow: 0 0 20px 8px rgba(0, 255, 0, 0.5);
+}
+
+.darker-placeholder::placeholder {
+  color: #555 !important;
+  opacity: 1 !important;
+} 
 
 </style>
 
