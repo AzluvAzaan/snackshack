@@ -2,24 +2,27 @@
    <div class="container-fluid">
     <div class="row">
       <!-- Sidebar -->
-      <nav id="sidebarMenu" class="col-md-3 col-lg-3 d-md-block bg-light sidebar collapse">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-3 d-md-block bg-light sidebar" 
+      :class="{ 'show': sidebarOpen }">
         <div class="position-sticky pt-3">
           <div class="d-flex justify-content-between align-items-center px-3 mb-3">
             <h3 class="sidebar-heading text-muted">Vending Machines</h3>
-            <button class="btn-close d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-label="Close sidebar"></button>
+            <button class="btn-close d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-label="Close sidebar">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
           <ul class="nav flex-column">
             <li class="nav-item" v-for="machine in machines" :key="machine.id">
               <router-link 
                 :to="{ name: 'Review', query: { machine: machine.id } }" 
                 class="nav-link" 
-                :class="{ active: machine.id === selectedMachineId }"
+                :class="{ 'active': machine.id === selectedMachineId }"
                 @click="selectMachine(machine.id)"
               >
                 <div class="machine-item">
                   <img :src="machine.imageUrl" alt="Machine Image" class="machine-image">
                   <div class="machine-info">
-                    <span class="machine-description">{{ machine.description }}</span>
+                    <span class="machine-machineName">{{ machine.machineName }}</span>
                     <div class="machine-rating">
                       <span class="stars">
                         <span v-for="n in 5" :key="n" :class="{ 'filled': n <= Math.round(machine.avgRating) }">★</span>
@@ -37,24 +40,51 @@
 
       <!-- Main content -->
       <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <button class="btn btn-primary d-md-none mt-3 mb-3" @click="toggleSidebar">
+          Toggle Sidebar
+        </button>
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <div class="ms-lg-auto"> 
-            <h1 class="h2">Reviews</h1>
-          </div>
+          <h1 class="review-title">Reviews</h1>
           <div class="btn-toolbar mb-2 mb-md-0">
-            <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle sidebar">
               <span class="navbar-toggler-icon"></span>
             </button>
           </div>
         </div>
 
-        <div class="review-container">
-          <!-- Display machine details -->
-          <div v-if="machine" class="machine-details">
-            <img :src="machine.imageUrl" alt="Machine Image" class="machine-image">
-            <p>{{ machine.description }}</p>
-            <p>Location: {{ machine.locDes }}</p>
+        <!-- Updated Machine Card -->
+  <div v-if="machine" class="machine-card mb-4">
+    <div class="card">
+      <div class="card-content">
+        <div class="image-container">
+          <img :src="machine.imageUrl" class="card-img" alt="Vending Machine">
+        </div>
+        <div class="info-container">
+          <h2 class="machine-name">{{ machine.machineName }}</h2>
+          <p class="machine-description">{{ machine.description }}</p>
+          <p class="machine-location">
+            <i class="fas fa-map-marker-alt"></i> {{ machine.locDes }}
+          </p>
+          <div class="machine-rating">
+            <div class="stars-container">
+              <div class="stars-empty">
+                <span v-for="n in 5" :key="`empty-${n}`">☆</span>
+              </div>
+              <div class="stars-filled" :style="{ width: `${(machine.avgRating / 5) * 100}%` }">
+                <span v-for="n in 5" :key="`filled-${n}`">★</span>
+              </div>
+            </div>
+            <span class="rating-value">{{ machine.avgRating ? machine.avgRating.toFixed(1) : 'N/A' }}</span>
+            <span class="review-count">({{ machine.numReviews || 0 }} reviews)</span>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+        <div class="review-container">
 
           <div class="collective-bar-graph">
             <h2>Ratings Distribution</h2>
@@ -172,6 +202,7 @@ data() {
     reviews: [],       // Array to store multiple reviews
     machines: [],
     selectedMachineId: null,
+    sidebarOpen: true,
   };
 },
 methods: {
@@ -279,6 +310,11 @@ return 'just now';
         const bsCollapse = new bootstrap.Collapse(sidebar);
         bsCollapse.hide();
       }
+      // Keep the sidebar open
+      // Close the sidebar only on mobile after selection
+      if (window.innerWidth < 768) {
+        this.sidebarOpen = false;
+      }
     },
 
     async fetchVendingMachines() {
@@ -293,6 +329,9 @@ return 'just now';
       } catch (error) {
         console.error("Error fetching vending machines:", error);
       }
+    },
+    toggleSidebar() {
+      this.sidebarOpen = !this.sidebarOpen;
     },
 
 },
@@ -584,6 +623,10 @@ color: #666;
 }
 
 /* Updated sidebar styles */
+.review-title{
+  margin:auto;
+  font-weight: bold;
+}
 .sidebar {
   position: fixed;
   top: 0;
@@ -593,10 +636,29 @@ color: #666;
   padding: 48px 0 0;
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
   overflow-y: auto;
+  transition: transform 0.3s ease-in-out;
+}
+
+.sidebar.collapse:not(.show) {
+  transform: translateX(-100%);
 }
 
 .nav-item {
   margin-bottom: 10px;
+}
+
+.nav-link {
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  background-color: #e9ecef;
+}
+
+.nav-link.active {
+  background-color: #007bff;
+  color: white;
 }
 
 .machine-item {
@@ -617,7 +679,7 @@ color: #666;
   flex-grow: 1;
 }
 
-.machine-description {
+.machine-machineName {
   display: block;
   font-weight: bold;
   margin-bottom: 5px;
@@ -645,6 +707,60 @@ color: #666;
 
 .review-count {
   color: #666;
+}
+
+/* Updated close button styles */
+.btn-close {
+  font-size: 1.5rem;
+  padding: 0.5rem;
+  margin: -0.5rem -0.5rem -0.5rem auto;
+  background-color: transparent;
+  border: 0;
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.btn-close:hover {
+  opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .sidebar.collapse:not(.show) {
+    transform: translateX(-100%);
+  }
+
+  .sidebar .btn-close {
+    display: block;
+  }
+
+  .navbar-toggler {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) {
+  .sidebar .btn-close {
+    display: none;
+  }
+
+  .navbar-toggler {
+    display: none;
+  }
 }
 
 /* Responsive adjustments */
@@ -707,6 +823,129 @@ color: #666;
 @media (min-width: 768px) {
   .sidebar .btn-close {
     display: none;
+  }
+}
+
+<style scoped>
+/* ... other styles ... */
+
+.machine-card {
+  margin-bottom: 2rem;
+}
+
+.machine-card .card {
+  background-color: #e9f7ff;
+  border: none;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.machine-card .card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.machine-card .card-content {
+  display: flex;
+  flex-direction: row;
+}
+
+.machine-card .image-container {
+  flex: 0 0 40%;
+  max-width: 40%;
+}
+
+.machine-card .card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.machine-card .info-container {
+  flex: 1;
+  padding: 1.5rem;
+}
+
+.machine-card .machine-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #007bff;
+}
+
+.machine-card .machine-description {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.machine-card .machine-location {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.machine-card .machine-location i {
+  color: #007bff;
+  margin-right: 0.25rem;
+}
+
+.machine-card .machine-rating {
+  display: flex;
+  align-items: center;
+}
+
+.machine-card .stars-container {
+  position: relative;
+  display: inline-block;
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
+}
+
+.machine-card .stars-empty,
+.machine-card .stars-filled {
+  display: flex;
+}
+
+.machine-card .stars-empty {
+  color: #ccc;
+}
+
+.machine-card .stars-filled {
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  color: #ffd700;
+}
+
+.machine-card .rating-value {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-right: 0.5rem;
+  color: #007bff;
+}
+
+.machine-card .review-count {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .machine-card .card-content {
+    flex-direction: column;
+  }
+
+  .machine-card .image-container {
+    flex: 0 0 100%;
+    max-width: 100%;
+    height: 200px;
+  }
+
+  .machine-card .info-container {
+    padding: 1rem;
   }
 }
 </style>
