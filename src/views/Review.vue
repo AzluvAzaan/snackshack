@@ -3,7 +3,7 @@
     <div class="row">
       <!-- Sidebar -->
       <nav id="sidebarMenu" class="col-md-3 col-lg-3 d-md-block bg-light sidebar" 
-      :class="{ 'show': sidebarOpen }">
+      :class="{ 'show': sidebarOpen, 'd-none': !sidebarOpen && isMobile }">
         <div class="position-sticky pt-3">
           <div class="d-flex justify-content-between align-items-center px-3 mb-3">
             <h3 class="sidebar-heading text-muted">Vending Machines</h3>
@@ -24,7 +24,7 @@
                   <div class="machine-info">
                     <span class="machine-machineName">{{ machine.machineName }}</span>
                     <div class="machine-rating">
-                      <span class="stars">
+                      <span class="stars-review">
                         <span v-for="n in 5" :key="n" :class="{ 'filled': n <= Math.round(machine.avgRating) }">★</span>
                       </span>
                       <span class="rating-value">{{ machine.avgRating ? machine.avgRating.toFixed(1) : 'N/A' }}</span>
@@ -39,7 +39,7 @@
       </nav>
 
       <!-- Main content -->
-      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <main class="col-md-9 ms-sm-auto col-lg-9 px-md-4">
         <button class="btn btn-primary d-md-none mt-3 mb-3" @click="toggleSidebar">
           Toggle Sidebar
         </button>
@@ -203,6 +203,7 @@ data() {
     machines: [],
     selectedMachineId: null,
     sidebarOpen: true,
+    isMobile: false,
   };
 },
 methods: {
@@ -332,6 +333,13 @@ return 'just now';
     },
     toggleSidebar() {
       this.sidebarOpen = !this.sidebarOpen;
+    },
+
+    handleResize() {
+      this.isMobile = window.innerWidth < 768;
+      if (!this.isMobile) {
+        this.sidebarOpen = true;
+      }
     },
 
 },
@@ -541,6 +549,7 @@ display: block;
 display: flex;
 align-items: center;
 margin-bottom: 10px;
+margin-top: 10px;
 }
 
 .collective-bar-label {
@@ -826,126 +835,84 @@ color: #666;
   }
 }
 
-<style scoped>
-/* ... other styles ... */
-
+/* Updated Machine Card Styles */
 .machine-card {
   margin-bottom: 2rem;
 }
 
-.machine-card .card {
-  background-color: #e9f7ff;
+.card {
   border: none;
-  border-radius: 15px;
-  overflow: hidden;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
+  background-color: #e9f7ff;
 }
 
-.machine-card .card:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.machine-card .card-content {
+.card-content {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
 }
 
-.machine-card .image-container {
-  flex: 0 0 40%;
-  max-width: 40%;
+.image-container {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
 }
 
-.machine-card .card-img {
+.card-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.machine-card .info-container {
-  flex: 1;
-  padding: 1.5rem;
+.info-container {
+  padding: 1rem;
 }
 
-.machine-card .machine-name {
+.machine-name {
   font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  color: #007bff;
-}
-
-.machine-card .machine-description {
-  font-size: 1rem;
-  color: #333;
   margin-bottom: 0.5rem;
 }
 
-.machine-card .machine-location {
+.machine-description {
   font-size: 0.9rem;
   color: #666;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
-.machine-card .machine-location i {
+.machine-location {
+  font-size: 0.9rem;
   color: #007bff;
-  margin-right: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
-.machine-card .machine-rating {
+.machine-rating {
   display: flex;
   align-items: center;
 }
 
-.machine-card .stars-container {
-  position: relative;
-  display: inline-block;
-  font-size: 1.2rem;
-  margin-right: 0.5rem;
-}
-
-.machine-card .stars-empty,
-.machine-card .stars-filled {
-  display: flex;
-}
-
-.machine-card .stars-empty {
-  color: #ccc;
-}
-
-.machine-card .stars-filled {
-  position: absolute;
-  top: 0;
-  left: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  color: #ffd700;
-}
-
-.machine-card .rating-value {
+.rating-value {
   font-weight: bold;
-  font-size: 1.1rem;
   margin-right: 0.5rem;
-  color: #007bff;
 }
 
-.machine-card .review-count {
-  font-size: 0.9rem;
+.review-count {
+  font-size: 0.8rem;
   color: #666;
 }
 
-@media (max-width: 768px) {
-  .machine-card .card-content {
-    flex-direction: column;
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .card-content {
+    flex-direction: row;
   }
 
-  .machine-card .image-container {
-    flex: 0 0 100%;
-    max-width: 100%;
-    height: 200px;
+  .image-container {
+    width: 40%;
+    height: auto;
   }
 
-  .machine-card .info-container {
-    padding: 1rem;
+  .info-container {
+    width: 60%;
+    padding: 1.5rem;
   }
 }
 </style>
