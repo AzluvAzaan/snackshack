@@ -196,11 +196,37 @@
               <p class="card-text"><strong>Items:</strong> {{ machine.contents.join(', ') }}</p>
               <p class="card-text"><strong>Average Rating:</strong> {{ machine.avgRating }} <font-awesome-icon icon="fa-solid fa-star" /> ({{machine.numReviews}})</p>
             </div>
-            <div class="card-footer">
+            <div class="card-footer d-flex flex-wrap justify-content-start">
               <!-- Edit, See Image, Delete buttons for vending machines-->
+               <div class="mb-2">
               <button @click="editMachine(machine)" class="btn btn-sm btn-secondary me-1">Edit</button>
               <button @click="showImage(machine)" v-if="machine.imageUrl" class="btn btn-sm btn-dark me-1">See Image</button>
-              <button @click="deleteMachine(machine.id)" class="btn btn-sm btn-danger">Delete</button>
+              </div>
+              <div>
+                <router-link :to="{ path: '/review', query: { machine: machine.id } }" >
+                  <button class="btn btn-info btn-sm me-1"> View All Reviews</button>
+                </router-link>
+                <button @click="deleteMachine(machine.id)" class="btn btn-sm btn-danger">Delete</button>
+              </div>
+
+              <!-- Work in Progress NOT WORKING
+                 <button @click="toggleReviews(machine.id)" class="btn btn-info btn-sm">
+                  {{ showingReviewsForMachine === machine.id ? 'Hide Reviews' : 'View Reviews' }}
+                </button> -->
+              
+              <!-- Reviews section -->
+              <!-- <div v-if="showingReviewsForMachine === machine.id && machine.recentReviews">
+              <h5 class="mt-3">Recent Reviews:</h5>
+              <div v-if="machine.recentReviews.length > 0">
+                <div v-for="review in machine.recentReviews" :key="review.id" class="mb-2">
+                  <strong>{{ review.username }}</strong>: {{ review.text }}
+                  <br>
+                  Rating: {{ review.rating }} / 5
+                </div>
+              </div>
+              <div v-else>No reviews yet.</div>
+            </div> -->
+
             </div>
           </div>
         </div>
@@ -246,10 +272,11 @@ export default {
         message: '',
         type: 'success'
       },
-      searchQuery: '',
-      editingContact: false,
-      newContactNumber: '',
-      sortOption: '',
+      searchQuery: '', // Search query
+      editingContact: false, // Check if editing contact
+      newContactNumber: '', 
+      sortOption: '', // Sorting option
+      showReviewsForMachine: null, // Check if showing reviews for a machine
       }
     },
     computed: {
@@ -547,8 +574,32 @@ export default {
     closeAlert() {
       this.alert.show = false;
       this.alert.message = '';
-      }
-    }
+      },
+    // Work in Progress
+    //   async fetchRecentReviews(machineId) {
+    //     try {
+    //       const reviews = await firestore.getRecentReviewsForMachine(machineId);
+    //       // Find the machine and update its recentReviews
+    //       const machineIndex = this.userMachines.findIndex(m => m.id === machineId);
+    //       if (machineIndex !== -1) {
+    //       this.userMachines[machineIndex].recentReviews =  reviews;
+    //       }
+    //     } catch (error) {
+    //       console.error("Error fetching recent reviews:", error);
+    //       this.showAlert('Error fetching reviews', 'danger');
+    //     }
+    //   },
+
+    //   toggleReviews(machineId) {
+    //   if (this.showingReviewsForMachine === machineId) {
+    //     this.showingReviewsForMachine = null; // Hide reviews if already showing
+    //   } else {
+    //     this.showingReviewsForMachine = machineId; // Show reviews for this machine
+    //     this.fetchRecentReviews(machineId);
+    //   }
+    // },
+
+    },
   };
 
 </script>
@@ -822,7 +873,21 @@ label {
   color: #555 !important;
   opacity: 1 !important;
 } 
+.reviews-section {
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
 
+.review-item {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.review-item:last-child {
+  border-bottom: none;
+}
 </style>
 
 

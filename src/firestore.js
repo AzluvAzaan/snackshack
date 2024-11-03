@@ -12,6 +12,8 @@ import {
   setDoc,
   getDoc,
   writeBatch, 
+  orderBy,
+  limit,
 } from 'firebase/firestore';
 import { 
   ref, 
@@ -72,6 +74,25 @@ export default {
         const querySnapshot = await getDocs(q);
         return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     },
+
+    // Work in Progress...
+    // async getRecentReviewsForMachine(machineId) {
+    //     console.log("Fetching recent reviews for machine:", machineId); 
+    //     try {
+    //         const reviewsCollection = collection(db, "reviews");
+    //         const q = query(
+    //           reviewsCollection,
+    //           where("machineID", "==", machineId),
+    //           orderBy("timestamp", "desc"),
+    //           limit(5)
+    //         );
+    //         const querySnapshot = await getDocs(q);
+    //         return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    //       } catch (error) {
+    //         console.error("Error fetching recent reviews:", error);
+    //         throw error;
+    //       }
+    // },
     
     async getAllReviews() {
         const reviewsCollection = collection(db, "reviews");
@@ -79,7 +100,7 @@ export default {
         return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     },
 
-    async addReview(reviewData, numReviews) {
+    async addReview(reviewData) {
         try {
           // Add the review
           const reviewRef = await addDoc(collection(db, "reviews"), reviewData);
