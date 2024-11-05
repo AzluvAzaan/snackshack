@@ -9,10 +9,6 @@
             <input type="email" class="form-control" id="email" v-model="email" required>
           </div>
           <div class="mb-3">
-            <label for="contactNumber" class="form-label">Contact Number</label>
-            <input type="tel" class="form-control" id="contactNumber" v-model="contactNumber" required>
-          </div>
-          <div class="mb-3">
             <label for="password" class="form-label">Password</label>
             <input type="password" class="form-control" id="password" v-model="password" required>
           </div>
@@ -37,17 +33,15 @@
 <script>
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from '@/firebase';
-import firestore from '@/firestore';
 
 export default {
   name: 'Register',
   data() {
     return {
       email: "",
-      contactNumber: "",
       password: "",
       confirmPassword: "",
-      error: ""
+      error: "",
     };
   },
   methods: {
@@ -58,13 +52,7 @@ export default {
       }
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, this.email, this.password);
-        const user = userCredential.user;
-
-        await firestore.storeUserData(user.uid, {
-          email: this.email,
-          contactNumber: this.contactNumber
-        });
-        //console.log("Registered as:", userCredential.user.email);
+        console.log("Registered as:", userCredential.user.email);
         this.$router.push("/login"); // Redirect to login page after successful registration
       } catch (err) {
         this.error = err.message;
@@ -81,10 +69,6 @@ export default {
 
 @import 'bootstrap/dist/css/bootstrap.css';
 
-body {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-}
-
 .register-container {
   min-height: 100vh;
   background-color: #001f3f; /* Dark blue background */
@@ -96,7 +80,6 @@ body {
   background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white */
   width: 90%;
   max-width: 400px;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 }
 
 .card-title {
@@ -108,7 +91,6 @@ body {
   background-color: #f0a500; /* Gold color for button */
   border-color: #f0a500;
   color: #001f3f; /* Dark text on gold button */
-  border-radius: 15px;
 }
 
 .btn-primary:hover, .btn-primary:focus {
@@ -130,46 +112,5 @@ body {
   color: #ff6b6b !important; /* Lighter red for error messages on dark background */
 }
 
-body {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-}
-
-.form-control {
-  background-color: rgba(255, 255, 255, 0.9);
-  color: #001f3f;
-  font-size: 1rem;
-  padding: 0.75rem;
-  transition: all 0.3s ease;
-  border-radius: 15px;
-}
-
-.form-control:focus {
-  background-color: #ffffff;
-  border-color: #f0a500;
-  box-shadow: 0 0 0 0.2rem rgba(240, 165, 0, 0.25);
-}
-
-.form-label {
-  color: #001f3f;
-  font-weight: bold;
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
-}
-
-/* Increase contrast for placeholder text */
-.form-control::placeholder {
-  color: #6c757d;
-  opacity: 0.7;
-}
-
-/* Add some spacing between form elements */
-.mb-3 {
-  margin-bottom: 1.5rem !important;
-}
-
-/* Ensure text is visible on the dark background */
-.card-body {
-  color: #001f3f;
-}
 
 </style>
