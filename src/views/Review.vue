@@ -389,27 +389,50 @@ computed: {
   }
 },
 
+// async created() {
+//   // Fetch the machine details
+//   const machines = await firestore.getAllVendingMachines();
+//   this.machine = machines.find(m => m.id === this.machineID);
+//   await this.fetchVendingMachines();
+
+//   // Fetch the reviews for this machine
+//   this.reviews = await firestore.getReviewsForMachine(this.machineID);
+//   console.log('Fetched reviews:', this.reviews);
+//   // Set the initial selected machine based on the URL
+//   const machineIdFromUrl = this.route.query.machine;
+//     if (machineIdFromUrl) {
+//       await this.selectMachine(machineIdFromUrl);
+//     } else if (this.machines.length > 0) {
+//       await this.selectMachine(this.machines[0].id);
+//     }
+   
+//     // Fetch reviews for the selected machine
+//     if (this.selectedMachineId) {
+//       await this.selectMachine(this.selectedMachineId);
+//     }
+
+    
+// },
 async created() {
   // Fetch the machine details
-  const machines = await firestore.getAllVendingMachines();
-  this.machine = machines.find(m => m.id === this.machineID);
   await this.fetchVendingMachines();
 
-  // Fetch the reviews for this machine
-  this.reviews = await firestore.getReviewsForMachine(this.machineID);
-  console.log('Fetched reviews:', this.reviews);
   // Set the initial selected machine based on the URL
-  const machineIdFromUrl = this.route.query.machine;
-    if (machineIdFromUrl) {
-      await this.selectMachine(machineIdFromUrl);
-    } else if (this.machines.length > 0) {
-      await this.selectMachine(this.machines[0].id);
-    }
-    
-    // Fetch reviews for the selected machine
-    if (this.selectedMachineId) {
-      await this.selectMachine(this.selectedMachineId);
-    }
+  const machineIdFromUrl = this.$route.query.machine;
+  if (machineIdFromUrl) {
+    await this.selectMachine(machineIdFromUrl);
+  } else if (this.machines.length > 0) {
+    await this.selectMachine(this.machines[0].id);
+  }
+
+  // Fetch the reviews for this machine
+  if (this.selectedMachineId) {
+    this.reviews = await firestore.getReviewsForMachine(this.selectedMachineId);
+    console.log('Fetched reviews:', this.reviews);
+
+    // Fetch owner details for the initially selected machine
+    await this.fetchOwnerDetails();
+  }
 },
 };
 </script>
