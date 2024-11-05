@@ -2,22 +2,22 @@
 <div id="admin-page">
     <div class="admin-container container py-4 min-vh-100">
       <!-- Alert for add/edit/delete/cancel vending machine functions messages -->
-      <div v-if="alert.show" :class="`alert alert-${alert.type} alert-dismissible fade show`" role="alert">
+      <div v-if="alert.show" :class="`alert alert-${alert.type} alert-dismissible`" role="alert">
         {{ alert.message }}
         <button type="button" class="btn-close" @click="closeAlert" aria-label="Close"></button>
       </div>
       <!-- Admin Page Header --> 
-      <div class="row mb-4 align-items-center">
+      <div class="row mb-4">
         <div class="col-12 col-md-8">
           
           <h1 class="mb-0">Admin Page</h1>
         </div>
-        <div class="col-12 col-md-4 d-flex justify-content-md-end align-items-center mt-3 mt-md-0">
+        <div class="col-12 col-md-4 d-flex justify-content-md-end ">
           <!-- Logout button to log out user-->
-          <button @click="logout" class="btn btn-danger">Logout</button>
+          <button @click="logout" class="btn btn-danger"><font-awesome-icon icon="fa-solid fa-right-from-bracket" /> Logout</button>
         </div>
       </div>
-      <div class="row mb-4 align-items-center">
+      <div class="row">
        <!-- <p v-if="currentUser" class="mb-0 me-3">Logged in as: {{ currentUser.email }}</p> -->
        <div v-if="currentUser && userDetails" class="user-info">
             <p><strong>Logged in as: </strong> {{ currentUser.email }}</p>
@@ -25,18 +25,23 @@
               <strong>Contact Number: </strong> 
               <span v-if="!editingContact">{{ userDetails.contact }}</span>
               <input v-else v-model="newContactNumber" type="tel" class="form-control d-inline-block w-auto mx-2">
-              <button v-if="!editingContact" @click="startEditContact" class="btn btn-sm btn-primary ms-2">Edit</button>
+              <button v-if="!editingContact" @click="startEditContact" class="btn btn-sm btn-primary ms-2"> 
+                <font-awesome-icon icon="fa-solid fa-pen-to-square" />  Edit</button>
               <button v-else @click="updateContact" class="btn btn-sm btn-success mx-2">Save</button>
               <button v-if="editingContact" @click="cancelEditContact" class="btn btn-sm btn-secondary">Cancel</button>
             </p>
       </div>
       <!-- Vending Machine + Add Machine Button-->
-      <div class="row mb-4">
-        <div class="col-12">
-          <h2>Your Vending Machines</h2>
-          <button @click="showAddForm = true" class="btn btn-primary mb-3">Add a new Vending Machine</button>
-        </div>
+      <div class="row mb-3">
+      <div class="col">
+        <h2>Your Vending Machines</h2>
       </div>
+      <div class="col-auto">
+        <button @click="showAddForm = true" class="btn btn-primary">
+          <font-awesome-icon icon="fa-solid fa-plus" /> Add Vending Machine
+        </button>
+      </div>
+    </div>
     
       <!-- Add/Edit Vending Machine Form -->
       <div v-if="showAddForm" class="add-form card mb-4">
@@ -137,7 +142,7 @@
           <div class="mb-3">
             <label class="form-label">Contents in this Machine:</label>
               <ol class="list-group list-group-numbered">
-                <li v-for="(item, index) in newMachine.contents" :key="index" class="list-group-item d-flex justify-content-between align-items-start border border-secondary rounded mb-2 p-2 item-outline">
+                <li v-for="(item, index) in newMachine.contents" :key="index" class="list-group-item d-flex justify-content-between align-items-start border border-secondary mb-2 p-2 item-outline">
                   <div class="ms-2 me-auto">{{ item }}</div>
                   <button type="button" @click="removeContent(index)" class="btn btn-sm btn-danger">Remove</button>
                 </li>
@@ -840,6 +845,7 @@ label {
 
 .item-outline {
   box-shadow: 0 0 0 2px #ced4da;
+  
 }
 
 .alert {
@@ -887,6 +893,7 @@ label {
   color: inherit;
 }
 
+/* Glow effect for different average Rating */
 .glow-red {
   box-shadow: 0 0 20px 8px rgba(255, 0, 0, 0.5);
 }
@@ -903,16 +910,13 @@ label {
   box-shadow: 0 0 20px 8px rgba(0, 255, 0, 0.5);
 }
 
+/* Placeholder styling */
 .darker-placeholder::placeholder {
   color: #555 !important;
   opacity: 1 !important;
 } 
-.reviews-section {
-  padding: 1rem;
-  background-color: #f8f9fa;
-  border-top: 1px solid #e9ecef;
-}
 
+/* Review styling */
 .review-item {
   margin-bottom: 1rem;
   padding-bottom: 1rem;
