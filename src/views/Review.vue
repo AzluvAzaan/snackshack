@@ -76,10 +76,10 @@
           </div>
           <div class="owner-info">
             <p class="owner-contact">
-              <i class="fas fa-phone"></i> {{ machine.ownerContact }}
+              <i class="fas fa-phone"></i> {{ ownerEmail }}
             </p>
             <p class="owner-email">
-              <i class="fas fa-envelope"></i> {{ machine.ownerEmail }}
+              <i class="fas fa-envelope"></i> {{ ownerContact }}
             </p>
           </div>
         </div>
@@ -211,6 +211,8 @@ data() {
     selectedMachineId: null,
     sidebarOpen: true,
     isMobile: false,
+    ownerEmail: '',
+    ownerContact: '',
   };
 },
 methods: {
@@ -308,6 +310,7 @@ return 'just now';
       this.selectedMachineId = machineId;
       this.reviews = await firestore.getReviewsForMachine(machineId);
       this.machine = this.machines.find(m => m.id === machineId);
+      await this.fetchOwnerDetails();
 
       // Update the URL when a machine is selected
       this.router.push({ name: 'Review', query: { machine: machineId } });
@@ -348,6 +351,26 @@ return 'just now';
         this.sidebarOpen = true;
       }
     },
+
+    async fetchOwnerDetails() {
+      if (this.selectedMachineId) {
+        try {
+          // First, get the user ID of the machine owner
+          const machineDoc = await firestore.getVendingMachineById(this.selectedMachineId);
+          if (machineDoc && machineDoc.userId) {
+            // Then, fetch the user details using the user ID
+            const userDetails = await firestore.getUserDetails(machineDoc.userId);
+            if (userDetails) {
+              this.ownerEmail = userDetails.email || 'N/A';
+              this.ownerContact = userDetails.contact || 'N/A';
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching owner details:", error);
+        }
+      }
+    },
+
 
 },
 

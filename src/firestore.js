@@ -8,7 +8,8 @@ import {
   deleteDoc, 
   doc, 
   updateDoc,
-  increment
+  increment,
+  getDoc
 } from 'firebase/firestore';
 import { 
   ref, 
@@ -100,6 +101,26 @@ export default {
           await updateDoc(machineRef, { avgRating: avgRating });
         } catch (error) {
           console.error("Error updating machine rating:", error);
+        }
+      },
+
+      async getVendingMachineById(machineId) {
+        const machineRef = doc(db, "vendingMachines", machineId);
+        const machineDoc = await getDoc(machineRef);
+        if (machineDoc.exists()) {
+          return { id: machineDoc.id, ...machineDoc.data() };
+        } else {
+          return null;
+        }
+      },
+    
+      async getUserDetails(userId) {
+        const userRef = doc(db, "users", userId);
+        const userDoc = await getDoc(userRef);
+        if (userDoc.exists()) {
+          return userDoc.data();
+        } else {
+          return null;
         }
       },
 
