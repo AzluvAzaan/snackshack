@@ -40,9 +40,6 @@
 
       <!-- Main content -->
       <main class="col-md-9 ms-sm-auto col-lg-9 px-md-4">
-        <button class="btn btn-primary d-md-none mt-3 mb-3" @click="toggleSidebar">
-          Toggle Sidebar
-        </button>
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
           <h1 class="review-title">Reviews</h1>
           <div class="btn-toolbar mb-2 mb-md-0">
@@ -76,6 +73,14 @@
             </div>
             <span class="rating-value">{{ machine.avgRating ? machine.avgRating.toFixed(1) : 'N/A' }}</span>
             <span class="review-count">({{ machine.numReviews || 0 }} reviews)</span>
+          </div>
+          <div class="owner-info">
+            <p class="owner-contact">
+              <i class="fas fa-phone"></i> {{ machine.ownerContact }}
+            </p>
+            <p class="owner-email">
+              <i class="fas fa-envelope"></i> {{ machine.ownerEmail }}
+            </p>
           </div>
         </div>
       </div>
@@ -157,7 +162,9 @@
             </div>
 
             <!-- Submit Button -->
-            <button @click="submitReview">Submit Review</button>
+            <div class="submit-button-container">
+              <button @click="submitReview" class="submit-review-btn">Submit Review</button>
+            </div>
           </div>
 
           <!-- Display All Submitted Reviews -->
@@ -399,6 +406,7 @@ padding: 10px;
 background-color: #e9f7ff;
 border-radius: 8px;
 margin-top: 100px;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .write-review-btn {
@@ -409,7 +417,8 @@ border: none;
 border-radius: 5px;
 cursor: pointer;
 display: block;
-margin:auto;
+margin:20px auto;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .write-review-btn:hover {
@@ -870,6 +879,7 @@ color: #666;
 .machine-name {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
+  font-weight: bold;
 }
 
 .machine-description {
@@ -899,6 +909,24 @@ color: #666;
   color: #666;
 }
 
+.owner-info {
+  margin-top: 1rem;
+}
+
+.owner-contact,
+.owner-email {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.3rem;
+}
+
+.owner-info i {
+  margin-right: 0.5rem;
+  color: #007bff;
+}
+
 /* Responsive adjustments */
 @media (min-width: 768px) {
   .card-content {
@@ -914,5 +942,26 @@ color: #666;
     width: 60%;
     padding: 1.5rem;
   }
+
+  .submit-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.submit-review-btn {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.submit-review-btn:hover {
+  background-color: #0056b3;
+}
 }
 </style>
