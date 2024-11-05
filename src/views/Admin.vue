@@ -201,37 +201,36 @@
                <div class="mb-2">
               <button @click="editMachine(machine)" class="btn btn-sm btn-secondary me-1">Edit</button>
               <button @click="showImage(machine)" v-if="machine.imageUrl" class="btn btn-sm btn-dark me-1">See Image</button>
-              </div>
+              <button @click="deleteMachine(machine.id)" class="btn btn-sm btn-danger">Delete</button>
+            </div>
               <div>
-                <router-link :to="{ path: '/review', query: { machine: machine.id } }" >
-                  <button class="btn btn-info btn-sm me-1"> View All Reviews</button>
+                <button @click="showReviews(machine)" class="btn btn-warning btn-sm me-1">Recent Reviews</button>
+                <router-link :to="{ path: '/review', query: { machine: machine.id } }"  target="_blank">
+                  <button class="btn btn-info btn-sm me-1"> All Reviews</button>
                 </router-link>
-                <button @click="deleteMachine(machine.id)" class="btn btn-sm btn-danger">Delete</button>
               </div>
-
-              <!-- Work in Progress NOT WORKING
-                 <button @click="toggleReviews(machine.id)" class="btn btn-info btn-sm">
-                  {{ showingReviewsForMachine === machine.id ? 'Hide Reviews' : 'View Reviews' }}
-                </button> -->
-              
-              <!-- Reviews section -->
-              <!-- <div v-if="showingReviewsForMachine === machine.id && machine.recentReviews">
-              <h5 class="mt-3">Recent Reviews:</h5>
-              <div v-if="machine.recentReviews.length > 0">
-                <div v-for="review in machine.recentReviews" :key="review.id" class="mb-2">
-                  <strong>{{ review.username }}</strong>: {{ review.text }}
-                  <br>
-                  Rating: {{ review.rating }} / 5
-                </div>
               </div>
-              <div v-else>No reviews yet.</div>
-            </div> -->
-
             </div>
           </div>
         </div>
       </div>
-    </div>
+        <!-- Single Modal for Reviews -->
+      <div v-if="showModal" class="modal">
+        <div class="modal-content">
+          <span class="close" @click="closeModal">&times;</span>
+          <h2 class="modal-header">Recent 3 Reviews</h2>
+          <div v-if="selectedMachine && selectedMachine.recentReviews && selectedMachine.recentReviews.length > 0">
+            <div v-for="review in selectedMachine.recentReviews" :key="review.id" class="review-item">
+              <p>By user, <strong> {{ review.username }}</strong> on {{ formatDate(review.timestamp) }}</p>
+              <p>Rating: {{ review.rating }} / 5</p>
+              <p>Comments: {{ review.text }}</p>
+            </div>
+          </div>
+          <div v-else>
+            <p>No reviews available for this machine.</p>
+          </div>
+        </div>
+      </div>
   </div>
 </div>
 </template>
@@ -276,7 +275,8 @@ export default {
       editingContact: false, // Check if editing contact
       newContactNumber: '', 
       sortOption: '', // Sorting option
-      showReviewsForMachine: null, // Check if showing reviews for a machine
+      showModal: false,
+      selectedMachine: null, // Check if showing machine details
       }
     },
     computed: {
@@ -337,6 +337,7 @@ export default {
       }
     });
   },
+  
   methods: {
     async logout() {
       try {
@@ -575,30 +576,64 @@ export default {
       this.alert.show = false;
       this.alert.message = '';
       },
-    // Work in Progress
-    //   async fetchRecentReviews(machineId) {
-    //     try {
-    //       const reviews = await firestore.getRecentReviewsForMachine(machineId);
-    //       // Find the machine and update its recentReviews
-    //       const machineIndex = this.userMachines.findIndex(m => m.id === machineId);
-    //       if (machineIndex !== -1) {
-    //       this.userMachines[machineIndex].recentReviews =  reviews;
-    //       }
-    //     } catch (error) {
-    //       console.error("Error fetching recent reviews:", error);
-    //       this.showAlert('Error fetching reviews', 'danger');
-    //     }
-    //   },
 
-    //   toggleReviews(machineId) {
-    //   if (this.showingReviewsForMachine === machineId) {
-    //     this.showingReviewsForMachine = null; // Hide reviews if already showing
-    //   } else {
-    //     this.showingReviewsForMachine = machineId; // Show reviews for this machine
-    //     this.fetchRecentReviews(machineId);
-    //   }
+    // Work in Progress
+      async fetchRecentReviews(machineId) {
+        try {
+          const reviews = await firestore.getRecentReviewsForMachine(machineId);
+          // Find the machine and update its recentReviews
+          console.log(reviews);
+          if (this.selectedMachine) {
+          //   this.selectedMachine.recentReviews = reviews;
+          this.selectedMachine = { ...this.selectedMachine, recentReviews: reviews };
+          }
+          
+        } catch (error) {
+          console.error("Error fetching reviews:", error);
+        }
+      },
+
+    async showReviews(machine) {
+      this.selectedMachine = machine;
+      await this.fetchRecentReviews(machine.id);
+      this.showModal = true;
+     // document.body.style.overflow = 'hidden';
+    },
+
+    closeModal() {
+      this.showModal = false;
+      this.selectedMachine = null;
+     //document.body.style.overflow = 'hidden';
+    },
+
+    // formatDate(timestamp) {
+    //   if (!timestamp) return 'Invalid Date';
+    //   const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    //   return date.toLocaleString();
     // },
 
+    formatDate(timestamp) {
+  if (!timestamp || !timestamp.toDate || typeof timestamp.toDate !== 'function') {
+    return 'Unknown Date';
+  }
+
+  const date = timestamp.toDate();
+  const day = date.getDate();
+  const month = date.toLocaleString('default', { month: 'short' });
+  const year = date.getFullYear();
+
+  const getOrdinalSuffix = (d) => {
+    if (d > 3 && d < 21) return 'th';
+    switch (d % 10) {
+      case 1:  return "st";
+      case 2:  return "nd";
+      case 3:  return "rd";
+      default: return "th";
+    }
+  };
+
+  return `${day}${getOrdinalSuffix(day)} ${month} ${year}`;
+},
     },
   };
 
@@ -753,7 +788,6 @@ body, #admin-page {
   background-size: contain;
   border: 1px solid rgba(0, 0, 0, 0.25);
   appearance: none;
-  color-adjust: exact;
   transition: background-color 0.15s ease-in-out, background-position 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
@@ -887,6 +921,56 @@ label {
 
 .review-item:last-child {
   border-bottom: none;
+}
+
+/* Modal Styling */
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+  background-color: rgba(0, 0, 0, 0.5); 
+}
+
+.modal-header {
+  text-align: center;
+  display: block;
+  padding-bottom: 1.5em;
+}
+.modal-content {
+  background-color: #fff;
+  padding: 2rem;
+  border: none;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 15px;
+  color: #212529;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+ 
+.close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: #6c757d;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
 }
 </style>
 
