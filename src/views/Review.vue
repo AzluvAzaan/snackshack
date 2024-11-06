@@ -44,12 +44,12 @@
           <h1 class="review-title">Reviews</h1>
           <div class="btn-toolbar mb-2 mb-md-0">
             <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle sidebar">
-              <span class="navbar-toggler-icon"></span>
+              <span class="navbar-toggler-icon"><img src="../assets/3-lines-icon.png" style="height:2rem; display:block; align-items:center" alt="menu icon"></span>
             </button>
           </div>
         </div>
 
-        <!-- Updated Machine Card -->
+  <!-- Updated Machine Card -->
   <div v-if="machine" class="machine-card mb-4">
     <div class="card">
       <div class="card-content">
@@ -75,10 +75,13 @@
             <span class="review-count">({{ machine.numReviews || 0 }} reviews)</span>
           </div>
           <div class="owner-info">
+            <h3 class="owner-title">Owner Information:</h3>
             <p class="owner-contact">
+              <img class="letter-icon" src="../assets/letter-icon.png" alt="letter icon">
               <i class="fas fa-phone"></i> {{ ownerEmail }}
             </p>
             <p class="owner-email">
+              <img class="phone-icon" src="../assets/phone-icon.png" alt="phone icon">
               <i class="fas fa-envelope"></i> {{ ownerContact }}
             </p>
           </div>
@@ -86,8 +89,6 @@
       </div>
     </div>
   </div>
-
-
 
         <div class="review-container">
 
@@ -118,9 +119,22 @@
           </div>
 
           <!-- Write a Review Button -->
-          <button v-if="!showForm" @click="showForm = true" class="write-review-btn">
-            Write a Review
-          </button>
+          <div class="review-controls">
+            <button v-if="!showForm" @click="showForm = true" class="write-review-btn">
+              Write a Review
+            </button>
+
+            <!-- Sorting Dropdown -->
+            <div class="sorting-dropdown">
+              <label for="sortOptions">Sort By:</label>
+              <select id="sortOptions" v-model="sortOption" @change="sortReviews">
+                <option value="date_desc">Date (Newest to Oldest)</option>
+                <option value="date_asc">Date (Oldest to Newest)</option>
+                <option value="stars_desc">Stars (High to Low)</option>
+                <option value="stars_asc">Stars (Low to High)</option>
+              </select>
+            </div>
+          </div>
 
           <!-- Review Form, displayed when showForm is true -->
           <div v-if="showForm" class="review-form">
@@ -266,6 +280,18 @@ methods: {
       }
     },
 
+    sortReviews() {
+      if (this.sortOption === 'date_desc') {
+        this.reviews.sort((a, b) => b.timestamp - a.timestamp);
+      } else if (this.sortOption === 'date_asc') {
+        this.reviews.sort((a, b) => a.timestamp - b.timestamp);
+      } else if (this.sortOption === 'stars_desc') {
+        this.reviews.sort((a, b) => b.rating - a.rating);
+      } else if (this.sortOption === 'stars_asc') {
+        this.reviews.sort((a, b) => a.rating - b.rating);
+      }
+    },
+
 
   // Resets form fields after submission
   resetForm() {
@@ -370,9 +396,14 @@ return 'just now';
         }
       }
     },
-
-
 },
+
+watch: {
+    // Watch the reviews array for changes and apply sorting when new reviews are added
+    reviews() {
+      this.sortReviews();
+    }
+  },
 
 computed: {
   machineID() {
@@ -389,33 +420,11 @@ computed: {
   }
 },
 
-// async created() {
-//   // Fetch the machine details
-//   const machines = await firestore.getAllVendingMachines();
-//   this.machine = machines.find(m => m.id === this.machineID);
-//   await this.fetchVendingMachines();
-
-//   // Fetch the reviews for this machine
-//   this.reviews = await firestore.getReviewsForMachine(this.machineID);
-//   console.log('Fetched reviews:', this.reviews);
-//   // Set the initial selected machine based on the URL
-//   const machineIdFromUrl = this.route.query.machine;
-//     if (machineIdFromUrl) {
-//       await this.selectMachine(machineIdFromUrl);
-//     } else if (this.machines.length > 0) {
-//       await this.selectMachine(this.machines[0].id);
-//     }
-   
-//     // Fetch reviews for the selected machine
-//     if (this.selectedMachineId) {
-//       await this.selectMachine(this.selectedMachineId);
-//     }
-
-    
-// },
 async created() {
   // Fetch the machine details
   await this.fetchVendingMachines();
+  this.reviews = await firestore.getReviewsForMachine(this.selectedMachineId);
+  this.sortReviews();
 
   // Set the initial selected machine based on the URL
   const machineIdFromUrl = this.$route.query.machine;
@@ -455,16 +464,37 @@ margin-top: 100px;
 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+.review-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
 .write-review-btn {
-padding: 10px 20px;
-background-color: #007bff;
-color: white;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-display: block;
-margin:20px auto;
-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.sorting-dropdown {
+  display: flex;
+  align-items: center;
+}
+
+.sorting-dropdown label {
+  margin-right: 5px;
+  font-weight: bold;
+}
+
+.sorting-dropdown select {
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
 }
 
 .write-review-btn:hover {
@@ -546,6 +576,7 @@ color: white;
 border: none;
 border-radius: 4px;
 cursor: pointer;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 button:hover {
@@ -586,18 +617,12 @@ margin-left: 35px;
 
 
 .posted-time {
-/* font-size: 5px; */
-/* color: pink; */
 margin-left: 10px;
-/* margin-bottom: 50px; */
 }
 
 /* Styles for the collective bar graph */
 .collective-bar-graph {
 display: block;
-/* margin-top: 100px; */
-/* max-width: 500px; */
-/* margin: auto; */
 }
 
 .collective-bar-container {
@@ -721,8 +746,9 @@ color: #666;
 }
 
 .nav-link.active {
-  background-color: #007bff;
-  color: white;
+  background-color: #e6f6ff;
+  box-shadow: 0 0px 4px #33b4ff;
+  color: black;
 }
 
 .machine-item {
@@ -814,6 +840,10 @@ color: #666;
 
   .navbar-toggler {
     display: block;
+    background-color: #e9f7ff;
+  }
+  .navbar-toggler:hover{
+    background-color: #e9f3ff;
   }
 }
 
@@ -899,6 +929,7 @@ color: #666;
   border: none;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   background-color: #e9f7ff;
+  max-height: 500px;
 }
 
 .card-content {
@@ -910,6 +941,7 @@ color: #666;
   width: 100%;
   height: 200px;
   overflow: hidden;
+  max-height: 500px;
 }
 
 .card-img {
@@ -959,13 +991,29 @@ color: #666;
   margin-top: 1rem;
 }
 
+.owner-title {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
 .owner-contact,
 .owner-email {
   display: flex;
   align-items: center;
-  font-size: 0.9rem;
-  color: #666;
+  font-size: 1rem;
+  color: #111;
   margin-bottom: 0.3rem;
+}
+
+.letter-icon,
+ .phone-icon {
+  height: 2rem;
+}
+
+.phone-icon{
+  margin-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .owner-info i {
