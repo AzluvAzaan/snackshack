@@ -56,20 +56,14 @@
               <button @click="viewOnMap" class="view-map-button">View on Map</button>
             </div>
           </div>
-          <div class="keypad">
-            <div
-              v-for="key in keys"
-              :key="key"
-              class="keypad-button"
-              @click="handleKeypadInput(key)"
-              @mouseover="hoverKey = key"
-              @mouseleave="hoverKey = null"
-              :class="{ hover: hoverKey === key }"
-            ></div>
-            <div class="keypad-button red" @click="handleBackspace"></div>
-            <div class="keypad-button" @click="handleKeypadInput(0)"></div>
-            <div class="keypad-button green" @click="handleSubmit"></div>
+        <div class="keypad">
+          <div class="keypad-button" v-for="key in [1, 2, 3, 4, 5, 6, 7, 8, 9]" :key="key" @click="handleKeypadInput(key)">
+            {{ key }}
           </div>
+          <div class="keypad-button red" @click="handleBackspace"></div>
+          <div class="keypad-button" @click="handleKeypadInput(0)">0</div>
+          <div class="keypad-button green" @click="handleSubmit"></div>
+        </div>
           <div class="cash-coin-container">
             <div class="cash-slot"></div>
             <div class="coin-return"></div>
@@ -280,7 +274,7 @@ html, body {
 .glass-container {
   background-color: rgba(173, 216, 230, 0.3);
   width: 280px;
-  padding: 10px;
+  padding: 20px;
   border-radius: 10px;
   border: 2px solid rgba(173, 216, 230, 0.6);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -348,7 +342,7 @@ html, body {
 .controls-container {
   width: 120px;
   padding-top: 180px;
-  padding-bottom: 120px;
+  padding-bottom: 60px;
   padding-left: 15px;
   display: flex;
   flex-direction: column;
@@ -382,7 +376,7 @@ html, body {
 }
 
 .screen.zoomed {
-  transform: scale(6) translate(-22%, 15%);
+  transform: scale(7) translate(-22%, 8%);
   z-index: 999;
 }
 
@@ -436,15 +430,17 @@ html, body {
 .keypad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 5px;
+  gap: 8px;
   margin-bottom: 5px;
 }
 
 .keypad-button {
-  width: 10px;
-  height: 10px;
+  padding-left: 8px;
+  color: white;
+  width: 30px;
+  height: 30px;
   background-color: #555;
-  border-radius: 4px;
+  border-radius: 8px;
   border: 2px solid #777;
   cursor: pointer;
   transition: transform 0.2s;
@@ -510,13 +506,13 @@ html, body {
 
 .typing-text-container.left {
   top: 45%;
-  left: 14%;
+  left: 10%;
   transform: translateY(-50%);
 }
 
 .typing-text-container.right {
   top: 45%;
-  right: 12%;
+  right: 10%;
   transform: translateY(-50%);
 }
 
