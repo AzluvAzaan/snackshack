@@ -3,7 +3,7 @@
     <div class="row">
       <!-- Sidebar -->
       <nav id="sidebarMenu" class="col-md-3 col-lg-3 d-md-block bg-light sidebar" 
-      :class="{ 'show': sidebarOpen, 'd-none': !sidebarOpen && isMobile }">
+      :class="{ 'show': sidebarOpen || !isMobile, 'd-none': !sidebarOpen && isMobile }">
         <div class="position-sticky pt-3">
           <div class="d-flex justify-content-between align-items-center px-3 mb-3">
             <h3 class="sidebar-heading text-muted">Vending Machines</h3>
@@ -43,8 +43,15 @@
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
           <h1 class="review-title">Reviews</h1>
           <div class="btn-toolbar mb-2 mb-md-0">
-            <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle sidebar">
-              <span class="navbar-toggler-icon"><img src="../assets/3-lines-icon.png" style="height:2rem; display:block; align-items:center" alt="menu icon"></span>
+            <button
+              class="navbar-toggler d-md-none"
+              type="button"
+              @click="toggleSidebar"
+              aria-label="Toggle sidebar"
+            >
+              <span class="navbar-toggler-icon">
+                <img src="../assets/3-lines-icon.png" style="height:2rem; display:block; align-items:center" alt="menu icon">
+              </span>
             </button>
           </div>
         </div>
@@ -333,26 +340,21 @@ return 'just now';
   },
 
   async selectMachine(machineId) {
-      this.selectedMachineId = machineId;
-      this.reviews = await firestore.getReviewsForMachine(machineId);
-      this.machine = this.machines.find(m => m.id === machineId);
-      await this.fetchOwnerDetails();
+  this.selectedMachineId = machineId;
+  this.reviews = await firestore.getReviewsForMachine(machineId);
+  this.machine = this.machines.find(m => m.id === machineId);
+  await this.fetchOwnerDetails();
 
-      // Update the URL when a machine is selected
-      this.router.push({ name: 'Review', query: { machine: machineId } });
-      
-      // Close the sidebar on mobile after selection
-      if (window.innerWidth < 768) {
-        const sidebar = document.getElementById('sidebarMenu');
-        const bsCollapse = new bootstrap.Collapse(sidebar);
-        bsCollapse.hide();
-      }
-      // Keep the sidebar open
-      // Close the sidebar only on mobile after selection
-      if (window.innerWidth < 768) {
-        this.sidebarOpen = false;
-      }
-    },
+  // Update the URL when a machine is selected
+  this.$router.push({ name: 'Review', query: { machine: machineId } });
+  
+  // Close the sidebar on mobile after selection
+  if (window.innerWidth < 768) {
+    this.sidebarOpen = false;
+    this.handleResize(); // Ensure sidebar visibility updates after selection
+  }
+},
+
 
     async fetchVendingMachines() {
       try {
@@ -402,7 +404,11 @@ watch: {
     // Watch the reviews array for changes and apply sorting when new reviews are added
     reviews() {
       this.sortReviews();
-    }
+    },
+    sidebarOpen(val) {
+    // Apply handleResize to adjust sidebar visibility when sidebarOpen changes
+    this.handleResize();
+  }
   },
 
 computed: {
@@ -425,13 +431,15 @@ async created() {
   await this.fetchVendingMachines();
   this.reviews = await firestore.getReviewsForMachine(this.selectedMachineId);
   this.sortReviews();
+  window.addEventListener('resize', this.handleResize); // Add resize listener
+  this.handleResize(); // Initial check for screen width
 
   // Set the initial selected machine based on the URL
   const machineIdFromUrl = this.$route.query.machine;
   if (machineIdFromUrl) {
-    await this.selectMachine(machineIdFromUrl);
+    this.selectMachine(machineIdFromUrl);
   } else if (this.machines.length > 0) {
-    await this.selectMachine(this.machines[0].id);
+    this.selectMachine(this.machines[0].id);
   }
 
   // Fetch the reviews for this machine
@@ -442,6 +450,11 @@ async created() {
     // Fetch owner details for the initially selected machine
     await this.fetchOwnerDetails();
   }
+},
+
+beforeDestroy() {
+  // Remove the resize listener when the component is destroyed
+  window.removeEventListener('resize', this.handleResize);
 },
 };
 </script>
@@ -484,6 +497,9 @@ box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 .sorting-dropdown {
   display: flex;
   align-items: center;
+  flex-wrap: wrap; /* Allow the dropdown to wrap */
+  gap: 5px; /* Adds space between the label and the select */
+  max-width: 100%; /* Prevents it from exceeding screen width */
 }
 
 .sorting-dropdown label {
@@ -495,6 +511,19 @@ box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 5px;
   border-radius: 5px;
   border: 1px solid #ccc;
+  width: 100%; /* Ensure dropdown takes full available width on small screens */
+  box-sizing: border-box;
+}
+
+@media (max-width: 767.98px) {
+  .sorting-dropdown label {
+    font-size: 0.9rem; /* Smaller font for better fit */
+    flex: 1 0 100%; /* Label takes full width */
+  }
+  
+  .sorting-dropdown select {
+    font-size: 0.9rem;
+  }
 }
 
 .write-review-btn:hover {
@@ -989,10 +1018,11 @@ color: #666;
 
 .owner-info {
   margin-top: 1rem;
+  padding-bottom: 5rem;
 }
 
 .owner-title {
-  font-size: 2rem;
+  font-size: 1.5rem;
   margin-bottom: 0.5rem;
   font-weight: bold;
 }
