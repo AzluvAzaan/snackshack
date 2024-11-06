@@ -44,7 +44,9 @@
           <p>{{ machine.status }}</p>
         </div>
         <div class="rating">
-          <span>⭐ {{ machineReviews.machine }} </span>
+          <span v-if = "machine.numReviews==0">⭐No reviews yet... </span>
+          <span v-else-if = "machine.numReviews==1">⭐ {{ machine.avgRating }}/5, 1 review </span>
+          <span v-else>⭐ {{ machine.avgRating }}/5, {{ machine.numReviews }} reviews </span>
         </div>
         <p>{{ machine.description }}</p>
         <p v-if = "this.userLocation">{{ calculateDistance(machine.coordinates) }}km away</p>
@@ -71,7 +73,9 @@
           <p>{{ selectedMachine.status }}</p>
         </div>
         <div class="rating">
-          <span>⭐ {{ machineReviews.selectedMachine }} </span>
+          <span v-if = "selectedMachine.numReviews==0">⭐No reviews yet... </span>
+          <span v-else-if = "selectedMachine.numReviews==1">⭐ {{ selectedMachine.avgRating }}/5, 1 review </span>
+          <span v-else>⭐ {{ selectedMachine.avgRating }}/5, {{ selectedMachine.numReviews }} reviews </span>
         </div>
         <p><strong>Address:</strong> {{ selectedMachine.locDes }}</p>
         <p><strong>Description:</strong> {{ selectedMachine.description }}</p>
@@ -94,7 +98,6 @@ export default {
   data() {
     return {
       vendingMachines: [],
-      machineReviews: {},
       selectedMachine: null,
       infoWindow: null,
       markers: [],
