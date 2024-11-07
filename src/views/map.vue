@@ -290,7 +290,7 @@ export default {
     width: 300px;
     height:  92vh;
     padding: 20px;
-    background-color: #30394f;
+    background-color: #001f3f;
     color: white;
     overflow-y: auto;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
@@ -301,7 +301,7 @@ export default {
     font-size: 1.8rem;
     text-align: center;
     margin-bottom: 1rem;
-    color: #ffcc00;
+    color: white;
   }
 
   .sidebar h2 {
