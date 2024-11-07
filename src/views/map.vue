@@ -107,8 +107,33 @@ export default {
     };
   },
 
+
   mounted() {
-    this.fetchVendingMachines();
+    this.fetchVendingMachines().then(() => {
+      // Check if there are query parameters for machine coordinates
+      const machineLat = parseFloat(this.$route.query.lat);
+      const machineLng = parseFloat(this.$route.query.lng);
+      const machineId = this.$route.query.machineId;
+
+      // If machine coordinates exist, center the map on them
+      if (!isNaN(machineLat) && !isNaN(machineLng) && machineId) {
+        this.map.setCenter({ lat: machineLat, lng: machineLng });
+
+        // Find the marker for this machine based on its ID
+        const selectedMarker = this.markers.find(([id]) => id === machineId);
+
+        if (selectedMarker) {
+          const marker = selectedMarker[1];
+          marker.setAnimation(google.maps.Animation.BOUNCE);
+          
+          // Optional: Select the machine to show details if you want a modal or info window
+          this.selectedMachine = this.vendingMachines.find(machine => machine.id === machineId);
+
+          // Stop the bounce animation after a short period
+          setTimeout(() => marker.setAnimation(null), 1400);
+        }
+      }
+    });
   },
 
   created() {
