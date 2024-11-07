@@ -1,6 +1,7 @@
 <template>
   <div id="vending-machine-page">
-    <div class="typing-text-container left">
+    <!-- Left typing text (desktop only) -->
+    <div v-if="!isMobile" class="typing-text-container left">
       <span
         class="typing-text"
         v-for="(line, index) in leftText"
@@ -10,52 +11,57 @@
         {{ line }}
       </span>
     </div>      
-      <div class="vending-machine">
-        <!-- Logo positioned at the top right corner -->
-        <img src="@/assets/snackshack.png" alt="SnackShack Logo" class="vending-machine-logo">
+    
+    <!-- Vending machine container -->
+    <div class="vending-machine">
+      <!-- Logo positioned at the top right corner -->
+      <img src="@/assets/snackshack.png" alt="SnackShack Logo" class="vending-machine-logo">
 
-        <!-- Left side: Glass container + Snack output -->
-        <div class="snack-section">
-          <div class="glass-container">
-            <div class="snack-container">
-              <div class="row" v-for="rowIndex in 4" :key="rowIndex">
-                <div
-                  v-for="(machine, index) in 4"
-                  :key="index"
-                  class="machine"
-                  @click="selectMachine(rowIndex, index)"
-                >
-                  <div class="number-shelf">
-                    <span class="machine-number">{{ getMachineNumber(rowIndex, index) }}</span>
-                  </div>
+      <!-- Left side: Glass container + Snack output -->
+      <div class="snack-section">
+        <div class="glass-container">
+          <div class="snack-container">
+            <!-- Adjust the layout to 3x3 for mobile and 4x4 for desktop -->
+            <div class="row" v-for="rowIndex in (isMobile ? 3 : 4)" :key="rowIndex">
+              <div
+                v-for="(machine, index) in (isMobile ? 3 : 4)"
+                :key="index"
+                class="machine"
+                @click="selectMachine(rowIndex, index)"
+              >
+                <div class="number-shelf">
+                  <span class="machine-number">{{ getMachineNumber(rowIndex, index) }}</span>
                 </div>
               </div>
             </div>
           </div>
-          <!-- Snack output tray -->
-          <div class="snack-output"></div>
+        </div>
+        <!-- Snack output tray -->
+        <div class="snack-output"></div>
+      </div>
+
+      <!-- Right side with controls -->
+      <div class="controls-container">
+        <div class="screen" :class="{ zoomed: isZoomed }">
+          <div v-if="screenDisplay || errorFlash" class="screen-display" :class="{ error: errorFlash }">
+            {{ errorFlash ? 'ERROR' : screenDisplay }}
+          </div>
+          <!-- Overlay for displaying details and back button (renders after zoom completes) -->
+          <div
+            v-if="showDetails"
+            class="overlay"
+            :style="{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${selectedMachineDetails.imageUrl})` }"
+          >
+            <p class="zoomed-text"><strong>Machine Name:</strong> {{ selectedMachineDetails.machineName }}</p>
+            <p class="zoomed-text"><strong>Description:</strong> {{ selectedMachineDetails.description }}</p>
+            <p class="zoomed-text"><strong>Type:</strong> {{ selectedMachineDetails.type }}</p>
+            <p class="zoomed-text"><strong>Payment Type:</strong> {{ selectedMachineDetails.paymentType.join(', ') }}</p>
+            <button @click="zoomOut" class="back-button">Go Back</button>
+            <button @click="viewOnMap" class="view-map-button">View on Map</button>
+          </div>
         </div>
 
-        <!-- Right side with controls -->
-        <div class="controls-container">
-          <div class="screen" :class="{ zoomed: isZoomed }">
-            <div v-if="screenDisplay || errorFlash" class="screen-display" :class="{ error: errorFlash }">
-              {{ errorFlash ? 'ERROR' : screenDisplay }}
-            </div>
-            <!-- Overlay for displaying details and back button (renders after zoom completes) -->
-            <div
-              v-if="showDetails"
-              class="overlay"
-              :style="{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${selectedMachineDetails.imageUrl})` }"
-            >
-              <p class="zoomed-text"><strong>Machine Name:</strong> {{ selectedMachineDetails.machineName }}</p>
-              <p class="zoomed-text"><strong>Description:</strong> {{ selectedMachineDetails.description }}</p>
-              <p class="zoomed-text"><strong>Type:</strong> {{ selectedMachineDetails.type }}</p>
-              <p class="zoomed-text"><strong>Payment Type:</strong> {{ selectedMachineDetails.paymentType.join(', ') }}</p>
-              <button @click="zoomOut" class="back-button">Go Back</button>
-              <button @click="viewOnMap" class="view-map-button">View on Map</button>
-            </div>
-          </div>
+        <!-- Keypad -->
         <div class="keypad">
           <div class="keypad-button" v-for="key in [1, 2, 3, 4, 5, 6, 7, 8, 9]" :key="key" @click="handleKeypadInput(key)">
             {{ key }}
@@ -64,14 +70,18 @@
           <div class="keypad-button" @click="handleKeypadInput(0)">0</div>
           <div class="keypad-button green" @click="handleSubmit"></div>
         </div>
-          <div class="cash-coin-container">
-            <div class="cash-slot"></div>
-            <div class="coin-return"></div>
-          </div>
-          <div class="coin-return-tray"></div>
+
+        <!-- Cash and coin containers -->
+        <div class="cash-coin-container">
+          <div class="cash-slot"></div>
+          <div class="coin-return"></div>
         </div>
+        <div class="coin-return-tray"></div>
       </div>
-    <div class="typing-text-container right">
+    </div>
+
+    <!-- Right typing text (desktop only) -->
+    <div v-if="!isMobile" class="typing-text-container right">
       <span
         class="typing-text"
         v-for="(line, index) in rightText"
@@ -80,7 +90,6 @@
       >
         {{ line }}
       </span>
-      <span class="caret" v-show="rightTextTyping"></span>
     </div>  
   </div>
 </template>
@@ -95,7 +104,7 @@
         leftText: ["Find", "vending", "machines", "near", "you."],
         rightText: ["Satisfy", "your", "cravings."],
         machines: [], // Holds vending machine data for the component
-        closestMachines: [], // Sorted list of the 16 closest machines
+        closestMachines: [], // Sorted list of the closest machines
         selectedMachineNumber: null,
         selectedMachineDetails: null,
         isZoomed: false,
@@ -104,13 +113,20 @@
         screenDisplay: '',
         hoverKey: null,
         keys: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        isMobile: window.innerWidth <= 768,
       };
     },
-  
+    
     async created() {
       await loadMachineData(); // Ensure machineData is loaded from Firestore
       this.machines = machineData; // Assign the fetched data to the local machines array
       this.requestLocationAccess(); // Request location and populate closest machines
+    },
+
+    computed: {
+      closestMachines() {
+        return this.machines.slice(0, this.isMobile ? 9 : 16); // Adjust number of machines shown based on screen size
+      },
     },
 
     methods: {
@@ -136,15 +152,13 @@
       },
 
       async findClosestMachines(userLat, userLng) {
-        // Prepare array of machine locations
         const vendingLocations = this.machines.map(machine => ({
           ...machine,
           distance: this.calculateDistance(userLat, userLng, machine.coordinates.latitude, machine.coordinates.longitude)
         }));
-        
-        // Sort machines by calculated distance and select the closest 16
+
         vendingLocations.sort((a, b) => a.distance - b.distance);
-        this.closestMachines = vendingLocations.slice(0, 16);
+        this.closestMachines = vendingLocations.slice(0, this.isMobile ? 9 : 16);
       },
 
       calculateDistance(lat1, lon1, lat2, lon2) {
@@ -163,8 +177,8 @@
       },
 
       selectMachine(row, col) {
-        const machineIndex = (row - 1) * 4 + col; // Calculate index within 4x4 layout
-        const selectedMachine = this.closestMachines[machineIndex]; // Access the correct machine in closestMachines
+        const machineIndex = (row - 1) * (this.isMobile ? 3 : 4) + col;
+        const selectedMachine = this.closestMachines[machineIndex];
         if (selectedMachine) {
           this.selectedMachineNumber = selectedMachine.id;
           this.selectedMachineDetails = selectedMachine;
@@ -177,13 +191,13 @@
       },
 
       getMachineNumber(row, col) {
-        return (row - 1) * 4 + col + 1;
+        return (row - 1) * (this.isMobile ? 3 : 4) + col + 1;
       },
 
       zoomOut() {
         this.isZoomed = false;
         this.showDetails = false;
-        this.screenDisplay = ''; // Clear screen display on zoom out
+        this.screenDisplay = '';
       },
 
       viewOnMap() {
@@ -202,12 +216,25 @@
 
       handleSubmit() {
         const machineNumber = parseInt(this.screenDisplay, 10);
-        if (machineNumber >= 1 && machineNumber <= 16) {
-          const row = Math.ceil(machineNumber / 4);
-          const col = (machineNumber - 1) % 4;
-          this.selectMachine(row, col);
+
+        if (this.isMobile) {
+          // On mobile, only numbers 1-9 are allowed
+          if (machineNumber >= 1 && machineNumber <= 9) {
+            const row = Math.ceil(machineNumber / 3);
+            const col = (machineNumber - 1) % 3;
+            this.selectMachine(row, col);
+          } else {
+            this.flashError(); // Show error for numbers outside 1-9 on mobile
+          }
         } else {
-          this.flashError();
+          // On desktop, numbers 1-16 are allowed
+          if (machineNumber >= 1 && machineNumber <= 16) {
+            const row = Math.ceil(machineNumber / 4);
+            const col = (machineNumber - 1) % 4;
+            this.selectMachine(row, col);
+          } else {
+            this.flashError(); // Show error for numbers outside 1-16 on desktop
+          }
         }
       },
 
@@ -217,12 +244,25 @@
         setTimeout(() => {
           this.errorFlash = false;
         }, 2000);
+      },
+
+      checkScreenSize() {
+        this.isMobile = window.innerWidth <= 768;
       }
-    }
+    },
+
+    mounted() {
+      window.addEventListener("resize", this.checkScreenSize);
+    },
+
+    beforeDestroy() {
+      window.removeEventListener("resize", this.checkScreenSize);
+    },
   };
 </script>
 
 <style>
+/* General layout styling */
 html, body {
   margin: 0;
   padding: 0;
@@ -543,5 +583,121 @@ html, body {
   to { width: 100%; }
 }
 
-</style>
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .controls-container {
+  width: 60px;
+  padding-top: 90px;
+  padding-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  }
 
+.screen {
+  margin-top: 50px;
+  width: 70px;
+  height: 70px;
+  margin-right: 7px;
+  background-color: #222;
+  border-radius: 4px;
+  border: 2px solid #444;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  transform-origin: center;
+  transition: transform 1s ease;
+  }
+
+.screen.zoomed {
+  transform: scale(5) translate(-30%, 8%);
+  z-index: 999;
+  }
+
+.screen-display {
+  font-size: 18px;
+  color: #00ff00;
+  }
+
+.zoomed-text {
+  font-size: 2.2px;
+  color: white;
+  margin: 1px 0;
+  }
+
+.back-button,
+.view-map-button {
+  margin-top: 3px;
+  padding: 2px 3px;
+  font-size: 2px;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  }
+
+  .vending-machine-logo {
+  position: absolute;
+  top: 40px;
+  right: 0px;
+  width: 80px;
+  height: auto;
+  }
+  .vending-machine {
+    width: 300px; /* Reduced width for mobile */
+    height: auto;
+  }
+  
+  .glass-container {
+    width: 200px; /* Adjusted width to fit mobile layout */
+  }
+
+  .controls-container {
+    width: 80px; /* Narrower controls container for mobile */
+    padding-top: 100px;
+    padding-bottom: 40px;
+  }
+
+  .keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 100px;
+  margin-right: 8px;
+  }
+
+  .keypad-button {
+    font-size: 8px;
+    padding-left: 2px;
+    border-radius: 5px;
+    width: 15px; /* Smaller keypad buttons */
+    height: 15px;
+  }
+
+  /* Hide typing text on mobile */
+  .typing-text-container {
+    display: none;
+  }
+
+  .cash-coin-container {
+  display: none;
+  }
+
+  .coin-return-tray {
+  display: none;
+  }
+  .snack-output {
+  width: 200px;
+  height: 80px;
+  background-color: #444;
+  border-radius: 4px;
+  border: 2px solid #666;
+  margin-top: 20px;
+  align-self: center;
+  }
+
+}
+</style>
