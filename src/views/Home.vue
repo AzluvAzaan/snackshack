@@ -38,6 +38,7 @@
             class="overlay"
             :style="{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${selectedMachineDetails.imageUrl})` }"
           >
+            <p class="zoomed-text"><strong>Machine Number:</strong> {{ selectedMachineNumber }}</p>
             <p class="zoomed-text"><strong>Machine Name:</strong> {{ selectedMachineDetails.machineName }}</p>
             <p class="zoomed-text"><strong>Description:</strong> {{ selectedMachineDetails.description }}</p>
             <p class="zoomed-text"><strong>Type:</strong> {{ selectedMachineDetails.type }}</p>
@@ -71,10 +72,18 @@
 </template>
 
 <script>
-  import { machineData, loadMachineData } from '@/data/machineData';
-  import firestore from '@/firestore';
+  import { machineData } from '@/data/machineData.js';
+  import Navbar from '@/components/Navbar.vue';
 
   export default {
+    components: {
+      Navbar
+    },
+
+    created() {
+      this.requestLocationAccess();
+    },
+
     data() {
       return {
         selectedMachineNumber: null,
@@ -98,13 +107,11 @@
           console.log("Geolocation is not supported by this browser.");
         }
       },
-
       handleLocationSuccess(position) {
         const userLat = position.coords.latitude;
         const userLng = position.coords.longitude;
         this.findClosestMachines(userLat, userLng);
       },
-
       handleLocationError(error) {
         console.log("Error getting location:", error);
       },
@@ -144,36 +151,29 @@
 
         this.isZoomed = true;
 
-          setTimeout(() => {
-            this.showDetails = true;
-          }, 1000);
-        }
+        setTimeout(() => {
+          this.showDetails = true;
+        }, 1000);
       },
-
       getMachineNumber(row, col) {
         return (row - 1) * 4 + col + 1;
       },
-
       zoomOut() {
         this.isZoomed = false;
         this.showDetails = false;
         this.screenDisplay = ''; // Clear screen display on zoom out
       },
-
       viewOnMap() {
         this.$router.push({ name: 'Map' });
       },
-
       handleKeypadInput(key) {
         if (this.screenDisplay.length < 2) {
           this.screenDisplay += key;
         }
       },
-
       handleBackspace() {
         this.screenDisplay = this.screenDisplay.slice(0, -1);
       },
-
       handleSubmit() {
         const machineNumber = parseInt(this.screenDisplay, 10);
         if (machineNumber >= 1 && machineNumber <= 16) {
@@ -184,7 +184,6 @@
           this.flashError();
         }
       },
-
       flashError() {
         this.errorFlash = true;
         this.screenDisplay = '';
@@ -315,7 +314,8 @@ html, body {
 .controls-container {
   width: 120px;
   padding-top: 180px;
-  padding-bottom: 60px;
+  padding-bottom: 120px;
+  padding-left: 15px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -459,176 +459,5 @@ html, body {
   border-radius: 4px;
   border: 2px solid #666;
   margin-top: 5px;
-}
-
-/* Typing text container */
-.typing-text-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  color: orange;
-  font-family: "Courier New", monospace;
-  font-size: 1.5rem;
-  text-align: center;
-}
-
-.typing-text-container.left {
-  top: 45%;
-  left: 10%;
-  transform: translateY(-50%);
-}
-
-.typing-text-container.right {
-  top: 45%;
-  right: 10%;
-  transform: translateY(-50%);
-}
-
-/* Typing animation for each line */
-.typing-text {
-  font-size: 3rem;
-  overflow: hidden;
-  white-space: nowrap;
-  display: inline-block;
-  animation: typing 1s steps(20, end) forwards;
-}
-
-/* Delay each line to type in sequence */
-.typing-text:nth-child(1) { animation-delay: 0s; }
-.typing-text:nth-child(2) { animation-delay: 0.5s; }
-.typing-text:nth-child(3) { animation-delay: 1.5s; }
-.typing-text:nth-child(4) { animation-delay: 2s; }
-.typing-text:nth-child(5) { animation-delay: 2.5s; }
-
-/* Right text delays after left text finishes */
-.typing-text-container.right .typing-text:nth-child(1) { animation-delay: 3s; }
-.typing-text-container.right .typing-text:nth-child(2) { animation-delay: 3.5s; }
-.typing-text-container.right .typing-text:nth-child(3) { animation-delay: 4s; }
-
-/* Keyframes for typing effect */
-@keyframes typing {
-  from { width: 0; }
-  to { width: 100%; }
-}
-
-/* Mobile adjustments */
-@media (max-width: 768px) {
-  .controls-container {
-  width: 60px;
-  padding-top: 90px;
-  padding-bottom: 30px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  }
-
-.screen {
-  margin-top: 50px;
-  width: 70px;
-  height: 70px;
-  margin-right: 7px;
-  background-color: #222;
-  border-radius: 4px;
-  border: 2px solid #444;
-  margin-bottom: 5px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  transform-origin: center;
-  transition: transform 1s ease;
-  }
-
-.screen.zoomed {
-  transform: scale(5) translate(-30%, 8%);
-  z-index: 999;
-  }
-
-.screen-display {
-  font-size: 18px;
-  color: #00ff00;
-  }
-
-.zoomed-text {
-  font-size: 2.2px;
-  color: white;
-  margin: 1px 0;
-  }
-
-.back-button,
-.view-map-button {
-  margin-top: 3px;
-  padding: 2px 3px;
-  font-size: 2px;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  }
-
-  .vending-machine-logo {
-  position: absolute;
-  top: 40px;
-  right: 0px;
-  width: 80px;
-  height: auto;
-  }
-  .vending-machine {
-    width: 300px; /* Reduced width for mobile */
-    height: auto;
-  }
-  
-  .glass-container {
-    width: 200px; /* Adjusted width to fit mobile layout */
-  }
-
-  .controls-container {
-    padding-left: 15px;
-    width: 80px; /* Narrower controls container for mobile */
-    padding-top: 100px;
-    padding-bottom: 40px;
-  }
-
-  .keypad {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 100px;
-  margin-right: 8px;
-  }
-
-  .keypad-button {
-    font-size: 8px;
-    padding-left: 2px;
-    border-radius: 5px;
-    width: 15px; /* Smaller keypad buttons */
-    height: 15px;
-  }
-
-  /* Hide typing text on mobile */
-  .typing-text-container {
-    display: none;
-  }
-
-  .cash-coin-container {
-  display: none;
-  }
-
-  .coin-return-tray {
-  display: none;
-  }
-  .snack-output {
-  width: 200px;
-  height: 80px;
-  background-color: #444;
-  border-radius: 4px;
-  border: 2px solid #666;
-  margin-top: 20px;
-  align-self: center;
-  }
-
 }
 </style>
