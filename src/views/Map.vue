@@ -1,6 +1,6 @@
 <template>
-  <div class="app d-flex flex-column flex-md-row">
-    <div class="sidebar col-md-4 col-xs-12">
+  <div class="app d-flex">
+    <div class="sidebar col-4">
       <h1>Vending Machines Near You</h1>
 
       <!-- Search Bar -->
@@ -323,6 +323,10 @@ export default {
     margin-bottom: 15px;
   }
 
+  .filter-container {
+    margin-bottom: 15px;
+  }
+
   select {
     width: 100%;
     padding: 10px;
@@ -433,7 +437,6 @@ export default {
     border: none;
     padding: 10px 15px;
     border-radius: 5px;
-    font-size: 0.8rem;
     cursor: pointer;
     margin-right: 5px;
     color: black;
@@ -477,39 +480,27 @@ export default {
     position: fixed;
     bottom: 0px;
     right: 0;
-    width: 350px;
+    width: 420px;
     height: calc(100% - 60px);
-    background-color: #44516a;
     background-size: cover;
     background-position: center;
     color: white;
     padding: 20px;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
-    overflow-y: auto;
     z-index: 1;
     transition: all 0.3s ease;
     animation: popup 0.3s ease forwards;
   }
 
-  .details-modal::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Adjust for darker effect */
-    z-index: 1; /* Overlay below text */
-  }
 
   .details-modal::after {
     content: '';
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Adjust the opacity for darkness */
+    background-color: rgba(0, 0, 0, 0.6); /* Adjust the opacity for darkness */
     z-index: 1; /* Make sure overlay is above the background but below text */
   }
 
@@ -520,6 +511,7 @@ export default {
     position: relative; /* Ensure text is above the overlay */
     z-index: 2; /* Bring the text above the overlay */
   }
+  
 
   .vending-card p, .details-modal p {
     padding: 5px;
@@ -595,27 +587,76 @@ export default {
     background-color: #ffd633;
   }
 
-  @media (max-width: 768px) {
+  @media only screen and (max-width: 768px) {
+
+    .app {
+      flex-direction: column;
+    }
 
     .sidebar {
       width: 100%;
       height: 40vh;
     }
 
-    #map {
+    #map-container {
       width: 100%;
       height: 60vh; /* map takes up the top 60% */
+      flex-grow: 1;
+    }
 
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .vending-thumbnail{
+      position: absolute;
+      top: 15%;
+      right: 45px;
+      transform: scale(1.5)
+    }
+
+    .vending-thumbnail:hover{
+      transform: scale(1.8);
     }
 
     .details-modal {
-      position: absolute; /* or fixed if you want it to stay in place while scrolling */
+      position: absolute;
       bottom: 0; /* position it at the bottom */
+      width: 300px;
       max-height: 70vh;
       max-width: 100%;
       z-index: 10; /* ensures the modal appears above other elements */
+      overflow-y: auto;
     }
 
+    .details-modal h2 {
+      font-size: 1.1em;
+      margin: 0rem;
+    }
+    
+    .details-modal p {
+      font-size: 0.7em;
+      margin: 0rem;
+    }
+
+    .details-modal .rating {
+      font-size: 0.7em;
+      margin-bottom: 5px;
+    }
+
+    .details-modal .action-btn {
+      font-size: 0.7em;
+      padding: 5px 10px;
+    }
+
+  }
+
+  @media only screen and (max-width: 426px) {
+    .details-modal {
+      width: 100%;
+      max-height: 75vh;
+    }
   }
 
 
