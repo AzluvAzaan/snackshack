@@ -38,6 +38,7 @@
             class="overlay"
             :style="{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${selectedMachineDetails.imageUrl})` }"
           >
+            <p class="zoomed-text"><strong>Machine Number:</strong> {{ selectedMachineNumber }}</p>
             <p class="zoomed-text"><strong>Machine Name:</strong> {{ selectedMachineDetails.machineName }}</p>
             <p class="zoomed-text"><strong>Description:</strong> {{ selectedMachineDetails.description }}</p>
             <p class="zoomed-text"><strong>Type:</strong> {{ selectedMachineDetails.type }}</p>
@@ -71,14 +72,20 @@
 </template>
 
 <script>
-  import { machineData, loadMachineData } from '@/data/machineData';
-  import firestore from '@/firestore';
+  import { machineData } from '@/data/machineData.js';
+  import Navbar from '@/components/Navbar.vue';
 
   export default {
+    components: {
+      Navbar
+    },
+
+    created() {
+      this.requestLocationAccess();
+    },
+
     data() {
       return {
-        machines: [], // Holds vending machine data for the component
-        closestMachines: [], // Sorted list of the 16 closest machines
         selectedMachineNumber: null,
         selectedMachineDetails: null,
         isZoomed: false,
@@ -89,13 +96,6 @@
         keys: [1, 2, 3, 4, 5, 6, 7, 8, 9],
       };
     },
-
-    async created() {
-      await loadMachineData(); // Ensure machineData is loaded from Firestore
-      this.machines = machineData; // Assign the fetched data to the local machines array
-      this.requestLocationAccess(); // Request location and populate closest machines
-    },
-
     methods: {
       requestLocationAccess() {
         if (navigator.geolocation) {
@@ -107,82 +107,73 @@
           console.log("Geolocation is not supported by this browser.");
         }
       },
-
       handleLocationSuccess(position) {
         const userLat = position.coords.latitude;
         const userLng = position.coords.longitude;
         this.findClosestMachines(userLat, userLng);
       },
-
       handleLocationError(error) {
         console.log("Error getting location:", error);
       },
-
-      async findClosestMachines(userLat, userLng) {
-        // Prepare array of machine locations
-        const vendingLocations = this.machines.map(machine => ({
-          ...machine,
-          distance: this.calculateDistance(userLat, userLng, machine.coordinates.latitude, machine.coordinates.longitude)
+      findClosestMachines(userLat, userLng) {
+        const vendingLocations = Object.values(machineData).map((machine) => ({
+          lat: machine.coordinates.latitude,
+          lng: machine.coordinates.longitude,
+          machine,
         }));
         
-        // Sort machines by calculated distance and select the closest 16
-        vendingLocations.sort((a, b) => a.distance - b.distance);
-        this.closestMachines = vendingLocations.slice(0, 16);
+        const service = new google.maps.DistanceMatrixService();
+        service.getDistanceMatrix(
+          {
+            origins: [{ lat: userLat, lng: userLng }],
+            destinations: vendingLocations.map(loc => loc),
+            travelMode: 'WALKING',
+          },
+          this.processDistances
+        );
       },
-
-      calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371e3; // Radius of Earth in meters
-        const φ1 = lat1 * (Math.PI / 180);
-        const φ2 = lat2 * (Math.PI / 180);
-        const Δφ = (lat2 - lat1) * (Math.PI / 180);
-        const Δλ = (lon2 - lon1) * (Math.PI / 180);
-
-        const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-                  Math.cos(φ1) * Math.cos(φ2) *
-                  Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        return R * c; // Distance in meters
-      },
-
-      selectMachine(row, col) {
-        const machineIndex = (row - 1) * 4 + col; // Calculate index within 4x4 layout
-        const selectedMachine = this.closestMachines[machineIndex]; // Access the correct machine in closestMachines
-        if (selectedMachine) {
-          this.selectedMachineNumber = selectedMachine.id;
-          this.selectedMachineDetails = selectedMachine;
-          this.isZoomed = true;
-
-          setTimeout(() => {
-            this.showDetails = true;
-          }, 1000);
+      processDistances(response, status) {
+        if (status === "OK") {
+          const distances = response.rows[0].elements.map((element, index) => ({
+            distance: element.distance.value,
+            machine: Object.values(machineData)[index]
+          }));
+          
+          distances.sort((a, b) => a.distance - b.distance);
+          this.closestMachines = distances.slice(0, 16).map(d => d.machine);
         }
       },
 
+      selectMachine(row, col) {
+        const machineNumber = this.getMachineNumber(row, col);
+        this.selectedMachineNumber = machineNumber;
+        this.selectedMachineDetails = machineData[machineNumber];
+
+        this.isZoomed = true;
+
+        setTimeout(() => {
+          this.showDetails = true;
+        }, 1000);
+      },
       getMachineNumber(row, col) {
         return (row - 1) * 4 + col + 1;
       },
-
       zoomOut() {
         this.isZoomed = false;
         this.showDetails = false;
         this.screenDisplay = ''; // Clear screen display on zoom out
       },
-
       viewOnMap() {
         this.$router.push({ name: 'Map' });
       },
-
       handleKeypadInput(key) {
         if (this.screenDisplay.length < 2) {
           this.screenDisplay += key;
         }
       },
-
       handleBackspace() {
         this.screenDisplay = this.screenDisplay.slice(0, -1);
       },
-
       handleSubmit() {
         const machineNumber = parseInt(this.screenDisplay, 10);
         if (machineNumber >= 1 && machineNumber <= 16) {
@@ -193,13 +184,12 @@
           this.flashError();
         }
       },
-
       flashError() {
         this.errorFlash = true;
         this.screenDisplay = '';
         setTimeout(() => {
           this.errorFlash = false;
-        }, 2000);
+        }, 2000); // Flash error twice within 800ms
       }
     }
   };
@@ -227,17 +217,16 @@ html, body {
   position: relative;
   background-color: #333;
   border-radius: 20px;
-  width: 90vw; /* Set width relative to viewport */
-  max-width: 450px; /* Cap the maximum width */
-  height: 80vh; /* Use viewport height for responsive height */
-  max-height: 600px; /* Cap the maximum height */
+  width: 450px;
+  height: 600px;
   padding: 10px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   border: 3px solid #555;
-  margin: auto; /* Center the machine */
+  transform: scale(1.3);
+  transform-origin: center;
 }
 
 .vending-machine-logo {
