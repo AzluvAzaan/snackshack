@@ -1,15 +1,14 @@
 <template>
-  <div class="app container-fluid">
-    <div class="sidebar">
+  <div class="app d-flex">
+    <div class="sidebar col-4">
       <h1>Vending Machines Near You</h1>
 
       <!-- Search Bar -->
       <input
         type="text"
         class="search-bar"
-        placeholder="Find Your Favourite Machine!"
+        placeholder="Find Your Favourite Food/Machine!"
         v-model="searchQuery"
-        @input="filterMachines"
       />
 
       <!-- Filter By Section -->
@@ -39,25 +38,27 @@
         :style="{ backgroundImage: `url(${machine.imageUrl})` }"
       >
         <h2>{{ machine.machineName }}</h2>
+        <img :src="machine.imageUrl" alt="Vending Machine Image" class="vending-thumbnail">
         <p>{{ machine.type }}</p>
         <div :class="getStatusClass(machine.status)">
           <p>{{ machine.status }}</p>
         </div>
         <div class="rating">
-          <span>⭐ {{ machineReviews.machine }} </span>
+          <span v-if = "machine.numReviews==0">★ No reviews yet... </span>
+          <span v-else-if = "machine.numReviews==1">★ {{ machine.avgRating }}/5, 1 review </span>
+          <span v-else>★ {{ machine.avgRating }}/5, {{ machine.numReviews }} reviews </span>
         </div>
         <p>{{ machine.description }}</p>
         <p v-if = "this.userLocation">{{ calculateDistance(machine.coordinates) }}km away</p>
         <div class="actions">
-          <button class="action-btn" @click="getDirections(machine)">Directions</button>
+          <button class="action-btn" @click="getDirections(machine.coordinates)">Directions</button>
           <button class="action-btn" @click="writeReview(machine.id)">Review</button>
-          <button class="action-btn" @click="selectMachine(machine)">Details</button>
         </div>
       </div>
     </div>
 
     <!-- Map element -->
-    <div id="map-container" class="col-12 col-md-8 position-relative">
+    <div id="map-container">
       <div id="map"></div>
     </div>
 
@@ -71,16 +72,17 @@
           <p>{{ selectedMachine.status }}</p>
         </div>
         <div class="rating">
-          <span>⭐ {{ machineReviews.selectedMachine }} </span>
+          <span v-if = "selectedMachine.numReviews==0">★ No reviews yet... </span>
+          <span v-else-if = "selectedMachine.numReviews==1">★ {{ selectedMachine.avgRating }}/5, 1 review </span>
+          <span v-else>★ {{ selectedMachine.avgRating }}/5, {{ selectedMachine.numReviews }} reviews </span>
         </div>
         <p><strong>Address:</strong> {{ selectedMachine.locDes }}</p>
         <p><strong>Description:</strong> {{ selectedMachine.description }}</p>
         <p><strong>Contents:</strong> {{ selectedMachine.contents.join(' | ') }}</p>
+        <p><strong>Payment Methods:</strong> {{ selectedMachine.paymentType.join(' | ') }}</p>
         <div class="actions">
-          <button class="action-btn" @click="getDirections(selectedMachine)">Directions</button>
-          <router-link to="/review">
-            <button class="action-btn">Review</button>
-          </router-link>
+          <button class="action-btn" @click="getDirections(selectedMachine.coordinates)">Directions</button>
+          <button class="action-btn" @click="writeReview(selectedMachine.id)">Review</button>
         </div>
       </div>
     </div>
@@ -95,7 +97,6 @@ export default {
   data() {
     return {
       vendingMachines: [],
-      machineReviews: {},
       selectedMachine: null,
       infoWindow: null,
       markers: [],
@@ -106,8 +107,33 @@ export default {
     };
   },
 
+
   mounted() {
-    this.fetchVendingMachines();
+    this.fetchVendingMachines().then(() => {
+      // Check if there are query parameters for machine coordinates
+      const machineLat = parseFloat(this.$route.query.lat);
+      const machineLng = parseFloat(this.$route.query.lng);
+      const machineId = this.$route.query.machineId;
+
+      // If machine coordinates exist, center the map on them
+      if (!isNaN(machineLat) && !isNaN(machineLng) && machineId) {
+        this.map.setCenter({ lat: machineLat, lng: machineLng });
+
+        // Find the marker for this machine based on its ID
+        const selectedMarker = this.markers.find(([id]) => id === machineId);
+
+        if (selectedMarker) {
+          const marker = selectedMarker[1];
+          marker.setAnimation(google.maps.Animation.BOUNCE);
+          
+          // Optional: Select the machine to show details if you want a modal or info window
+          this.selectedMachine = this.vendingMachines.find(machine => machine.id === machineId);
+
+          // Stop the bounce animation after a short period
+          setTimeout(() => marker.setAnimation(null), 1400);
+        }
+      }
+    });
   },
 
   created() {
@@ -266,14 +292,15 @@ export default {
       });
     },    
 
-    getDirections(machine) {
-      window.open('https://www.google.com/maps/dir/?api=1&destination=${machine.coordinates.latitude},${machine.coordinates.longitude}')
+    getDirections(coordinates) {
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${coordinates.latitude},${coordinates.longitude}`)
     },
   },
 };
 </script>
 
 <style scoped>
+
   .app {
     position:fixed;
     top:0px;
@@ -286,9 +313,9 @@ export default {
 
   .sidebar {
     width: 300px;
-    height: 83vh;
+    height:  92vh;
     padding: 20px;
-    background-color: #30394f;
+    background-color: #001f3f;
     color: white;
     overflow-y: auto;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
@@ -296,10 +323,10 @@ export default {
   }
 
   .sidebar h1 {
-    font-size: 2.0rem;
+    font-size: 1.8rem;
     text-align: center;
     margin-bottom: 1rem;
-    color: #ffcc00;
+    color: white;
   }
 
   .sidebar h2 {
@@ -309,14 +336,19 @@ export default {
   }
 
   .search-bar {
-    width: 92%;
+    width: 100%;
     padding: 10px;
     margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 5px;
+    font-size: 0.9rem;
   }
 
   .sort-by, .filter-type {
+    margin-bottom: 15px;
+  }
+
+  .filter-container {
     margin-bottom: 15px;
   }
 
@@ -338,6 +370,7 @@ export default {
     border-radius: 10px;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease;
+
   }
 
   .vending-card::before {
@@ -347,7 +380,7 @@ export default {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.3); /* Adjust for darker effect */
+    background-color: rgba(0, 0, 0, 0.5); /* Adjust for darker effect */
     border-radius: 10px;
     z-index: 1; /* Overlay below text */
   }
@@ -366,6 +399,25 @@ export default {
 
   .vending-card:hover {
     transform: scale(1.05);
+    cursor: pointer;
+  }
+
+  .vending-thumbnail {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 20px;
+      filter: brightness(1.2); /* Brighter effect */
+      opacity: 0.9; /* Slight transparency */
+      position: absolute;
+      top: 50px;
+      right: 10px;
+      z-index: 9;
+  }
+
+  .vending-thumbnail:hover {
+    transform: scale(1.5);
+    transition: 0.2s ease;
   }
 
   .status {
@@ -375,7 +427,6 @@ export default {
 
   .status p {
     font-weight: bold;
-    text-align: center;
   }
 
   .status-running {
@@ -411,7 +462,6 @@ export default {
     border: none;
     padding: 10px 15px;
     border-radius: 5px;
-    font-size: 0.8rem;
     cursor: pointer;
     margin-right: 5px;
     color: black;
@@ -428,53 +478,54 @@ export default {
   #map-container {
     position: relative;
     flex-grow: 1;
-    height: 95%;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
   }
 
   #map {
     width: 100%;
-    height: 94%;
+    height: 100%;
   }
 
   /* Modal Styles */
+  @keyframes popup {
+    0% {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
   .details-modal {
     position: fixed;
-    top: 60px;
+    bottom: 0px;
     right: 0;
-    width: 350px;
-    height: calc(100% - 120px);
-    background-color: #44516a;
+    width: 420px;
+    height: calc(100% - 60px);
     background-size: cover;
     background-position: center;
     color: white;
     padding: 20px;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
-    overflow-y: auto;
-    z-index: 1000;
+    z-index: 1;
     transition: all 0.3s ease;
+    animation: popup 0.3s ease forwards;
   }
 
-  .details-modal::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Adjust for darker effect */
-    border-radius: 10px;
-    z-index: 1; /* Overlay below text */
-  }
 
   .details-modal::after {
     content: '';
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Adjust the opacity for darkness */
-    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.6); /* Adjust the opacity for darkness */
     z-index: 1; /* Make sure overlay is above the background but below text */
   }
 
@@ -485,6 +536,7 @@ export default {
     position: relative; /* Ensure text is above the overlay */
     z-index: 2; /* Bring the text above the overlay */
   }
+  
 
   .vending-card p, .details-modal p {
     padding: 5px;
@@ -494,15 +546,33 @@ export default {
   }
 
   .close-btn {
-    background: none;
-    border: none;
-    color: #ffcc00;
-    font-size: 1.5rem;
-    cursor: pointer;
     position: absolute;
-    z-index: 2;
-    top: 10px;
+    top: 10px; 
     right: 10px;
+    font-size: 24px;
+    background: transparent;
+    border: none; 
+    cursor: pointer;
+    z-index: 1001; /* Make sure it's above other modal content */
+    padding: 0; /* No padding for better alignment */
+    line-height: 1; /* Ensures button height aligns with font-size */
+  }
+
+  /* Optional Hover and Focus Effect */
+  .close-btn:hover,
+  .close-btn:focus {
+    color: #ff9900; /* Slightly darker color on hover */
+    outline: none; /* Removes default focus outline */
+  }
+
+  /* Temporary outline to debug clickable area */
+  .close-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
 
   .details-modal h2 {
@@ -542,16 +612,77 @@ export default {
     background-color: #ffd633;
   }
 
-  @media (max-width: 768px) {
+  @media only screen and (max-width: 768px) {
+
+    .app {
+      flex-direction: column;
+    }
 
     .sidebar {
       width: 100%;
       height: 40vh;
     }
 
+    #map-container {
+      width: 100%;
+      height: 60vh; /* map takes up the top 60% */
+      flex-grow: 1;
+    }
+
     #map {
-      height: 60vh;
+      width: 100%;
+      height: 100%;
+    }
+
+    .vending-thumbnail{
+      position: absolute;
+      top: 15%;
+      right: 45px;
+      transform: scale(1.5)
+    }
+
+    .vending-thumbnail:hover{
+      transform: scale(1.8);
+    }
+
+    .details-modal {
+      position: absolute;
+      bottom: 0; /* position it at the bottom */
+      width: 300px;
+      max-height: 70vh;
+      max-width: 100%;
+      z-index: 10; /* ensures the modal appears above other elements */
+      overflow-y: auto;
+    }
+
+    .details-modal h2 {
+      font-size: 1.1em;
+      margin: 0rem;
+    }
+    
+    .details-modal p {
+      font-size: 0.7em;
+      margin: 0rem;
+    }
+
+    .details-modal .rating {
+      font-size: 0.7em;
+      margin-bottom: 5px;
+    }
+
+    .details-modal .action-btn {
+      font-size: 0.7em;
+      padding: 5px 10px;
+    }
+
+  }
+
+  @media only screen and (max-width: 426px) {
+    .details-modal {
+      width: 100%;
+      max-height: 75vh;
     }
   }
+
 
 </style>

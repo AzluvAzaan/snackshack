@@ -2,7 +2,7 @@
 <div id="admin-page">
     <div class="admin-container container py-4 min-vh-100">
       <!-- Alert for add/edit/delete/cancel vending machine functions messages -->
-      <div v-if="alert.show" :class="`alert alert-${alert.type} alert-dismissible`" role="alert">
+      <div v-if="alert.show" :class="`alert alert-${alert.type} alert-dismissible fade show`" role="alert">
         {{ alert.message }}
         <button type="button" class="btn-close" @click="closeAlert" aria-label="Close"></button>
       </div>
@@ -11,36 +11,20 @@
         <div class="col-12 col-md-8">
           <h1 class="mb-0">Admin Page</h1>
         </div>
-        <div class="col-12 col-md-4 d-flex justify-content-md-end ">
+        <div class="col-12 col-md-4 d-flex justify-content-md-end align-items-center mt-3 mt-md-0">
+          <p v-if="currentUser" class="mb-0 me-3">Logged in as: {{ currentUser.email }}</p>
           <!-- Logout button to log out user-->
-          <button @click="logout" class="btn btn-danger"><font-awesome-icon icon="fa-solid fa-right-from-bracket" /> Logout</button>
+          <button @click="logout" class="btn btn-danger">Logout</button>
         </div>
       </div>
-      <div class="row">
-       <!-- <p v-if="currentUser" class="mb-0 me-3">Logged in as: {{ currentUser.email }}</p> -->
-       <div v-if="currentUser && userDetails" class="user-info">
-            <p><strong>Logged in as: </strong> {{ currentUser.email }}</p>
-            <p>
-              <strong>Contact Number: </strong> 
-              <span v-if="!editingContact">{{ userDetails.contact }}</span>
-              <input v-else v-model="newContactNumber" type="tel" class="form-control d-inline-block w-auto mx-2">
-              <button v-if="!editingContact" @click="startEditContact" class="btn btn-sm btn-primary ms-2"> 
-                <font-awesome-icon icon="fa-solid fa-pen-to-square" />  Edit</button>
-              <button v-else @click="updateContact" class="btn btn-sm btn-success mx-2">Save</button>
-              <button v-if="editingContact" @click="cancelEditContact" class="btn btn-sm btn-secondary">Cancel</button>
-            </p>
-      </div>
+
       <!-- Vending Machine + Add Machine Button-->
-      <div class="row mb-3">
-      <div class="col">
-        <h2>Your Vending Machines</h2>
+      <div class="row mb-4">
+        <div class="col-12">
+          <h2>Your Vending Machines</h2>
+          <button @click="showAddForm = true" class="btn btn-primary mb-3">Add a new Vending Machine</button>
+        </div>
       </div>
-      <div class="col-auto">
-        <button @click="showAddForm = true" class="btn btn-primary">
-          <font-awesome-icon icon="fa-solid fa-plus" /> Add Vending Machine
-        </button>
-      </div>
-    </div>
     
       <!-- Add/Edit Vending Machine Form -->
       <div v-if="showAddForm" class="add-form card  mb-4">
@@ -51,7 +35,7 @@
             <div class="row">
               <div class="col-12 col-sm-4 mb-3">
                 <label for="machineName" class="form-label">Machine Name:</label>
-                <input v-model="newMachine.machineName" id="machineName" class="form-control " required>
+                <input v-model="newMachine.machineName" id="machineName" class="form-control" required>
               </div>
 
               <!-- Select Status of Current Machine-->
@@ -121,7 +105,7 @@
                 <input v-model="newMachine.coordinates.longitude" id="longitude" type="number" step="any" class="form-control" required>
               </div>
               <div class="mb-3">
-              <a href="https://support.google.com/maps/answer/18539?hl=en&co=GENIE.Platform%3chaDDesktop&oco=1" target="_blank" rel="noopener noreferrer" class="btn btn-link coordinate-link ">
+              <a href="https://support.google.com/maps/answer/18539?hl=en&co=GENIE.Platform%3chaDDesktop&oco=1" target="_blank" rel="noopener noreferrer" class="btn btn-link">
                 Don't know your coordinates? Click here!
               </a>
             </div>
@@ -133,7 +117,7 @@
               <label for="addItem" class="form-label">Add Item:</label>
               <div class="input-group">
                 <input v-model="newContent" @keyup.enter="addContent" placeholder="Enter item name" class="form-control">
-                <button type="button" @click="addContent" class="btn btn-info">Add Item</button>
+                <button type="button" @click="addContent" class="btn btn-outline-secondary">Add Item</button>
               </div>
             </div>
           </div>
@@ -141,7 +125,7 @@
           <div class="mb-3">
             <label class="form-label">Contents in this Machine:</label>
               <ol class="list-group list-group-numbered">
-                <li v-for="(item, index) in newMachine.contents" :key="index" class="list-group-item d-flex justify-content-between align-items-start border border-secondary mb-2 p-2 item-outline">
+                <li v-for="(item, index) in newMachine.contents" :key="index" class="list-group-item d-flex justify-content-between align-items-start">
                   <div class="ms-2 me-auto">{{ item }}</div>
                   <button type="button" @click="removeContent(index)" class="btn btn-sm btn-danger">Remove</button>
                 </li>
@@ -155,7 +139,7 @@
           </form>
         </div>
       </div>
-      <!-- Search input and Sort select -->
+      <!-- Search input -->
       <div class="mb-3">
         <div class="row g-2">
           <div class="col-10 col-md-8">
@@ -185,11 +169,12 @@
           </div>
         </div>
       </div>
+        
       <!-- Vending Machines in Bootstrap Card -->
       <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3  row-cols-xl-4 g-4 justify-content-start">
-        <div v-for="machine in filteredAndSortedMachines" :key="machine.id" class="col">
+        <div v-for="machine in filteredMachines" :key="machine.id" class="col">
           <!-- Details of each vending machine in bootstrap Card-->
-          <div class="card h-100" :class="getRatingColorClass(machine.avgRating)">
+          <div class="card h-100">
             <img :src="machine.imageUrl" class="card-img-top" alt="No Machine Image Uploaded" style="height: 200px; object-fit: cover;">
             <div class="card-body">
               <h5 class="card-title">{{ machine.machineName }}</h5>
@@ -199,7 +184,6 @@
               <p class="card-text"><strong>Type:</strong> {{ machine.type }}</p>
               <p class="card-text"><strong>Payment:</strong> {{ machine.paymentType.join(', ') }}</p>
               <p class="card-text"><strong>Items:</strong> {{ machine.contents.join(', ') }}</p>
-              <p class="card-text"><strong>Average Rating:</strong> {{ machine.avgRating }} <font-awesome-icon icon="fa-solid fa-star" /> ({{machine.numReviews}})</p>
             </div>
             <div class="card-footer d-flex flex-wrap justify-content-start">
               <!-- Edit, See Image, Delete, Recent Reviews, All Reviews buttons, View on Map for vending machines-->
@@ -241,8 +225,8 @@
           </div>
         </div>
       </div>
+    </div>
   </div>
-</div>
 </template>
 
 <script>
@@ -250,12 +234,12 @@ import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from '@/firebase';
 import firestore from '@/firestore';
 
+
 export default {
   name: 'Admin',
   data() {
     return {
-      currentUser: null,
-      userDetails: null,
+      currentUser: null, 
       // New Vending Machine Object
       newMachine: {
         machineName: '',
@@ -282,12 +266,7 @@ export default {
         message: '',
         type: 'success'
       },
-      searchQuery: '', // Search query
-      editingContact: false, // Check if editing contact
-      newContactNumber: '', 
-      sortOption: '', // Sorting option
-      showModal: false,
-      selectedMachine: null, // Check if showing machine details
+      searchQuery: '',
       }
     },
     computed: {
@@ -342,17 +321,14 @@ export default {
       if (user) {
         this.currentUser = user;
         this.fetchUserMachines();
-        this.fetchUserData(user.uid);
       } else {
     // Return them back to login page
         this.currentUser = null;
-        this.userDetails = null;
         this.userMachines = [];
         this.$router.push('/login');
       }
     });
   },
-  
   methods: {
     async logout() {
       try {
@@ -503,9 +479,7 @@ export default {
           longitude: null
         },
         contents: [],
-        imageUrl: null,
-        avgRating: 0,  
-        numReviews: 0  
+        imageUrl: null 
       };
       this.newContent = '';
       this.isEditing = false;
@@ -534,15 +508,9 @@ export default {
           
           // Delete the machine document from Firestore
           await firestore.deleteVendingMachine(machineId);
-          // Delete all reviews associated with the machine
-          await firestore.deleteAllReviewsForMachine(machineId);
           //alert("Vending machine deleted successfully!");
           this.showAlert("Vending machine deleted successfully!", 'success');
           this.fetchUserMachines();
-          window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-          }); 
         } catch (error) {
           //console.error("Error deleting vending machine: ", error);
           this.showAlert("Error deleting vending machine. Please try again.", 'danger');
@@ -577,11 +545,7 @@ export default {
     cancelAddOrEdit() {
       this.clearForm();
       this.showAddForm = false;
-      this.showAlert('Adding/Editing vending machine cancelled', 'info');
-      window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-    });
+      this.showAlert('Operation cancelled', 'info');
     },
 
     //Shows alert message at top of page 
@@ -678,7 +642,6 @@ export default {
 /* Button hover and animation */
 .btn {
   transition: transform 0.3s ease-in-out;
-  border-radius: 15px;
 }
 
 .btn:hover {
@@ -994,5 +957,3 @@ label {
   cursor: pointer;
 }
 </style>
-
-
