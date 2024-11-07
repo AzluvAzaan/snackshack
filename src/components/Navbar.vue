@@ -13,17 +13,17 @@
 
     <!-- Navigation links -->
     <ul class="navbar-links" :class="{ 'navbar-links-mobile': isMobileMenuOpen }">
-      <li class="navbar-item" :class="{ active: activeLink === 'home' }">
-        <router-link to="/" @click.native="setActiveLink('home')">Home</router-link>
+      <li class="navbar-item">
+        <router-link to="/" exact-active-class="active-link" exact>Home</router-link>
       </li>
-      <li class="navbar-item" :class="{ active: activeLink === 'map' }">
-        <router-link to="/map" @click.native="setActiveLink('map')">Map</router-link>
+      <li class="navbar-item">
+        <router-link to="/map" active-class="active-link">Map</router-link>
       </li>
-      <li class="navbar-item" :class="{ active: activeLink === 'wheel' }">
-        <router-link to="/wheel" @click.native="setActiveLink('wheel')">Wheel</router-link>
+      <li class="navbar-item">
+        <router-link to="/wheel" active-class="active-link">Wheel</router-link>
       </li>
-      <li class="navbar-item" :class="{ active: activeLink === 'login' }">
-        <router-link to="/login" @click.native="setActiveLink('login')">Add a Vending machine</router-link>
+      <li class="navbar-item">
+        <router-link to="/login" active-class="active-link">Add a Vending Machine</router-link>
       </li>
     </ul>
   </nav>
@@ -33,15 +33,10 @@
 export default {
   data() {
     return {
-      activeLink: 'home', // Default active link
       isMobileMenuOpen: false, // Controls mobile menu visibility
     };
   },
   methods: {
-    setActiveLink(link) {
-      this.activeLink = link;
-      this.isMobileMenuOpen = false; // Close menu after selecting a link on mobile
-    },
     toggleMenu() {
       this.isMobileMenuOpen = !this.isMobileMenuOpen;
     },
@@ -109,9 +104,10 @@ export default {
   transition: color 0.3s ease;
 }
 
-.navbar-item.active a {
+/* Active link styling */
+.navbar-item .active-link {
   font-weight: bold;
-  color: #f0a500;
+  color: #f0a500 !important; /* Ensures active color overrides other styles */
 }
 
 .navbar-item a:hover {

@@ -201,7 +201,14 @@
       },
 
       viewOnMap() {
-        this.$router.push({ name: 'Map' });
+        this.$router.push({
+          name: 'Map',
+          query: {
+            machineId: this.selectedMachineDetails.id,
+            lat: this.selectedMachineDetails.coordinates.latitude,
+            lng: this.selectedMachineDetails.coordinates.longitude,
+          },
+        });
       },
 
       handleKeypadInput(key) {
