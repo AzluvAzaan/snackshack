@@ -112,7 +112,9 @@
           <div class="average-rating-container">
             <h2>Average Rating</h2>
             <div class="average-rating">
-              <span class="average-rating-number">{{ averageRating }}</span>
+              <span :class="averageRatingClass" class="average-rating-number">
+                {{ averageRating }}
+              </span>
               <div class="stars-container">
                 <div class="stars-filled" :style="{ width: `${(averageRating / 5) * 100}%` }">
                   <span v-for="i in 5" :key="i">★</span>
@@ -350,11 +352,12 @@ return 'just now';
   
   // Close the sidebar on mobile after selection
   if (window.innerWidth < 768) {
-    this.sidebarOpen = false;
+    setTimeout(() => {
+      this.sidebarOpen = false;
+    }, 200); // 200ms delay
     this.handleResize(); // Ensure sidebar visibility updates after selection
   }
 },
-
 
     async fetchVendingMachines() {
       try {
@@ -423,6 +426,17 @@ computed: {
   },
   totalReviews() {
     return this.reviews.length;
+  },
+
+  // Computed property to return the rating class based on averageRating value
+  averageRatingClass() {
+    if (this.averageRating >= 4) {
+      return 'average-rating-good';
+    } else if (this.averageRating >= 2.5) {
+      return 'average-rating-average';
+    } else {
+      return 'average-rating-poor';
+    }
   }
 },
 
@@ -460,6 +474,10 @@ beforeDestroy() {
 </script>
 
 <style scoped>
+html {
+  scroll-behavior: smooth;
+}
+
 *{
 box-sizing: border-box;
 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
@@ -492,6 +510,17 @@ box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   cursor: pointer;
   margin-right: 10px;
+}
+
+.write-review-btn,
+.sorting-dropdown select {
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.write-review-btn:hover,
+.sorting-dropdown select:hover {
+  transform: scale(1.05);
+  /* background-color: #0056b3; */
 }
 
 .sorting-dropdown {
@@ -701,10 +730,22 @@ margin-top: 10px;
 }
 
 .average-rating-number {
-font-size: 48px;
+font-size: 3rem; /* Larger font */
 font-weight: bold;
-color: #007bff;
 margin-right: 15px;
+transition: color 0.3s ease;
+}
+
+.average-rating-good {
+  color: #4caf50; /* Green for good ratings */
+}
+
+.average-rating-average {
+  color: #FF7546; /* Orange/Yellow for average ratings */
+}
+
+.average-rating-poor {
+  color: #F3727F; /* Red for poor ratings */
 }
 
 .stars-container {
@@ -752,9 +793,10 @@ color: #666;
   left: 0;
   z-index: 100;
   padding: 48px 0 0;
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
   transition: transform 0.3s ease-in-out;
+  border-right: 1px solid #ddd;
 }
 
 .sidebar.collapse:not(.show) {
@@ -766,7 +808,7 @@ color: #666;
 }
 
 .nav-link {
-  transition: all 0.3s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .nav-link:hover {
