@@ -390,7 +390,6 @@ html, body {
   width: 120px;
   padding-top: 180px;
   padding-bottom: 60px;
-  padding-left: 15px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -663,6 +662,7 @@ html, body {
   }
 
   .controls-container {
+    padding-left: 15px;
     width: 80px; /* Narrower controls container for mobile */
     padding-top: 100px;
     padding-bottom: 40px;
