@@ -2,28 +2,23 @@
   <nav class="navbar">
     <!-- Logo section -->
     <div class="navbar-logo">
-      <img src="@/assets/snackshack.png" alt="SnackShack logo" class="logo-image" />
+      <img src="@/assets/snackshack.png" alt="SnackShack logo" class="logo-image">
       <span class="logo-text">SnackShack</span>
     </div>
 
-    <!-- Toggle button for mobile -->
-    <button class="navbar-toggle" @click="toggleMenu">
-      &#9776; <!-- Hamburger icon -->
-    </button>
-
     <!-- Navigation links -->
-    <ul class="navbar-links" :class="{ 'navbar-links-mobile': isMobileMenuOpen }">
-      <li class="navbar-item">
-        <router-link to="/" exact-active-class="active-link" exact>Home</router-link>
+    <ul class="navbar-links">
+      <li class="navbar-item" :class="{ active: activeLink === 'home' }">
+        <router-link to="/" @click.native="setActiveLink('home')">Home</router-link>
       </li>
-      <li class="navbar-item">
-        <router-link to="/map" active-class="active-link">Map</router-link>
+      <li class="navbar-item" :class="{ active: activeLink === 'map' }">
+        <router-link to="/map" @click.native="setActiveLink('map')">Map</router-link>
       </li>
-      <li class="navbar-item">
-        <router-link to="/wheel" active-class="active-link">Wheel</router-link>
+      <li class="navbar-item" :class="{ active: activeLink === 'wheel' }">
+        <router-link to="/wheel" @click.native="setActiveLink('wheel')">Wheel</router-link>
       </li>
-      <li class="navbar-item">
-        <router-link to="/login" active-class="active-link">Add a Vending Machine</router-link>
+      <li class="navbar-item" :class="{ active: activeLink === 'login' }">
+        <router-link to="/login" @click.native="setActiveLink('login')">Add a Vending machine</router-link>
       </li>
     </ul>
   </nav>
@@ -33,14 +28,14 @@
 export default {
   data() {
     return {
-      isMobileMenuOpen: false, // Controls mobile menu visibility
+      activeLink: 'home', // Default active link
     };
   },
   methods: {
-    toggleMenu() {
-      this.isMobileMenuOpen = !this.isMobileMenuOpen;
-    },
-  },
+    setActiveLink(link) {
+      this.activeLink = link;
+    }
+  }
 };
 </script>
 
@@ -58,11 +53,12 @@ export default {
   left: 0;
   width: 100%;
   z-index: 1000;
-  height: 60px;
-  box-sizing: border-box;
+  height: 60px; /* Fixed height for navbar */
+  box-sizing: border-box; /* Ensure padding is included in width */
+  overflow: hidden;
 }
 
-/* Padding to prevent content overlap */
+/* Add padding to the page to avoid the navbar overlapping content */
 .navbar + * {
   margin-top: 60px;
 }
@@ -88,14 +84,15 @@ export default {
 /* Navigation links */
 .navbar-links {
   display: flex;
+  justify-content: flex-end;
   list-style-type: none;
   padding-left: 0;
-  margin-left: auto;
+  margin-left: auto; /* Push the links to the right */
 }
 
 .navbar-item {
   font-size: 1rem;
-  margin-left: 1.5rem;
+  margin-left: 1.5rem; /* Adds space between links */
 }
 
 .navbar-item a {
@@ -104,45 +101,12 @@ export default {
   transition: color 0.3s ease;
 }
 
-/* Active link styling */
-.navbar-item .active-link {
+.navbar-item.active a {
   font-weight: bold;
-  color: #f0a500 !important; /* Ensures active color overrides other styles */
+  color: #f0a500;
 }
 
 .navbar-item a:hover {
   color: #f0a500;
-}
-
-/* Mobile menu toggle button */
-.navbar-toggle {
-  display: none; /* Hidden by default, shown in mobile view */
-  font-size: 1.5rem;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-}
-
-/* Mobile menu styles */
-@media (max-width: 768px) {
-  .navbar-links {
-    display: none; /* Hide links by default on mobile */
-    flex-direction: column;
-    position: absolute;
-    top: 60px;
-    right: 0;
-    background-color: #333;
-    width: 100%;
-    padding: 1rem 2rem;
-  }
-
-  .navbar-links.navbar-links-mobile {
-    display: flex; /* Show when mobile menu is open */
-  }
-
-  .navbar-toggle {
-    display: block; /* Show toggle button on mobile */
-  }
 }
 </style>
