@@ -705,6 +705,5 @@ html, body {
   margin-top: 20px;
   align-self: center;
   }
-
 }
 </style>
