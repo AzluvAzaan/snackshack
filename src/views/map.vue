@@ -1,5 +1,5 @@
 <template>
-  <div class="app container-fluid">
+  <div class="app">
     <div class="sidebar">
       <h1>Vending Machines Near You</h1>
 
@@ -276,6 +276,8 @@ export default {
 </script>
 
 <style scoped>
+  @import 'bootstrap/dist/css/bootstrap.css';
+
   .app {
     position:fixed;
     top:0px;
@@ -288,7 +290,7 @@ export default {
 
   .sidebar {
     width: 300px;
-    height: 83vh;
+    height:  92vh;
     padding: 20px;
     background-color: #30394f;
     color: white;
@@ -311,11 +313,12 @@ export default {
   }
 
   .search-bar {
-    width: 92%;
+    width: 100%;
     padding: 10px;
     margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 5px;
+    font-size: 0.9rem;
   }
 
   .sort-by, .filter-type {
