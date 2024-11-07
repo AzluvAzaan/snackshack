@@ -460,4 +460,175 @@ html, body {
   border: 2px solid #666;
   margin-top: 5px;
 }
+
+/* Typing text container */
+.typing-text-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  color: orange;
+  font-family: "Courier New", monospace;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.typing-text-container.left {
+  top: 45%;
+  left: 10%;
+  transform: translateY(-50%);
+}
+
+.typing-text-container.right {
+  top: 45%;
+  right: 10%;
+  transform: translateY(-50%);
+}
+
+/* Typing animation for each line */
+.typing-text {
+  font-size: 3rem;
+  overflow: hidden;
+  white-space: nowrap;
+  display: inline-block;
+  animation: typing 1s steps(20, end) forwards;
+}
+
+/* Delay each line to type in sequence */
+.typing-text:nth-child(1) { animation-delay: 0s; }
+.typing-text:nth-child(2) { animation-delay: 0.5s; }
+.typing-text:nth-child(3) { animation-delay: 1.5s; }
+.typing-text:nth-child(4) { animation-delay: 2s; }
+.typing-text:nth-child(5) { animation-delay: 2.5s; }
+
+/* Right text delays after left text finishes */
+.typing-text-container.right .typing-text:nth-child(1) { animation-delay: 3s; }
+.typing-text-container.right .typing-text:nth-child(2) { animation-delay: 3.5s; }
+.typing-text-container.right .typing-text:nth-child(3) { animation-delay: 4s; }
+
+/* Keyframes for typing effect */
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .controls-container {
+  width: 60px;
+  padding-top: 90px;
+  padding-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  }
+
+.screen {
+  margin-top: 50px;
+  width: 70px;
+  height: 70px;
+  margin-right: 7px;
+  background-color: #222;
+  border-radius: 4px;
+  border: 2px solid #444;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  transform-origin: center;
+  transition: transform 1s ease;
+  }
+
+.screen.zoomed {
+  transform: scale(5) translate(-30%, 8%);
+  z-index: 999;
+  }
+
+.screen-display {
+  font-size: 18px;
+  color: #00ff00;
+  }
+
+.zoomed-text {
+  font-size: 2.2px;
+  color: white;
+  margin: 1px 0;
+  }
+
+.back-button,
+.view-map-button {
+  margin-top: 3px;
+  padding: 2px 3px;
+  font-size: 2px;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  }
+
+  .vending-machine-logo {
+  position: absolute;
+  top: 40px;
+  right: 0px;
+  width: 80px;
+  height: auto;
+  }
+  .vending-machine {
+    width: 300px; /* Reduced width for mobile */
+    height: auto;
+  }
+  
+  .glass-container {
+    width: 200px; /* Adjusted width to fit mobile layout */
+  }
+
+  .controls-container {
+    padding-left: 15px;
+    width: 80px; /* Narrower controls container for mobile */
+    padding-top: 100px;
+    padding-bottom: 40px;
+  }
+
+  .keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 100px;
+  margin-right: 8px;
+  }
+
+  .keypad-button {
+    font-size: 8px;
+    padding-left: 2px;
+    border-radius: 5px;
+    width: 15px; /* Smaller keypad buttons */
+    height: 15px;
+  }
+
+  /* Hide typing text on mobile */
+  .typing-text-container {
+    display: none;
+  }
+
+  .cash-coin-container {
+  display: none;
+  }
+
+  .coin-return-tray {
+  display: none;
+  }
+  .snack-output {
+  width: 200px;
+  height: 80px;
+  background-color: #444;
+  border-radius: 4px;
+  border: 2px solid #666;
+  margin-top: 20px;
+  align-self: center;
+  }
+
+}
 </style>
