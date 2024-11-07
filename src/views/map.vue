@@ -44,9 +44,9 @@
           <p>{{ machine.status }}</p>
         </div>
         <div class="rating">
-          <span v-if = "machine.numReviews==0">⭐No reviews yet... </span>
-          <span v-else-if = "machine.numReviews==1">⭐ {{ machine.avgRating }}/5, 1 review </span>
-          <span v-else>⭐ {{ machine.avgRating }}/5, {{ machine.numReviews }} reviews </span>
+          <span v-if = "machine.numReviews==0">★ No reviews yet... </span>
+          <span v-else-if = "machine.numReviews==1">★ {{ machine.avgRating }}/5, 1 review </span>
+          <span v-else>★ {{ machine.avgRating }}/5, {{ machine.numReviews }} reviews </span>
         </div>
         <p>{{ machine.description }}</p>
         <p v-if = "this.userLocation">{{ calculateDistance(machine.coordinates) }}km away</p>
@@ -72,9 +72,9 @@
           <p>{{ selectedMachine.status }}</p>
         </div>
         <div class="rating">
-          <span v-if = "selectedMachine.numReviews==0">⭐No reviews yet... </span>
-          <span v-else-if = "selectedMachine.numReviews==1">⭐ {{ selectedMachine.avgRating }}/5, 1 review </span>
-          <span v-else>⭐ {{ selectedMachine.avgRating }}/5, {{ selectedMachine.numReviews }} reviews </span>
+          <span v-if = "selectedMachine.numReviews==0">★ No reviews yet... </span>
+          <span v-else-if = "selectedMachine.numReviews==1">★ {{ selectedMachine.avgRating }}/5, 1 review </span>
+          <span v-else>★ {{ selectedMachine.avgRating }}/5, {{ selectedMachine.numReviews }} reviews </span>
         </div>
         <p><strong>Address:</strong> {{ selectedMachine.locDes }}</p>
         <p><strong>Description:</strong> {{ selectedMachine.description }}</p>
@@ -355,7 +355,7 @@ export default {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.3); /* Adjust for darker effect */
+    background-color: rgba(0, 0, 0, 0.5); /* Adjust for darker effect */
     border-radius: 10px;
     z-index: 1; /* Overlay below text */
   }
@@ -381,7 +381,7 @@ export default {
       width: 80px;
       height: 80px;
       object-fit: cover;
-      border-radius: 50%;
+      border-radius: 20px;
       filter: brightness(1.2); /* Brighter effect */
       opacity: 0.9; /* Slight transparency */
       position: absolute;
