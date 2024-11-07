@@ -9,7 +9,6 @@
       <!-- Admin Page Header --> 
       <div class="row mb-4">
         <div class="col-12 col-md-8">
-          
           <h1 class="mb-0">Admin Page</h1>
         </div>
         <div class="col-12 col-md-4 d-flex justify-content-md-end ">
@@ -44,7 +43,7 @@
     </div>
     
       <!-- Add/Edit Vending Machine Form -->
-      <div v-if="showAddForm" class="add-form card mb-4">
+      <div v-if="showAddForm" class="add-form card  mb-4">
         <div class="card-body">
           <h3 class="card-title mb-4">{{ isEditing ? 'Edit' : 'Add' }} Vending Machine</h3>
           <form @submit.prevent="addOrUpdateVendingMachine">
@@ -159,7 +158,7 @@
       <!-- Search input and Sort select -->
       <div class="mb-3">
         <div class="row g-2">
-          <div class="col-md-8">
+          <div class="col-10 col-md-8">
             <div class="input-group">
               <span class="input-group-text">
                 <font-awesome-icon icon="fa-solid fa-magnifying-glass" />
@@ -171,7 +170,8 @@
                 placeholder="Search vending machines by Name, Location, Description, Type and Status of Machine">
             </div>
           </div>
-          <div class="col-md-4">
+      <!-- Sort By Rating -->
+          <div class="col-10 col-md-4">
             <div class="input-group">
               <span class="input-group-text">
                 <font-awesome-icon icon="fa-solid fa-sort" />
@@ -202,7 +202,7 @@
               <p class="card-text"><strong>Average Rating:</strong> {{ machine.avgRating }} <font-awesome-icon icon="fa-solid fa-star" /> ({{machine.numReviews}})</p>
             </div>
             <div class="card-footer d-flex flex-wrap justify-content-start">
-              <!-- Edit, See Image, Delete buttons for vending machines-->
+              <!-- Edit, See Image, Delete, Recent Reviews, All Reviews buttons, View on Map for vending machines-->
                <div class="mb-2">
               <button @click="editMachine(machine)" class="btn btn-sm btn-secondary me-1">Edit</button>
               <button @click="showImage(machine)" v-if="machine.imageUrl" class="btn btn-sm btn-dark me-1">See Image</button>
@@ -213,7 +213,12 @@
                 <router-link :to="{ path: '/review', query: { machine: machine.id } }"  target="_blank">
                   <button class="btn btn-info btn-sm me-1"> All Reviews</button>
                 </router-link>
-              </div>
+                </div>
+                <div class="mt-2">
+                  <button @click="getDirections(machine)" class="btn btn-success btn-sm">
+                  View on Map
+                </button>
+                </div>
               </div>
             </div>
           </div>
@@ -266,11 +271,12 @@ export default {
         contents: [],
       },
       userMachines: [], // Array to store user's machines
-      showAddForm: false, 
+      showAddForm: false, // Boolean to display form for add/edit machine
       isEditing: false,
       editingMachineId: null,
       selectedFile: null,
-      newContent: '',
+      newContent: '', 
+      //Alert 
       alert: {
         show: false,
         message: '',
@@ -285,10 +291,12 @@ export default {
       }
     },
     computed: {
+
+      // Search Bar Function
       filteredAndSortedMachines() {
       let result = this.userMachines;
       
-      // Apply search filter
+      // Apply search to find machine by name, location, description, type, and status
       if (this.searchQuery) {
         const query = this.searchQuery.toLowerCase();
         result = result.filter(machine => 
@@ -300,7 +308,7 @@ export default {
         );
       }
       
-      // Apply sorting
+      // Apply sorting by Ascending or Descending based on rating
       if (this.sortOption) {
         result.sort((a, b) => {
           if (this.sortOption === 'Asc') {
@@ -314,6 +322,7 @@ export default {
       return result;
     },
 
+    // Assign glowing class to vending machine card based on rating
     getRatingColorClass() {
     return (rating) => {
       if (!rating) return ''; // No glow for 0 or undefined rating
@@ -325,9 +334,10 @@ export default {
       };
     },
   },
+
   mounted() {
     // Checks if user is logged in and fetches user's machines if they are
-    // Firebase authentication metho
+    // Firebase authentication method
     onAuthStateChanged(auth, (user) => {
       if (user) {
         this.currentUser = user;
@@ -371,11 +381,13 @@ export default {
       }
     },
 
+    // For users to edit contact number
     startEditContact() {
       this.editingContact = true;
       this.newContactNumber = this.userDetails.contact;
     },
   
+    // Update contact number in Firestore
     async updateContact() {
       try {
         await firestore.updateUserData(this.currentUser.uid, {
@@ -385,10 +397,12 @@ export default {
         this.editingContact = false;
         this.showAlert('Contact number updated successfully', 'success');
       } catch (error) {
-        console.error('Error updating contact number:', error);
+        // console.error('Error updating contact number:', error);
         this.showAlert('Failed to update contact number', 'danger');
       }
     },
+
+    // Cancels editing contact number
     cancelEditContact() {
       this.editingContact = false;
       this.newContactNumber = '';
@@ -400,6 +414,7 @@ export default {
       this.selectedFile = event.target.files[0];
     },
 
+    // Uploads image to Firebase Storage and returns the download URL
     async uploadImage() {
       //return null if no file is selected
       if (!this.selectedFile) return null;
@@ -410,6 +425,7 @@ export default {
       return await getDownloadURL(storageRef);
     },
 
+    // Add item to vending machine
     addContent() {
       if (this.newContent.trim()) {
         this.newMachine.contents.push(this.newContent.trim());
@@ -428,6 +444,7 @@ export default {
         let imageUrl = null;
         let oldImageUrl = this.isEditing ? this.newMachine.imageUrl : null;
 
+        // Upload image if one is selected, if not keep the same image url
         if (this.selectedFile) {
           imageUrl = await firestore.uploadImage(this.selectedFile);
           if (oldImageUrl) {
@@ -444,16 +461,18 @@ export default {
         };
 
         if (!this.isEditing) {
-      // Only set these values when adding a new machine
+          // Only set these values when adding a new machine
           machineData.avgRating = 0;
           machineData.numReviews = 0;
         }
 
+        // Editing an existing machine
         if (this.isEditing) {
           await firestore.updateVendingMachine(this.editingMachineId, machineData);
           //alert('Vending machine updated successfully!');
           this.showAlert('Vending machine updated successfully!', 'success');
         } else {
+        // Add a new machine
           await firestore.addVendingMachine(machineData, this.currentUser.uid);
           //alert('Vending machine added successfully!');
           this.showAlert('Vending machine added successfully!', 'success');
@@ -527,12 +546,11 @@ export default {
         } catch (error) {
           //console.error("Error deleting vending machine: ", error);
           this.showAlert("Error deleting vending machine. Please try again.", 'danger');
-          //alert("Error deleting vending machine. Please try again.");
         }
       }
     },
 
-    // Show image of vending machine
+    // Show image of vending machine in new tab
     showImage(machine) {
       if (machine.imageUrl) {
         window.open(machine.imageUrl, '_blank');
@@ -554,6 +572,7 @@ export default {
       behavior: 'smooth'
     });
     },
+  
     //Cancel adding or editing vending machine
     cancelAddOrEdit() {
       this.clearForm();
@@ -582,14 +601,13 @@ export default {
       this.alert.message = '';
       },
 
-    // Work in Progress
-      async fetchRecentReviews(machineId) {
+    // Fetch machine's recent reviews
+    async fetchRecentReviews(machineId) {
         try {
           const reviews = await firestore.getRecentReviewsForMachine(machineId);
           // Find the machine and update its recentReviews
-          console.log(reviews);
+          //console.log(reviews);
           if (this.selectedMachine) {
-          //   this.selectedMachine.recentReviews = reviews;
           this.selectedMachine = { ...this.selectedMachine, recentReviews: reviews };
           }
           
@@ -602,45 +620,43 @@ export default {
       this.selectedMachine = machine;
       await this.fetchRecentReviews(machine.id);
       this.showModal = true;
-     // document.body.style.overflow = 'hidden';
     },
 
     closeModal() {
       this.showModal = false;
       this.selectedMachine = null;
-     //document.body.style.overflow = 'hidden';
     },
 
-    // formatDate(timestamp) {
-    //   if (!timestamp) return 'Invalid Date';
-    //   const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    //   return date.toLocaleString();
-    // },
-
+    // Format timestamp from Firestore
     formatDate(timestamp) {
-  if (!timestamp || !timestamp.toDate || typeof timestamp.toDate !== 'function') {
-    return 'Unknown Date';
-  }
+      if (!timestamp || !timestamp.toDate || typeof timestamp.toDate !== 'function') {
+         return 'Unknown Date';
+      }
 
-  const date = timestamp.toDate();
-  const day = date.getDate();
-  const month = date.toLocaleString('default', { month: 'short' });
-  const year = date.getFullYear();
+      const date = timestamp.toDate();
+      const day = date.getDate();
+      const month = date.toLocaleString('default', { month: 'short' });
+      const year = date.getFullYear();
 
-  const getOrdinalSuffix = (d) => {
-    if (d > 3 && d < 21) return 'th';
-    switch (d % 10) {
-      case 1:  return "st";
-      case 2:  return "nd";
-      case 3:  return "rd";
-      default: return "th";
-    }
-  };
+      const getOrdinalSuffix = (d) => {
+        if (d > 3 && d < 21) return 'th';
+        switch (d % 10) {
+          case 1:  return "st";
+          case 2:  return "nd";
+          case 3:  return "rd";
+          default: return "th";
+        }
+      };
 
-  return `${day}${getOrdinalSuffix(day)} ${month} ${year}`;
-},
+      return `${day}${getOrdinalSuffix(day)} ${month} ${year}`;
     },
-  };
+
+    getDirections(machine) {
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${machine.coordinates.latitude},${machine.coordinates.longitude}`);
+    },
+
+  },
+};
 
 </script>
 
@@ -656,9 +672,10 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #001f3f; /* Dark blue background specific to this page */
+  background-color: #001f3f; 
 }
 
+/* Button hover and animation */
 .btn {
   transition: transform 0.3s ease-in-out;
   border-radius: 15px;
@@ -747,6 +764,7 @@ body, #admin-page {
   border-color: #dc3545;
 }
 
+
 .alert {
   border-radius: 15px;
   margin-bottom: 2rem;
@@ -827,20 +845,19 @@ label {
   margin-bottom: 1rem !important;
 }
 
-/* Ensure text is visible on the form */
 .form-label {
   color: #212529;
   font-weight: bold;
 }
 
 .coordinate-link {
-  color: #007bff; /* Bootstrap's primary blue color */
+  color: #007bff; 
   text-decoration: none;
 }
 
 .coordinate-link:hover {
   text-decoration: underline;
-  color: #0056b3; /* Darker blue on hover */
+  color: #0056b3; 
 }
 
 .item-outline {
