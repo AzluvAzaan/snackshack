@@ -3,13 +3,13 @@ import App from './App.vue';
 import router from './router'; // Import the router
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faRandom, faShoppingCart, faCompass, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faRandom, faShoppingCart, faCompass, faMagnifyingGlass, faStar , faSort, faPlus, faPenToSquare, faRightFromBracket} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 
 
 // Add icons to the library
-library.add(faRandom, faShoppingCart, faCompass, faTimes);
+library.add(faRandom, faShoppingCart, faCompass, faMagnifyingGlass, faStar, faSort, faPlus, faPenToSquare, faRightFromBracket);
 
 // Create the Vue app instance
 const app = createApp(App);
