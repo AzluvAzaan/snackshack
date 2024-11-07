@@ -100,11 +100,16 @@
         <div class="review-container">
 
           <div class="collective-bar-graph">
-            <h2>Ratings Distribution</h2>
+            <h2>Review Ratings</h2>
             <div v-for="star in 5" :key="star" class="collective-bar-container">
-              <span class="collective-bar-label">{{ star }} Star{{ star > 1 ? 's' : '' }}</span>
-              <div class="collective-bar" :style="{ width: calculateCollectiveBarWidth(star) }"></div>
-              <span class="collective-bar-count">{{ countRatings(star) }}</span>
+              <span class="collective-bar-label">{{ star }} ★</span>
+              <div
+                class="collective-bar"
+                :style="{ width: calculateCollectiveBarWidth(star), minWidth: '10%' }"
+              ></div>
+              <span class="collective-bar-count" :class="{ 'count-zero': countRatings(star) === 0 }">
+                {{ countRatings(star) }}
+              </span>
             </div>
           </div>
 
@@ -196,7 +201,7 @@
               <div class="reviewer-info">
                 <img class="reviewer-avatar" src="../assets/person-icon.png" alt="User Profile" />
                 <div>
-                  <h3>{{ review.username }}</h3>
+                  <h5>{{ review.username }}</h5>
                   <div class="stars-review">
                     <span
                       v-for="star in 5"
@@ -271,6 +276,9 @@ methods: {
       await this.updateMachineRating(); // Update the machine's rating
       this.showForm = false; // Hide the form after submission
       this.resetForm(); // Reset form fields
+      // Set sorting to "Newest to Oldest" after submission
+        this.sortOption = "date_desc";
+        this.sortReviews();
     } else {
       alert("Please fill out all fields and provide a rating.");
     }
@@ -335,12 +343,13 @@ return 'just now';
     return this.reviews.filter(review => review.rating === star).length;
   },
   calculateCollectiveBarWidth(star) {
-    const maxCount = Math.max(...[1, 2, 3, 4, 5].map(this.countRatings));
-    const count = this.countRatings(star);
-    const maxWidth = 100; // Maximum width in percentage
-    return maxCount ? `${(count / maxCount) * maxWidth}%` : '0%';
-  },
+      const maxCount = Math.max(...[1, 2, 3, 4, 5].map(this.countRatings));
+      const count = this.countRatings(star);
+      const maxWidth = 100;
+      const baseWidth = 10; // Minimum bar width as a percentage for visual effect
 
+      return maxCount ? `${Math.max((count / maxCount) * maxWidth, baseWidth)}%` : `${baseWidth}%`;
+    },
   async selectMachine(machineId) {
   this.selectedMachineId = machineId;
   this.reviews = await firestore.getReviewsForMachine(machineId);
@@ -486,13 +495,12 @@ margin:0;
 padding: 0;
 }
 .review-container {
-max-width: 600px;
-margin: 20px auto;
-padding: 10px;
-background-color: #e9f7ff;
-border-radius: 8px;
-margin-top: 100px;
-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px 15px; /* Equal padding on all sides */
+  background-color: #e9f7ff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .review-controls {
@@ -642,22 +650,24 @@ background-color: #0056b3;
 }
 
 .review-result {
-margin-top: 20px;
-padding: 15px;
-border: 1px solid #ccc;
-border-radius: 8px;
-background-color: #f9f9f9;
+  margin: 20px 0px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: white;
 }
 
 .review-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0px; 
 }
 
 .reviewer-info {
-display: flex;
-align-items: center;
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
 }
 
 .reviewer-avatar {
@@ -668,11 +678,10 @@ margin-right: 10px;
 }
 
 .review-text {
-margin-top: 5px;
-font-size: 18px;
-margin-left: 35px;
+  margin-top: 10px;
+  font-size: 1rem;
+  margin-left:20px;
 }
-
 
 .posted-time {
 margin-left: 10px;
@@ -680,28 +689,36 @@ margin-left: 10px;
 
 /* Styles for the collective bar graph */
 .collective-bar-graph {
-display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 580px;
+  margin: 0 auto;
 }
 
 .collective-bar-container {
-display: flex;
-align-items: center;
-margin-bottom: 10px;
-margin-top: 10px;
+  display: flex;
+  align-items: center;
+  /* justify-content: center; */
+  padding: 5px 10px; /* Adjusted padding for alignment */
+  width: 100%;
+  margin: 8px 0;
 }
 
 .collective-bar-label {
-width: 80px;
-font-weight: bold;
+  width: 50px;
+  text-align: right;
+  font-weight: bold;
+  margin-right: 10px;
 }
 
 .collective-bar {
-height: 20px;
-background-color: gold;
-margin-right: 10px;
-border-radius: 5px;
-transition: width 0.3s ease;
-max-width: 450px;
+  height: 20px;
+  background-color: gold;
+  border-radius: 5px;
+  transition: width 0.3s ease;
+  min-width: 15px; /* Ensure bars have a minimum width for visibility */
+  /* flex-grow: 1; */
 }
 
 .collective-bar:hover{
@@ -710,7 +727,44 @@ background-color: #ffa500;
 }
 
 .collective-bar-count {
-font-weight: bold;
+  width: 30px;
+  text-align: left;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+/* Style adjustment for zero count alignment */
+.collective-bar-count.count-zero {
+  margin-left: 5px;
+  margin-right: 415px;
+  color: #afabab;
+  position: relative;
+  left: 10px; /* Adjust positioning closer to the bar */
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+  .collective-bar-container {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .collective-bar-label, .collective-bar-count {
+    font-size: 0.9rem;
+    margin: 5px 10px;
+  }
+
+  .collective-bar {
+    width: 100%;
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+
+  .collective-bar-count.count-zero {
+    margin-left: 0px;
+    margin-right: 250px;
+    left: 10px;
+  }
 }
 
 .average-rating-container {
