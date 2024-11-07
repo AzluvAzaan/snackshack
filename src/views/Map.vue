@@ -1,6 +1,6 @@
 <template>
-  <div class="app">
-    <div class="sidebar">
+  <div class="app d-flex flex-column flex-md-row">
+    <div class="sidebar col-md-4 col-xs-12">
       <h1>Vending Machines Near You</h1>
 
       <!-- Search Bar -->
@@ -9,7 +9,6 @@
         class="search-bar"
         placeholder="Find Your Favourite Food/Machine!"
         v-model="searchQuery"
-        @input="filterMachines"
       />
 
       <!-- Filter By Section -->
@@ -39,6 +38,7 @@
         :style="{ backgroundImage: `url(${machine.imageUrl})` }"
       >
         <h2>{{ machine.machineName }}</h2>
+        <img :src="machine.imageUrl" alt="Vending Machine Image" class="vending-thumbnail">
         <p>{{ machine.type }}</p>
         <div :class="getStatusClass(machine.status)">
           <p>{{ machine.status }}</p>
@@ -53,13 +53,12 @@
         <div class="actions">
           <button class="action-btn" @click="getDirections(machine.coordinates)">Directions</button>
           <button class="action-btn" @click="writeReview(machine.id)">Review</button>
-          <button class="action-btn" @click="selectMachine(machine)">Details</button>
         </div>
       </div>
     </div>
 
     <!-- Map element -->
-    <div id="map-container" class="col-12 col-md-8 position-relative">
+    <div id="map-container">
       <div id="map"></div>
     </div>
 
@@ -276,7 +275,6 @@ export default {
 </script>
 
 <style scoped>
-  @import 'bootstrap/dist/css/bootstrap.css';
 
   .app {
     position:fixed;
@@ -300,7 +298,7 @@ export default {
   }
 
   .sidebar h1 {
-    font-size: 2.0rem;
+    font-size: 1.8rem;
     text-align: center;
     margin-bottom: 1rem;
     color: #ffcc00;
@@ -343,6 +341,7 @@ export default {
     border-radius: 10px;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease;
+
   }
 
   .vending-card::before {
@@ -374,6 +373,24 @@ export default {
     cursor: pointer;
   }
 
+  .vending-thumbnail {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 50%;
+      filter: brightness(1.2); /* Brighter effect */
+      opacity: 0.9; /* Slight transparency */
+      position: absolute;
+      top: 50px;
+      right: 10px;
+      z-index: 9;
+  }
+
+  .vending-thumbnail:hover {
+    transform: scale(1.5);
+    transition: 0.2s ease;
+  }
+
   .status {
     border-radius: 5px;
     display: inline-block;
@@ -381,7 +398,6 @@ export default {
 
   .status p {
     font-weight: bold;
-    text-align: center;
   }
 
   .status-running {
@@ -434,12 +450,15 @@ export default {
   #map-container {
     position: relative;
     flex-grow: 1;
-    height: 95%;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
   }
 
   #map {
     width: 100%;
-    height: 94%;
+    height: 100%;
   }
 
   /* Modal Styles */
@@ -456,10 +475,10 @@ export default {
 
   .details-modal {
     position: fixed;
-    top: 60px;
+    bottom: 0px;
     right: 0;
     width: 350px;
-    height: calc(100% - 120px);
+    height: calc(100% - 60px);
     background-color: #44516a;
     background-size: cover;
     background-position: center;
@@ -467,7 +486,7 @@ export default {
     padding: 20px;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
     overflow-y: auto;
-    z-index: 1000;
+    z-index: 1;
     transition: all 0.3s ease;
     animation: popup 0.3s ease forwards;
   }
@@ -510,15 +529,33 @@ export default {
   }
 
   .close-btn {
-    background: none;
-    border: none;
-    color: #ffcc00;
-    font-size: 1.5rem;
-    cursor: pointer;
     position: absolute;
-    z-index: 2;
-    top: 10px;
+    top: 10px; 
     right: 10px;
+    font-size: 24px;
+    background: transparent;
+    border: none; 
+    cursor: pointer;
+    z-index: 1001; /* Make sure it's above other modal content */
+    padding: 0; /* No padding for better alignment */
+    line-height: 1; /* Ensures button height aligns with font-size */
+  }
+
+  /* Optional Hover and Focus Effect */
+  .close-btn:hover,
+  .close-btn:focus {
+    color: #ff9900; /* Slightly darker color on hover */
+    outline: none; /* Removes default focus outline */
+  }
+
+  /* Temporary outline to debug clickable area */
+  .close-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
 
   .details-modal h2 {
@@ -566,8 +603,20 @@ export default {
     }
 
     #map {
-      height: 60vh;
+      width: 100%;
+      height: 60vh; /* map takes up the top 60% */
+
     }
+
+    .details-modal {
+      position: absolute; /* or fixed if you want it to stay in place while scrolling */
+      bottom: 0; /* position it at the bottom */
+      max-height: 70vh;
+      max-width: 100%;
+      z-index: 10; /* ensures the modal appears above other elements */
+    }
+
   }
+
 
 </style>
