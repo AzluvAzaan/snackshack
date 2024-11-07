@@ -1,12 +1,12 @@
 <template>
-   <div class="container-fluid">
+   <div class="container-fluid" style="background-color: #001f3f">
     <div class="row">
       <!-- Sidebar -->
       <nav id="sidebarMenu" class="col-md-3 col-lg-3 d-md-block bg-light sidebar" 
       :class="{ 'show': sidebarOpen || !isMobile, 'd-none': !sidebarOpen && isMobile }">
         <div class="position-sticky pt-3">
           <div class="d-flex justify-content-between align-items-center px-3 mb-3">
-            <h3 class="sidebar-heading text-muted">Vending Machines</h3>
+            <h3 class="sidebar-heading text-muted border-bottom">Vending Machines</h3>
             <button class="btn-close d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-label="Close sidebar">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -784,6 +784,7 @@ color: #666;
 /* Updated sidebar styles */
 .review-title{
   margin:auto;
+  color:white;
   font-weight: bold;
 }
 .sidebar {
