@@ -220,8 +220,11 @@ export default {
 };
 </script>
 <style scoped>
+
+@import 'bootstrap/dist/css/bootstrap.css';
+
 body {
-  background-color: #150427;
+  background-color: #001f3f;
 }
 .header-container {
   padding-top: 20px;
@@ -308,7 +311,6 @@ body {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  font-family: Arial, Helvetica, sans-serif; 
   color: #333333;
 }
 
@@ -344,6 +346,8 @@ body {
   font-weight: bold;
   margin-bottom: 5px;
   border-radius: 10px;
+  background-color: white;
+  border: 1px black solid
 }
 .directions-btn:hover {
   background: linear-gradient(90deg, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9);
@@ -354,6 +358,8 @@ body {
   margin-bottom: 2px;
   border-radius: 10px;
   padding: 10px 20px;
+  background-color: white;
+  border: 1px black solid
 }
 .menu-btn:hover {
   background: linear-gradient(90deg, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9);
@@ -466,6 +472,12 @@ body {
   flex: 1; /* Makes buttons take equal width */
   margin: 0 5px; /* Adds some margin between buttons */
 }
+
+@media (max-width: 382px) {
+        .header {
+          color: #001f3f;
+        }
+      }
 
 
 </style>
