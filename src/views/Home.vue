@@ -52,6 +52,7 @@
             class="overlay"
             :style="{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${selectedMachineDetails.imageUrl})` }"
           >
+            <p class="zoomed-text"><strong>Machine Number:</strong> {{ selectedMachineNumber }}</p>
             <p class="zoomed-text"><strong>Machine Name:</strong> {{ selectedMachineDetails.machineName }}</p>
             <p class="zoomed-text"><strong>Description:</strong> {{ selectedMachineDetails.description }}</p>
             <p class="zoomed-text"><strong>Type:</strong> {{ selectedMachineDetails.type }}</p>
@@ -95,10 +96,18 @@
 </template>
 
 <script>
-  import { machineData, loadMachineData } from '@/data/machineData';
-  import firestore from '@/firestore';
+  import { machineData } from '@/data/machineData.js';
+  import Navbar from '@/components/Navbar.vue';
 
   export default {
+    components: {
+      Navbar
+    },
+
+    created() {
+      this.requestLocationAccess();
+    },
+
     data() {
       return {
         leftText: ["Find", "vending", "machines", "near", "you."],
@@ -140,13 +149,11 @@
           console.log("Geolocation is not supported by this browser.");
         }
       },
-
       handleLocationSuccess(position) {
         const userLat = position.coords.latitude;
         const userLng = position.coords.longitude;
         this.findClosestMachines(userLat, userLng);
       },
-
       handleLocationError(error) {
         console.log("Error getting location:", error);
       },
@@ -184,22 +191,20 @@
           this.selectedMachineDetails = selectedMachine;
           this.isZoomed = true;
 
-          setTimeout(() => {
-            this.showDetails = true;
-          }, 1000);
-        }
-      },
-
+        setTimeout(() => {
+          this.showDetails = true;
+        }, 1000);
+      }
+    },
+    
       getMachineNumber(row, col) {
         return (row - 1) * (this.isMobile ? 3 : 4) + col + 1;
       },
-
       zoomOut() {
         this.isZoomed = false;
         this.showDetails = false;
         this.screenDisplay = '';
       },
-
       viewOnMap() {
         this.$router.push({
           name: 'Map',
@@ -210,17 +215,14 @@
           },
         });
       },
-
       handleKeypadInput(key) {
         if (this.screenDisplay.length < 2) {
           this.screenDisplay += key;
         }
       },
-
       handleBackspace() {
         this.screenDisplay = this.screenDisplay.slice(0, -1);
       },
-
       handleSubmit() {
         const machineNumber = parseInt(this.screenDisplay, 10);
 
@@ -244,7 +246,6 @@
           }
         }
       },
-
       flashError() {
         this.errorFlash = true;
         this.screenDisplay = '';
