@@ -15,8 +15,8 @@
         <div class="belt" ref="belt">
           <div v-for="(snack, index) in snacks" :key="snack.id" 
                :class="{ 'highlighted': index === selectedSnackIndex }" 
-               class="conveyor-snack-item">
-            <img :src="snack.img" :alt="snack.name" />
+               class="conveyor-snack-item" @click="turnIntoCard(snack)" >
+            <img :src="snack.img" :alt="snack.name"/>
           </div>
         </div>
       </div>
@@ -47,11 +47,17 @@
         </transition>
       </div>
     </div>
-      <!-- Modal Structure -->
-      <div v-if="showModal" class="modal-overlay" @click="closeModal">
-        <div class="modal-content" @click.stop>
+    <!-- Modal Structure -->
+    <div v-if="showModal" class="modal-overlay" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
           <h1>Menu</h1>
-          <ul>
+          <button @click="closeModal" class="fixed-close-btn">
+            <font-awesome-icon icon="times" />
+          </button>
+        </div>
+        <div class="modal-body">
+          <ul style="padding: 0px">
             <li v-for="snack in snacks" :key="snack.id" @click="turnIntoCard(snack)" class="modal-snack-item">
               <img :src="snack.img" alt="Snack image" class="modal-snack-image" />
               <div class="modal-snack-details">
@@ -59,9 +65,9 @@
               </div>
             </li>
           </ul>
-          <button @click="closeModal" class="btn close-btn">Close</button>
         </div>
       </div>
+    </div>
 
       <!-- Detail Modal Structure -->
       <div v-if="showDetailModal" class="modal-overlay" @click="closeDetailModal">
@@ -74,7 +80,7 @@
           <p>Sodium: {{ selectedSnackDetail.sodium }}<span style="font-size: small;">mg</span></p>
           
           <div class="button-ctn">
-            <button @click="showDetailModal = false; showModal = true" class="btn back-btn">Back</button>
+            <button @click="showDetailModal = false; showModal = true" class="btn back-btn">Back to Menu</button>
             <button @click="closeDetailModal" class="btn close-btn">Close</button>
           </div>
         </div>
@@ -220,8 +226,11 @@ export default {
 };
 </script>
 <style scoped>
+
+@import 'bootstrap/dist/css/bootstrap.css';
+
 body {
-  background-color: #150427;
+  background-color: #001f3f;
 }
 .header-container {
   padding-top: 20px;
@@ -266,6 +275,11 @@ body {
   align-items: center;
   margin: 0 10px;
 }
+
+.conveyor-snack-item:hover {
+  transform: translateY(-15px);
+}
+
 .conveyor-snack-item img {
   width: 125px;
   height: 125px;
@@ -294,10 +308,16 @@ body {
   flex: 1;
   max-width: 100%;
   padding: 10px;
+  border: 3px solid #453B32;
+  border-radius: 8px;
 }
+
 #description-snack-img {
-  width:200px;
-  height:200px;
+  width:300px;
+  height:300px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto; 
 }
 .snack-description {
   flex: 1;
@@ -308,8 +328,8 @@ body {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  font-family: Arial, Helvetica, sans-serif; 
   color: #333333;
+  margin-left: 5px
 }
 
 .rainbow-btn {
@@ -344,6 +364,8 @@ body {
   font-weight: bold;
   margin-bottom: 5px;
   border-radius: 10px;
+  background-color: white;
+  border: 2px black solid
 }
 .directions-btn:hover {
   background: linear-gradient(90deg, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9);
@@ -354,6 +376,8 @@ body {
   margin-bottom: 2px;
   border-radius: 10px;
   padding: 10px 20px;
+  background-color: white;
+  border: 2px black solid
 }
 .menu-btn:hover {
   background: linear-gradient(90deg, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9);
@@ -383,15 +407,35 @@ body {
 }
 /* First Modal */
 .modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 5px;
-  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
   width: 90%;
+  max-width: 500px;
+  background: white;
+  border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  max-height: 80vh; /* Limit the height of the modal */
-  overflow-y: auto; /* Enable vertical scrolling */
+  padding: 5px;
 }
+
+.modal-header {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 1002;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-body {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -465,6 +509,86 @@ body {
 .button-ctn .btn {
   flex: 1; /* Makes buttons take equal width */
   margin: 0 5px; /* Adds some margin between buttons */
+}
+
+/* For Fixed Close button on modal */
+
+.fixed-close-btn-div {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1001;
+}
+
+.fixed-close-btn {
+  background-color: transparent;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #333;
+}
+
+.fixed-close-btn:hover {
+  color: #ff0000;
+}
+
+
+@media (max-width: 382px) {
+        .header {
+          font-size: 2em;
+          color: white;
+          margin-bottom: 20px;
+          font-weight: bold;
+          margin-top: 5px;
+        }
+
+        .rainbow-btn {
+          background: linear-gradient(90deg, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9);
+          color: black;
+          border: none;
+          padding: 5px 10px;
+          border-radius: 50px;
+          text-transform: uppercase;
+          font-weight: bold;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          transition: background-size 0.5s ease-in-out, box-shadow 0.3s ease;
+          background-size: 400%;
+          position: absolute;
+          top: 75px;
+          right: 17px;
+          z-index: 1;
+        }
+
+        #description-snack-img {
+          width:200px;
+          height:200px;
+        }
+      }
+
+@media (max-width: 548px) { 
+    .snack-description {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #FFFDD0;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    color: #333333;
+    margin-left: 0px
+  }
+
+  .description-snack-image {
+    flex: 1;
+    max-width: 100%;
+    padding: 10px;
+    border: 3px solid #453B32;
+    border-radius: 8px;
+    margin-bottom: 5px;
+  }
 }
 
 

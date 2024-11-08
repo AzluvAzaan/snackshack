@@ -9,7 +9,11 @@ import {
   doc, 
   updateDoc,
   increment,
-  getDoc
+  setDoc,
+  getDoc,
+  writeBatch, 
+  orderBy,
+  limit,
 } from 'firebase/firestore';
 import { 
   ref, 
@@ -70,6 +74,25 @@ export default {
         const querySnapshot = await getDocs(q);
         return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     },
+
+    async getRecentReviewsForMachine(machineId) {
+        console.log("Fetching recent reviews for machine:", machineId); 
+        try {
+            const reviewsCollection = collection(db, "reviews");
+            const q = query(
+              reviewsCollection,
+              where("machineID", "==", machineId),
+              orderBy("timestamp", "desc"),
+              limit(3)
+            );
+            const querySnapshot = await getDocs(q);
+            console.log(querySnapshot);
+            return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          } catch (error) {
+            console.error("Error fetching recent reviews:", error);
+            throw error;
+          }
+    },
     
     async getAllReviews() {
         const reviewsCollection = collection(db, "reviews");
@@ -77,7 +100,7 @@ export default {
         return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     },
 
-    async addReview(reviewData, numReviews) {
+    async addReview(reviewData) {
         try {
           // Add the review
           const reviewRef = await addDoc(collection(db, "reviews"), reviewData);
@@ -104,24 +127,50 @@ export default {
         }
       },
 
-      async getVendingMachineById(machineId) {
-        const machineRef = doc(db, "vendingMachines", machineId);
-        const machineDoc = await getDoc(machineRef);
-        if (machineDoc.exists()) {
-          return { id: machineDoc.id, ...machineDoc.data() };
-        } else {
-          return null;
+    async storeUserData(userId, userData) {
+    try {
+        await setDoc(doc(db, "users", userId), userData);
+        console.log("User data stored successfully");
+    } catch (error) {
+        console.error("Error storing user data:", error);
+        throw error;
+    }
+    },
+
+    async getUserData(userId) {
+        try {
+          const userRef = doc(db, "users", userId);
+          const userSnap = await getDoc(userRef);
+          
+          if (userSnap.exists()) {
+            return userSnap.data();
+          } else {
+            console.log("No such user!");
+            return null;
+          }
+        } catch (error) {
+          console.error("Error getting user data:", error);
+          throw error;
         }
       },
-    
-      async getUserDetails(userId) {
-        const userRef = doc(db, "users", userId);
-        const userDoc = await getDoc(userRef);
-        if (userDoc.exists()) {
-          return userDoc.data();
-        } else {
-          return null;
-        }
+
+      async updateUserData(userId, userData) {
+        const userRef = doc(db, 'users', userId);
+        await updateDoc(userRef, userData);
       },
+
+      async deleteAllReviewsForMachine(machineId) {
+        const reviewsRef = collection(db, 'reviews');
+        const q = query(reviewsRef, where('machineID', '==', machineId));
+        const querySnapshot = await getDocs(q);
+      
+        const batch = writeBatch(db);
+        querySnapshot.forEach((doc) => {
+          batch.delete(doc.ref);
+        });
+      
+        await batch.commit();
+      },
+
 
   };
