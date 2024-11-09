@@ -390,23 +390,41 @@ return 'just now';
     },
 
     async fetchOwnerDetails() {
-      if (this.selectedMachineId) {
-        try {
-          // First, get the user ID of the machine owner
-          const machineDoc = await firestore.getVendingMachineById(this.selectedMachineId);
-          if (machineDoc && machineDoc.userId) {
-            // Then, fetch the user details using the user ID
-            const userDetails = await firestore.getUserDetails(machineDoc.userId);
-            if (userDetails) {
-              this.ownerEmail = userDetails.email || 'N/A';
-              this.ownerContact = userDetails.contact || 'N/A';
-            }
+    if (this.selectedMachineId) {
+      try {
+        // First, get the user ID of the machine owner
+        const machineDoc = await firestore.getVendingMachineById(this.selectedMachineId);
+
+        // Check if the machineDoc is retrieved correctly
+        console.log('Fetched machineDoc:', machineDoc);
+
+        if (machineDoc && machineDoc.userId) {
+          // Then, fetch the user details using the user ID
+          const userDetails = await firestore.getUserDetails(machineDoc.userId);
+
+          // Check if userDetails are retrieved correctly
+          console.log('Fetched userDetails:', userDetails);
+
+          if (userDetails) {
+            // Assign email and contact if they exist in the userDetails
+            this.ownerEmail = userDetails.email || 'N/A';
+            this.ownerContact = userDetails.contact || 'N/A';
+
+            // Log the ownerEmail and ownerContact values
+            console.log('Owner Email:', this.ownerEmail);
+            console.log('Owner Contact:', this.ownerContact);
+          } else {
+            console.warn('User details not found for user ID:', machineDoc.userId);
           }
-        } catch (error) {
-          console.error("Error fetching owner details:", error);
+        } else {
+          console.warn('Machine document or user ID not found for machine ID:', this.selectedMachineId);
         }
+      } catch (error) {
+        console.error("Error fetching owner details:", error);
       }
-    },
+    }
+  }
+
 },
 
 watch: {
