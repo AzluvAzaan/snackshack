@@ -5,24 +5,27 @@
       <div class="header-container">
         <h1 class="header">Snack of Fortune</h1>
       </div>
+
       <!-- Conveyor Belt Container -->
       <div class="conveyor-container">
         <div class="conveyor">
           <div class="belt" ref="belt">
             <div v-for="(snack, index) in snacks" :key="snack.id" 
                  :class="{ 'highlighted': index === selectedSnackIndex }" 
-                 class="conveyor-snack-item" @click="turnIntoCard(snack)" >
-              <img :src="snack.img" :alt="snack.name"/>
+                 class="conveyor-snack-item" @click="turnIntoCard(snack)">
+              <img :src="snack.img" :alt="snack.name" />
             </div>
           </div>
         </div>
       </div>
-      <!-- Surprise Me Button -->
-      <div class="button-container">
+
+      <!-- Centered Surprise Me Button -->
+      <div class="button-container-centered">
         <button @click="surpriseMe" class="btn rainbow-btn">
           <font-awesome-icon icon="random" /> Surprise Me!
         </button>
       </div>
+
       <!-- Snack Description Container -->
       <div class="snack-details-container dark-blue-background">
         <div class="snack-details-row">
@@ -30,6 +33,7 @@
           <div class="description-snack-image">
             <img :src="snacks[selectedSnackIndex].img" :alt="snacks[selectedSnackIndex].name" id="description-snack-img">
           </div>
+          
           <!-- Snack Description -->
           <transition name="fade">
             <div class="snack-description">
@@ -47,44 +51,6 @@
               <button @click="openModal" class="btn menu-btn">What's on the Menu?</button>
             </div>
           </transition>
-        </div>
-      </div>
-      <!-- Modal Structure -->
-      <div v-if="showModal" class="modal-overlay" @click="closeModal">
-        <div class="modal-content" @click.stop>
-          <div class="modal-header">
-            <h1>Menu</h1>
-            <button @click="closeModal" class="fixed-close-btn">
-              <font-awesome-icon icon="times" />
-            </button>
-          </div>
-          <div class="modal-body">
-            <ul style="padding: 0px">
-              <li v-for="snack in snacks" :key="snack.id" @click="turnIntoCard(snack)" class="modal-snack-item">
-                <img :src="snack.img" alt="Snack image" class="modal-snack-image" />
-                <div class="modal-snack-details">
-                  <h5>{{ snack.name }}</h5>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <!-- Detail Modal Structure -->
-      <div v-if="showDetailModal" class="modal-overlay" @click="closeDetailModal">
-        <div class="card-modal-content" @click.stop>
-          <h1>{{ selectedSnackDetail.name }}</h1>
-          <img :src="selectedSnackDetail.img" alt="Snack image" class="card-snack-image" />
-          <p>Calories: {{ selectedSnackDetail.calories }}</p>
-          <p>Fat: {{ selectedSnackDetail.fat }}<span style="font-size: small;">g</span></p>
-          <p>Sugar: {{ selectedSnackDetail.sugar }}<span style="font-size: small;">g</span></p>
-          <p>Sodium: {{ selectedSnackDetail.sodium }}<span style="font-size: small;">mg</span></p>
-          
-          <div class="button-ctn">
-            <button @click="showDetailModal = false; showModal = true" class="btn back-btn">Back to Menu</button>
-            <button @click="closeDetailModal" class="btn close-btn">Close</button>
-          </div>
         </div>
       </div>
     </div>
@@ -231,10 +197,12 @@ export default {
 
 @import 'bootstrap/dist/css/bootstrap.css';
 
-.button-container {
+.button-container-centered {
   display: flex;
   justify-content: center;
-  margin: 20px 0;
+  align-items: center;
+  margin: 20px 0; /* Space above and below the button */
+  position: relative; /* Ensure it stays in flow with other elements */
 }
 
 .conveyor-container {
@@ -385,17 +353,15 @@ body {
   align-items: center;
   gap: 10px;
   transition: background-size 0.5s ease-in-out, box-shadow 0.3s ease;
+  cursor: pointer;
   background-size: 400%;
-  position: absolute;
-  top: 100px;
-  right: 17px;
-  z-index: 1;
 }
+
 .rainbow-btn:hover {
   background-position: 100% 0;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
 }
+
 .directions-btn {
   display: flex;
   justify-content: center;
