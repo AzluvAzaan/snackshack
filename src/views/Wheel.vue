@@ -230,7 +230,28 @@ export default {
 @import 'bootstrap/dist/css/bootstrap.css';
 
 body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#app {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.snack-details-container {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+body {
   background-color: #001f3f;
+  margin: 0;
+  padding: 0;
 }
 .header-container {
   padding-top: 20px;
