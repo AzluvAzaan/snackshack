@@ -5,27 +5,31 @@
       <div class="header-container">
         <h1 class="header">Snack of Fortune</h1>
       </div>
-
+      
       <!-- Conveyor Belt Container -->
       <div class="conveyor-container">
         <div class="conveyor">
           <div class="belt" ref="belt">
-            <div v-for="(snack, index) in snacks" :key="snack.id" 
-                 :class="{ 'highlighted': index === selectedSnackIndex }" 
-                 class="conveyor-snack-item" @click="turnIntoCard(snack)">
+            <div 
+              v-for="(snack, index) in conveyorItems" 
+              :key="snack.id" 
+              class="conveyor-snack-item"
+              @click="turnIntoCard(snack)"
+              :class="{ highlighted: index === selectedSnackIndex }"
+            >
               <img :src="snack.img" :alt="snack.name" />
             </div>
           </div>
-        </div>
       </div>
-
-      <!-- Centered Surprise Me Button -->
-      <div class="button-container-centered">
+      </div>
+      
+      <!-- Surprise Me Button -->
+      <div class="button-container">
         <button @click="surpriseMe" class="btn rainbow-btn">
           <font-awesome-icon icon="random" /> Surprise Me!
         </button>
       </div>
-
+      
       <!-- Snack Description Container -->
       <div class="snack-details-container dark-blue-background">
         <div class="snack-details-row">
@@ -53,11 +57,49 @@
           </transition>
         </div>
       </div>
+      
+      <!-- Modal Structure -->
+      <div v-if="showModal" class="modal-overlay" @click="closeModal">
+        <div class="modal-content" @click.stop>
+          <div class="modal-header">
+            <h1>Menu</h1>
+            <button @click="closeModal" class="fixed-close-btn">
+              <font-awesome-icon icon="times" />
+            </button>
+          </div>
+          <div class="modal-body">
+            <ul style="padding: 0px">
+              <li v-for="snack in snacks" :key="snack.id" @click="turnIntoCard(snack)" class="modal-snack-item">
+                <img :src="snack.img" alt="Snack image" class="modal-snack-image" />
+                <div class="modal-snack-details">
+                  <h5>{{ snack.name }}</h5>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Detail Modal Structure -->
+      <div v-if="showDetailModal" class="modal-overlay" @click="closeDetailModal">
+        <div class="card-modal-content" @click.stop>
+          <h1>{{ selectedSnackDetail.name }}</h1>
+          <img :src="selectedSnackDetail.img" alt="Snack image" class="card-snack-image" />
+          <p>Calories: {{ selectedSnackDetail.calories }}</p>
+          <p>Fat: {{ selectedSnackDetail.fat }}<span style="font-size: small;">g</span></p>
+          <p>Sugar: {{ selectedSnackDetail.sugar }}<span style="font-size: small;">g</span></p>
+          <p>Sodium: {{ selectedSnackDetail.sodium }}<span style="font-size: small;">mg</span></p>
+          
+          <div class="button-ctn">
+            <button @click="showDetailModal = false; showModal = true" class="btn back-btn">Back to Menu</button>
+            <button @click="closeDetailModal" class="btn close-btn">Close</button>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </template>
 <script>
-// Importing Images
 import pockyC from '../assets/pocky.png';
 import pockyCC from '../assets/pockyC&C.png';
 import DoritosNC from '../assets/DoritosNC.png';
@@ -70,18 +112,10 @@ import TwistiesC from '../assets/TwistiesC.png';
 import Houten from '../assets/Houten.png';
 import Super from '../assets/SuperRing.png';
 import Milo from '../assets/Milo.png';
-import Hplus from '../assets/100plus.png';
-import FujiApple  from '../assets/FujiApple.png';
-import Coke  from '../assets/Coke.png';
-import Redbull  from '../assets/Redbull.png';
-import ijooz  from '../assets/ijooz.png';
-import PGT  from '../assets/PGT.png';
-import PILT  from '../assets/PILT.png';
-import PMT  from '../assets/PMT.png';
-
 import gsap from 'gsap';
 import confetti from 'canvas-confetti';
 import Navbar from '@/components/Navbar.vue';
+
 export default {
   name: 'Wheel',
   components: {
@@ -90,34 +124,39 @@ export default {
   data() {
     return {
       snacks: [
-        { id: 1, name: 'Pocky Chocolate Flavour', type: 'Pocky', img: pockyC, calories: 160, fat: 8, sugar: 11, sodium: 70,},
-        { id: 2, name: 'Pocky Cookies & Cream Flavour', type: 'Pocky', img: pockyCC, calories: 150, fat: 6, sugar: 12, sodium: 50},
-        { id: 3, name: "Lay's Barbecue Chips", type: 'Lays', img: LaysB, calories: 150, fat: 9, sugar: 2, sodium: 200,},
-        { id: 4, name: 'Lay\'s Sour Cream & Onion', type: 'Lays', img: LaysSC, calories: 160, fat: 10, sugar: 1, sodium: 170},
-        { id: 5, name: 'Doritos Nacho Cheese', type: 'Doritos', img: DoritosNC, calories: 145, fat: 7.7, sugar: 0.7, sodium: 193.5},
-        { id: 6, name: 'Lay\'s Classic', type: 'Lays', img: LaysC, calories: 160, fat: 10, sugar: 1, sodium: 170,},
-        { id: 7, name: 'M&Ms', type: 'M&Ms', img: MandM, calories: 190, fat: 8, sugar: 26, sodium: 30},
-        { id: 8, name: 'Tong Garden Salted Cashew Nuts', type: 'Mixed Nuts', img: TongSC, calories: 250, fat: 19, sugar: 2, sodium: 85,},
-        { id: 9, name: 'Twisties Chicken', type: 'Twisties', img: TwistiesC, calories: 80, fat: 4.4, sugar: 2, sodium: 93},
-        { id: 10, name: 'Houten Chilli Tapioca', type: 'Potato Chips', img: Houten, calories: 160, fat: 8, sugar: 8, sodium: 150},
-        { id: 11, name: 'Super Ring', type: 'Super Rings', img: Super, calories: 80, fat: 5.5, sugar: 1.5, sodium: 100,},
-        { id: 12, name: 'Milo', type: 'Milo', img: Milo, calories: 150, fat: 3.6, sugar: 16.6, sodium: 0.2},
-        { id: 13, name: '100 Plus', type: '100 Plus', img: Hplus, calories: 72, fat: 0, sugar: 17.6, sodium: 137,},
-        { id: 14, name: 'POKKA Sparkling Fuji Apple', type: 'Sparkling Apple', img: FujiApple, calories: 107, fat: 0, sugar: 24.4, sodium: 24.1},
-        { id: 15, name: 'Coca-Cola', type: 'Coca-Cola', img: Coke, calories: 139, fat: 0, sugar: 35, sodium: 0},
-        { id: 16, name: 'Red Bull', type: "Red Bull", img: Redbull, calories: 110, fat: 0, sugar: 27, sodium: 100,},
-        { id: 17, name: 'Orange Juice', type: "Orange Juice", img: ijooz, calories: 142, fat: 0.63, sugar: 26.4, sodium: 3},
-        { id: 18, name: 'POKKA Green Tea', type: "Green Tea", img:PGT, calories: 120, fat: 0, sugar: 30, sodium: 30,},
-        { id: 19, name: 'POKKA Ice Lemon Tea', type: "Ice Lemon Tea", img: PILT, calories: 200, fat: 0, sugar: 48.6, sodium: 26},
-        { id: 20, name: 'POKKA Milk Tea', type: "Thai Milk Tea", img: PMT, calories: 210, fat: 3.6, sugar: 38, sodium: 106},
+        { id: 1, name: 'Pocky Chocolate Flavour', type: 'Pocky', img: pockyC, calories: 160, fat: 8, sugar: 11, sodium: 70 },
+        { id: 2, name: 'Pocky Cookies & Cream Flavour', type: 'Pocky', img: pockyCC, calories: 150, fat: 6, sugar: 12, sodium: 50 },
+        { id: 3, name: "Lay's Barbecue Chips", type: 'Lays', img: LaysB, calories: 150, fat: 9, sugar: 2, sodium: 200 },
+        { id: 4, name: 'Lay\'s Sour Cream & Onion', type: 'Lays', img: LaysSC, calories: 160, fat: 10, sugar: 1, sodium: 170 },
+        { id: 5, name: 'Doritos Nacho Cheese', type: 'Doritos', img: DoritosNC, calories: 145, fat: 7.7, sugar: 0.7, sodium: 193.5 },
+        { id: 6, name: 'Lay\'s Classic', type: 'Lays', img: LaysC, calories: 160, fat: 10, sugar: 1, sodium: 170 },
+        { id: 7, name: 'M&Ms', type: 'M&Ms', img: MandM, calories: 190, fat: 8, sugar: 26, sodium: 30 },
+        { id: 8, name: 'Tong Garden Salted Cashew Nuts', type: 'Mixed Nuts', img: TongSC, calories: 250, fat: 19, sugar: 2, sodium: 85 },
+        { id: 9, name: 'Twisties Chicken', type: 'Twisties', img: TwistiesC, calories: 80, fat: 4.4, sugar: 2, sodium: 93 },
+        { id: 10, name: 'Houten Chilli Tapioca', type: 'Potato Chips', img: Houten, calories: 160, fat: 8, sugar: 8, sodium: 150 },
+        { id: 11, name: 'Super Ring', type: 'Super Rings', img: Super, calories: 80, fat: 5.5, sugar: 1.5, sodium: 100 },
+        { id: 12, name: 'Milo', type: 'Milo', img: Milo, calories: 150, fat: 3.6, sugar: 16.6, sodium: 0.2 },
       ],
       selectedSnackIndex: 0,
-      isAnimating: false,
       beltWidth: 0,
+      isAnimating: false,
       showModal: false,
-      selectedSnackDetail: {}, // Initialize selectedSnackDetail
+      selectedSnackDetail: {},
       showDetailModal: false,
     };
+  },
+  computed: {
+    conveyorItems() {
+      const filledSnacks = [...this.snacks];
+      const minItems = 30;
+
+      // Populate with placeholders using existing snacks if there are not enough items
+      while (filledSnacks.length < minItems) {
+        const randomSnack = this.snacks[Math.floor(Math.random() * this.snacks.length)];
+        filledSnacks.push({ ...randomSnack, id: filledSnacks.length + 1 });
+      }
+      return filledSnacks;
+    },
   },
   mounted() {
     this.$nextTick(() => {
@@ -134,12 +173,12 @@ export default {
       this.showModal = false;
     },
     turnIntoCard(snack) {
-      this.selectedSnackDetail = snack; // Set the selected snack for the detail modal
-      this.showModal = false; // Close the item list modal
-      this.showDetailModal = true; // Open the detail modal
+      this.selectedSnackDetail = snack;
+      this.showModal = false;
+      this.showDetailModal = true;
     },
     closeDetailModal() {
-      this.showDetailModal = false; // Close the detail modal
+      this.showDetailModal = false;
     },
     surpriseMe() {
       if (!this.$refs.belt) {
@@ -149,19 +188,18 @@ export default {
       if (this.isAnimating) return;
       this.isAnimating = true;
 
-
       let randomIndex;
       do {
         randomIndex = Math.floor(Math.random() * this.snacks.length);
-      } while (randomIndex === this.selectedSnackIndex); // Avoid the same snack
+      } while (randomIndex === this.selectedSnackIndex);
 
       this.selectedSnackIndex = randomIndex;
-
       const snackWidth = 150;
       const targetPosition = randomIndex * snackWidth;
+
       gsap.to(this.$refs.belt, {
         x: `-${targetPosition}px`,
-        duration: 0.9,
+        duration: 1,
         ease: 'power2.out',
         onComplete: () => {
           this.checkResetPosition();
@@ -186,7 +224,7 @@ export default {
     },
     navigateToMap(snackType) {
       this.$router.push({
-        name: 'Map', // Ensure the route name for map.vue is set to "map"
+        name: 'Map',
         query: { snack: snackType }
       });
     },
@@ -197,12 +235,21 @@ export default {
 
 @import 'bootstrap/dist/css/bootstrap.css';
 
-.button-container-centered {
+.placeholder {
+  width: 125px;
+  height: 125px;
+  background-color: #eee;
+  border-radius: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 20px 0; /* Space above and below the button */
-  position: relative; /* Ensure it stays in flow with other elements */
+}
+
+.button-container {
+  display: flex;
+  justify-content: center; /* Center the button horizontally */
+  align-items: center; /* Center the button vertically if needed */
+  margin: 20px 0; /* Add space between the conveyor and snack details */
 }
 
 .conveyor-container {
