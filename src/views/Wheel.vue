@@ -1,73 +1,75 @@
 <template>
   <body>
     <div id="app">
-    <!-- Header Container -->
-    <div class="header-container">
-      <h1 class="header">Snack of Fortune</h1>
+      <!-- Header Container -->
+      <div class="header-container">
+        <h1 class="header">Snack of Fortune</h1>
+      </div>
+      <!-- Conveyor Belt Container -->
+      <div class="conveyor-container">
+        <div class="conveyor">
+          <div class="belt" ref="belt">
+            <div v-for="(snack, index) in snacks" :key="snack.id" 
+                 :class="{ 'highlighted': index === selectedSnackIndex }" 
+                 class="conveyor-snack-item" @click="turnIntoCard(snack)" >
+              <img :src="snack.img" :alt="snack.name"/>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- Surprise Me Button -->
-      <button @click="surpriseMe" class="btn rainbow-btn">
-        <font-awesome-icon icon="random" /> Surprise Me!
-      </button>
-    </div>
-    <!-- Conveyor Belt Container -->
-    <div class="conveyor-container">
-      <div class="conveyor">
-        <div class="belt" ref="belt">
-          <div v-for="(snack, index) in snacks" :key="snack.id" 
-               :class="{ 'highlighted': index === selectedSnackIndex }" 
-               class="conveyor-snack-item" @click="turnIntoCard(snack)" >
-            <img :src="snack.img" :alt="snack.name"/>
+      <div class="button-container">
+        <button @click="surpriseMe" class="btn rainbow-btn">
+          <font-awesome-icon icon="random" /> Surprise Me!
+        </button>
+      </div>
+      <!-- Snack Description Container -->
+      <div class="snack-details-container dark-blue-background">
+        <div class="snack-details-row">
+          <!-- Snack Image -->
+          <div class="description-snack-image">
+            <img :src="snacks[selectedSnackIndex].img" :alt="snacks[selectedSnackIndex].name" id="description-snack-img">
           </div>
+          <!-- Snack Description -->
+          <transition name="fade">
+            <div class="snack-description">
+              <h2>{{ snacks[selectedSnackIndex].name }}</h2>
+              <p>Snack Information:</p>
+              <ul>
+                <li>Calories: {{ snacks[selectedSnackIndex].calories }}</li>
+                <li>Fat: {{ snacks[selectedSnackIndex].fat }}<span style="font-size: small;">g</span></li>
+                <li>Sugar: {{ snacks[selectedSnackIndex].sugar }}<span style="font-size: small;">g</span></li>
+                <li>Sodium: {{ snacks[selectedSnackIndex].sodium }}<span style="font-size: small;">mg</span></li>
+              </ul>
+              <button @click="navigateToMap(snacks[selectedSnackIndex].type)" class="btn directions-btn">
+                <font-awesome-icon icon="compass" /> Get Me There
+              </button>
+              <button @click="openModal" class="btn menu-btn">What's on the Menu?</button>
+            </div>
+          </transition>
         </div>
       </div>
-    </div>
-    <!-- Snack Description Container -->
-    <div class="snack-details-container">
-      <div class="snack-details-row">
-        <!-- Snack Image -->
-        <div class="description-snack-image">
-          <img :src="snacks[selectedSnackIndex].img" :alt="snacks[selectedSnackIndex].name" id="description-snack-img">
-        </div>
-        <!-- Snack Description -->
-        <transition name="fade">
-          <div class="snack-description">
-            <h2>{{ snacks[selectedSnackIndex].name }}</h2>
-            <p>Snack Information:</p>
-            <ul>
-              <li>Calories: {{ snacks[selectedSnackIndex].calories }}</li>
-              <li>Fat: {{ snacks[selectedSnackIndex].fat }}<span style="font-size: small;">g</span></li>
-              <li>Sugar: {{ snacks[selectedSnackIndex].sugar }}<span style="font-size: small;">g</span></li>
-              <li>Sodium: {{ snacks[selectedSnackIndex].sodium }}<span style="font-size: small;">mg</span></li>
-            </ul>
-            <button @click="navigateToMap(snacks[selectedSnackIndex].type)" class="btn directions-btn">
-              <font-awesome-icon icon="compass" /> Get Me There
+      <!-- Modal Structure -->
+      <div v-if="showModal" class="modal-overlay" @click="closeModal">
+        <div class="modal-content" @click.stop>
+          <div class="modal-header">
+            <h1>Menu</h1>
+            <button @click="closeModal" class="fixed-close-btn">
+              <font-awesome-icon icon="times" />
             </button>
-            <button @click="openModal" class="btn menu-btn">What's on the Menu?</button>
           </div>
-        </transition>
-      </div>
-    </div>
-    <!-- Modal Structure -->
-    <div v-if="showModal" class="modal-overlay" @click="closeModal">
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <h1>Menu</h1>
-          <button @click="closeModal" class="fixed-close-btn">
-            <font-awesome-icon icon="times" />
-          </button>
-        </div>
-        <div class="modal-body">
-          <ul style="padding: 0px">
-            <li v-for="snack in snacks" :key="snack.id" @click="turnIntoCard(snack)" class="modal-snack-item">
-              <img :src="snack.img" alt="Snack image" class="modal-snack-image" />
-              <div class="modal-snack-details">
-                <h5>{{ snack.name }}</h5>
-              </div>
-            </li>
-          </ul>
+          <div class="modal-body">
+            <ul style="padding: 0px">
+              <li v-for="snack in snacks" :key="snack.id" @click="turnIntoCard(snack)" class="modal-snack-item">
+                <img :src="snack.img" alt="Snack image" class="modal-snack-image" />
+                <div class="modal-snack-details">
+                  <h5>{{ snack.name }}</h5>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
-    </div>
 
       <!-- Detail Modal Structure -->
       <div v-if="showDetailModal" class="modal-overlay" @click="closeDetailModal">
@@ -229,6 +231,16 @@ export default {
 
 @import 'bootstrap/dist/css/bootstrap.css';
 
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.conveyor-container {
+  margin-bottom: 20px;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -253,12 +265,19 @@ body {
   margin: 0;
   padding: 0;
 }
+
 .header-container {
   padding-top: 20px;
   padding-bottom: 20px;
   position: relative;
   text-align: center;
 }
+
+.header {
+  font-size: 3em;
+  color: white;
+}
+
 .header {
   font-size: 3em;
   color: white;
@@ -314,7 +333,7 @@ body {
   border-radius: 10px;
 }
 .snack-details-container {
-  background-color: white;
+  background-color: #001f3f;
   padding: 20px;
   border-radius: 15px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -326,10 +345,11 @@ body {
   flex-wrap: wrap;
 }
 .description-snack-image {
+  background-color: white;
   flex: 1;
   max-width: 100%;
   padding: 10px;
-  border: 3px solid #453B32;
+  border: 5px solid #db8030;
   border-radius: 8px;
 }
 
