@@ -87,7 +87,7 @@ body {
 
 .register-container {
   min-height: 100vh;
-  background-color: #001f3f; /* Dark blue background */
+  background: linear-gradient(to bottom, #003061, #001f3f, black);
 }
 
 .card {

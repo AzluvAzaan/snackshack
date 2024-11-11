@@ -282,7 +282,7 @@ html, body {
   justify-content: center;
   align-items: center;
   position: relative;
-  background-color: #001f3f;
+  background: linear-gradient(to bottom, #003061, #001f3f, black);
   height: 100vh;
   padding: 0 20px;
   box-sizing: border-box;
@@ -619,7 +619,7 @@ html, body {
   }
 
 .screen.zoomed {
-  transform: scale(5) translate(-30%, 8%);
+  transform: scale(4.5) translate(-34%, 8%);
   z-index: 999;
   }
 
