@@ -43,13 +43,16 @@
         <div :class="getStatusClass(machine.status)">
           <p>{{ machine.status }}</p>
         </div>
-        <div class="rating">
+        <div class="rating" @click="writeReview(selectedMachine.id)">
           <span v-if = "machine.numReviews==0">★ No reviews yet... </span>
           <span v-else-if = "machine.numReviews==1">★ {{ machine.avgRating }}/5, 1 review </span>
           <span v-else>★ {{ machine.avgRating }}/5, {{ machine.numReviews }} reviews </span>
         </div>
         <p>{{ machine.description }}</p>
-        <p v-if = "this.userLocation">{{ calculateDistance(machine.coordinates) }}km away</p>
+        <p v-if = "this.userLocation">
+          <span v-if = "calculateDistance(machine.coordinates) > 0.1">{{ calculateDistance(machine.coordinates) }}km away</span>
+          <span v-else>{{ calculateDistance(machine.coordinates) * 1000 }}m away</span>
+        </p>
         <div class="actions">
           <button class="action-btn" @click="getDirections(machine.coordinates)">Directions</button>
           <button class="action-btn" @click="writeReview(machine.id)">Review</button>
@@ -71,7 +74,7 @@
         <div :class="getStatusClass(selectedMachine.status)">
           <p>{{ selectedMachine.status }}</p>
         </div>
-        <div class="rating">
+        <div class="rating" @click="writeReview(selectedMachine.id)">
           <span v-if = "selectedMachine.numReviews==0">★ No reviews yet... </span>
           <span v-else-if = "selectedMachine.numReviews==1">★ {{ selectedMachine.avgRating }}/5, 1 review </span>
           <span v-else>★ {{ selectedMachine.avgRating }}/5, {{ selectedMachine.numReviews }} reviews </span>
@@ -300,6 +303,7 @@ export default {
 </script>
 
 <style scoped>
+  @import 'bootstrap/dist/css/bootstrap.css';
 
   .app {
     position:fixed;
@@ -313,7 +317,7 @@ export default {
 
   .sidebar {
     width: 300px;
-    height:  92vh;
+    height: calc(100% - 60px);
     padding: 20px;
     background-color: #001f3f;
     color: white;
@@ -445,7 +449,12 @@ export default {
     color: #ffc107;
     font-weight: bold;
     position: relative;
-    z-index: 2;
+    z-index: 5;
+  }
+
+  .rating span:hover {
+    text-decoration: underline;
+    cursor: pointer;
   }
 
   .vending-card p {
@@ -486,7 +495,7 @@ export default {
 
   #map {
     width: 100%;
-    height: 100%;
+    height: calc(100% - 60px);
   }
 
   /* Modal Styles */
@@ -514,7 +523,7 @@ export default {
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
     z-index: 1;
     transition: all 0.3s ease;
-    animation: popup 0.3s ease forwards;
+    animation: popup 0.8s ease forwards;
   }
 
 
@@ -631,7 +640,7 @@ export default {
 
     #map {
       width: 100%;
-      height: 100%;
+      height: %;
     }
 
     .vending-thumbnail{
@@ -681,6 +690,11 @@ export default {
     .details-modal {
       width: 100%;
       max-height: 75vh;
+    }
+
+    .vending-thumbnail{
+      right: 15px;
+      transform: scale(1.0)
     }
   }
 
