@@ -319,7 +319,7 @@ export default {
     width: 300px;
     height: calc(100% - 60px);
     padding: 20px;
-    background-color: #001f3f;
+    background: linear-gradient(to bottom, #003061, #001f3f, black);
     color: white;
     overflow-y: auto;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);

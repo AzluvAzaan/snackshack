@@ -275,6 +275,7 @@ html, body {
   padding: 0;
   height: 100%;
   width: 100%;
+  background: linear-gradient(to bottom, #003061, #001f3f, black);
 }
 
 #vending-machine-page {
@@ -283,7 +284,7 @@ html, body {
   align-items: center;
   position: relative;
   background: linear-gradient(to bottom, #003061, #001f3f, black);
-  height: 100vh;
+  height: 90vh;
   padding: 0 20px;
   box-sizing: border-box;
 }
