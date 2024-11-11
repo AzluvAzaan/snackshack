@@ -619,7 +619,7 @@ html, body {
   }
 
 .screen.zoomed {
-  transform: scale(5) translate(-30%, 8%);
+  transform: scale(4.5) translate(-34%, 8%);
   z-index: 999;
   }
 
