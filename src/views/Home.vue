@@ -282,7 +282,7 @@ html, body {
   justify-content: center;
   align-items: center;
   position: relative;
-  background-color: #001f3f;
+  background: linear-gradient(to bottom, #003061, #001f3f, black);
   height: 100vh;
   padding: 0 20px;
   box-sizing: border-box;

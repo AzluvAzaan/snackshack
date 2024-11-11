@@ -671,7 +671,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #001f3f; 
+  background: linear-gradient(to bottom, #003061, #001f3f, black);
 }
 
 /* Button hover and animation */

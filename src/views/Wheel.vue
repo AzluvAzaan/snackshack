@@ -276,7 +276,7 @@ body {
 }
 
 body {
-  background-color: #001f3f;
+  background: linear-gradient(to bottom, #003061, #001f3f, black);
   margin: 0;
   padding: 0;
 }
@@ -348,7 +348,7 @@ body {
   border-radius: 10px;
 }
 .snack-details-container {
-  background-color: #001f3f;
+  background-color: none;
   padding: 20px;
   border-radius: 15px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
