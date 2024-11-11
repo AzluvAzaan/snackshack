@@ -1,8 +1,8 @@
 <template>
-   <div class="container-fluid" style="background-color: #001f3f">
+   <div class="container-fluid" style="background: linear-gradient(to bottom, #003061, #001f3f, black);">
     <div class="row">
       <!-- Sidebar -->
-      <nav id="sidebarMenu" class="col-md-3 col-lg-3 d-md-block bg-light sidebar" 
+      <nav id="sidebarMenu" class="col-md-3 col-lg-3 d-md-block sidebar" 
       :class="{ 'show': sidebarOpen || !isMobile, 'd-none': !sidebarOpen && isMobile }">
         <div class="position-sticky pt-3">
           <div class="d-flex justify-content-between align-items-center px-3 mb-3">
@@ -50,7 +50,7 @@
               aria-label="Toggle sidebar"
             >
               <span class="navbar-toggler-icon">
-                <img src="../assets/3-lines-icon.png" style="height:2rem; display:block; align-items:center" alt="menu icon">
+                <img src="../assets/3-lines-icon.png" style="height:2rem; display:flexbox; align-items:center;" alt="menu icon">
               </span>
             </button>
           </div>
@@ -99,13 +99,14 @@
 
         <div class="review-container">
 
-          <div class="collective-bar-graph">
-            <h2 style="text-align: center;">Review Ratings</h2>
-            <div v-for="star in 5" :key="star" class="collective-bar-container">
-              <span class="collective-bar-label">{{ star }} ★</span>
-              <div class="collective-bar" :style="{ width: calculateCollectiveBarWidth(star) }"></div>
-              <span class="collective-bar-count">{{ countRatings(star) }}</span>
-            </div>
+          <div v-for="star in 5" :key="star" class="collective-bar-container">
+            <span class="collective-bar-label">{{ star }} ★</span>
+            <div 
+              class="collective-bar"
+              :style="{ width: calculateCollectiveBarWidth(star).width }"
+              :class="calculateCollectiveBarWidth(star).class"
+            ></div>
+            <span class="collective-bar-count">{{ countRatings(star) }}</span>
           </div>
 
           <!-- Average Rating Display -->
@@ -341,10 +342,13 @@ return 'just now';
     const maxCount = Math.max(...[1, 2, 3, 4, 5].map(this.countRatings));
     const count = this.countRatings(star);
     const maxWidth = 100; // Maximum width in percentage
-    if(count===0){
-      return '1%';
+    let width = maxCount ? (count / maxCount) * maxWidth : 1;
+   // Check if the width is 100% and return a special class
+   if (width === 100) {
+      return { width: `${width}%`, class: 'full-bar-adjustment' };
+    } else {
+      return { width: `${width}%`, class: '' };
     }
-    return maxCount ? `${(count / maxCount) * maxWidth}%` : '1%';
   },
 
   async selectMachine(machineId) {
@@ -543,7 +547,6 @@ padding: 0;
 .write-review-btn:hover,
 .sorting-dropdown select:hover {
   transform: scale(1.05);
-  /* background-color: #0056b3; */
 }
 
 .sorting-dropdown {
@@ -727,7 +730,12 @@ background-color: gold;
 margin-right: 10px;
 border-radius: 5px;
 transition: width 0.3s ease;
-max-width: 450px;
+width: 100%;
+min-width: 5px;
+}
+
+.full-bar-adjustment {
+  margin-left: 13px; /* Adjust this value based on alignment needs */
 }
 
 .collective-bar:hover{
@@ -824,6 +832,7 @@ color: #666;
   overflow-y: auto;
   transition: transform 0.3s ease-in-out;
   border-right: 1px solid #ddd;
+  background-color: #e9f7ff;
 }
 
 .sidebar.collapse:not(.show) {
@@ -840,13 +849,13 @@ color: #666;
 
 .nav-link:hover {
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  background-color: #e9ecef;
+  background-color: #e4e7eb;
 }
 
 .nav-link.active {
-  background-color: #e6f6ff;
-  box-shadow: 0 0px 4px #33b4ff;
-  color: black;
+  background-color:#eaedf0;
+  box-shadow: 0 0px 4px #3069a2;
+  color: #3069a2;
 }
 
 .machine-item {
@@ -877,15 +886,6 @@ color: #666;
   display: flex;
   align-items: center;
   font-size: 0.8em;
-}
-
-.stars {
-  color: #ccc;
-  margin-right: 5px;
-}
-
-.stars .filled {
-  color: gold;
 }
 
 .rating-value {
