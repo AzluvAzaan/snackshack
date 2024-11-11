@@ -210,7 +210,11 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #001f3f;
+  position: relative;
+  background: linear-gradient(to bottom, #003061, #001f3f, black);
+  height: 100vh;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
 .vending-machine {
@@ -543,7 +547,7 @@ html, body {
   }
 
 .screen.zoomed {
-  transform: scale(5) translate(-30%, 8%);
+  transform: scale(4.5) translate(-34%, 8%);
   z-index: 999;
   }
 

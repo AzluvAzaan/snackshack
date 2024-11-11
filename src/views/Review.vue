@@ -8,14 +8,14 @@
     <p>Location: {{ machine.locDes }}</p>
   </div>
 
-    <div class="collective-bar-graph">
-      <h2>Ratings Distribution</h2>
-      <div v-for="star in 5" :key="star" class="collective-bar-container">
-        <span class="collective-bar-label">{{ star }} Star{{ star > 1 ? 's' : '' }}</span>
-        <div class="collective-bar" :style="{ width: calculateCollectiveBarWidth(star) }"></div>
-        <span class="collective-bar-count">{{ countRatings(star) }}</span>
-      </div>
-    </div>
+          <div class="collective-bar-graph">
+            <h2 style="text-align: center;">Review Ratings</h2>
+            <div v-for="star in 5" :key="star" class="collective-bar-container">
+              <span class="collective-bar-label">{{ star }} ★</span>
+              <div class="collective-bar" :style="{ width: calculateCollectiveBarWidth(star) }"></div>
+              <span class="collective-bar-count">{{ countRatings(star) }}</span>
+            </div>
+          </div>
 
     <!-- Average Rating Display -->
   <div class="average-rating-container">
@@ -83,25 +83,24 @@
       <button @click="submitReview">Submit Review</button>
     </div>
 
-    <!-- Display All Submitted Reviews -->
-    <div v-for="(review, index) in reviews" :key="index" class="review-result">
-      <div class="review-header">
-        <div class="reviewer-info">
-          <!-- Placeholder image for user profile -->
-          <img class="reviewer-avatar" src="../assets/person-icon.png" alt="User Profile" />
-          <div>
-            <h3>{{ review.username }}</h3>
-            <div class="stars-review">
-              <span
-                v-for="star in 5"
-                :key="star"
-                :class="{ filled: star <= review.rating }"
-              >&#9733;</span>
-              <span class="posted-time">{{ timeSince(review.timestamp) }} ago</span>
+          <!-- Display All Submitted Reviews -->
+          <div v-for="(review, index) in reviews" :key="index" class="review-result">
+            <div class="review-header">
+              <div class="reviewer-info">
+                <img class="reviewer-avatar" src="../assets/person-icon.png" alt="User Profile" />
+                <div>
+                  <h5>{{ review.username }}</h5>
+                  <div class="stars-review">
+                    <span
+                      v-for="star in 5"
+                      :key="star"
+                      :class="{ filled: star <= review.rating }"
+                    >★</span>
+                    <span class="posted-time">{{ timeSince(review.timestamp) }} ago</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
 
       <p class="review-text">{{ review.text }}</p>
     </div>
@@ -158,6 +157,9 @@ methods: {
       await this.updateMachineRating(); // Update the machine's rating
       this.showForm = false; // Hide the form after submission
       this.resetForm(); // Reset form fields
+      // Set sorting to "Newest to Oldest" after submission
+      this.sortOption = "date_desc";
+      this.sortReviews();
     } else {
       alert("Please fill out all fields and provide a rating.");
     }
@@ -213,9 +215,84 @@ return 'just now';
     const maxCount = Math.max(...[1, 2, 3, 4, 5].map(this.countRatings));
     const count = this.countRatings(star);
     const maxWidth = 100; // Maximum width in percentage
-    return maxCount ? `${(count / maxCount) * maxWidth}%` : '0%';
+    if(count===0){
+      return '1%';
+    }
+    return maxCount ? `${(count / maxCount) * maxWidth}%` : '1%';
   },
+
+  async selectMachine(machineId) {
+  this.selectedMachineId = machineId;
+  this.reviews = await firestore.getReviewsForMachine(machineId);
+  this.machine = this.machines.find(m => m.id === machineId);
+  await this.fetchOwnerDetails();
+
+  // Update the URL when a machine is selected
+  this.$router.push({ name: 'Review', query: { machine: machineId } });
+  
+  // Close the sidebar on mobile after selection
+  if (window.innerWidth < 768) {
+    setTimeout(() => {
+      this.sidebarOpen = false;
+    }, 200); // 200ms delay
+    this.handleResize(); // Ensure sidebar visibility updates after selection
+  }
 },
+
+    async fetchVendingMachines() {
+      try {
+        this.machines = await firestore.getAllVendingMachines();
+        // Ensure avgRating and numReviews are set for each machine
+        this.machines = this.machines.map(machine => ({
+          ...machine,
+          avgRating: machine.avgRating || 0,
+          numReviews: machine.numReviews || 0
+        }));
+      } catch (error) {
+        console.error("Error fetching vending machines:", error);
+      }
+    },
+    toggleSidebar() {
+      this.sidebarOpen = !this.sidebarOpen;
+    },
+
+    handleResize() {
+      this.isMobile = window.innerWidth < 768;
+      if (!this.isMobile) {
+        this.sidebarOpen = true;
+      }
+    },
+
+    async fetchOwnerDetails() {
+      if (this.selectedMachineId) {
+        try {
+          // First, get the user ID of the machine owner
+          const machineDoc = await firestore.getVendingMachineById(this.selectedMachineId);
+          if (machineDoc && machineDoc.userId) {
+            // Then, fetch the user details using the user ID
+            const userDetails = await firestore.getUserDetails(machineDoc.userId);
+            if (userDetails) {
+              this.ownerEmail = userDetails.email || 'N/A';
+              this.ownerContact = userDetails.contact || 'N/A';
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching owner details:", error);
+        }
+      }
+    },
+},
+
+watch: {
+    // Watch the reviews array for changes and apply sorting when new reviews are added
+    reviews() {
+      this.sortReviews();
+    },
+    sidebarOpen(val) {
+    // Apply handleResize to adjust sidebar visibility when sidebarOpen changes
+    this.handleResize();
+  }
+  },
 
 computed: {
   machineID() {
@@ -253,12 +330,19 @@ margin:0;
 padding: 0;
 }
 .review-container {
-max-width: 600px;
-margin: 20px auto;
-padding: 10px;
-background-color: #e9f7ff;
-border-radius: 8px;
-margin-top: 100px;
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px 15px; /* Equal padding on all sides */
+  background-color: #e9f7ff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.review-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
 .write-review-btn {
@@ -358,22 +442,24 @@ background-color: #0056b3;
 }
 
 .review-result {
-margin-top: 20px;
-padding: 15px;
-border: 1px solid #ccc;
-border-radius: 8px;
-background-color: #f9f9f9;
+  margin: 20px 0px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: white;
 }
 
 .review-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0px; 
 }
 
 .reviewer-info {
-display: flex;
-align-items: center;
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
 }
 
 .reviewer-avatar {
@@ -384,9 +470,9 @@ margin-right: 10px;
 }
 
 .review-text {
-margin-top: 5px;
-font-size: 18px;
-margin-left: 35px;
+  margin-top: 10px;
+  font-size: 1rem;
+  margin-left:20px;
 }
 
 
@@ -406,9 +492,11 @@ display: block;
 }
 
 .collective-bar-container {
-display: flex;
-align-items: center;
-margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  padding: 5px 10px; /* Adjusted padding for alignment */
+  width: 100%;
+  margin: 8px 0;
 }
 
 .collective-bar-label {

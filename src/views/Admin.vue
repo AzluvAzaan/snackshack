@@ -7,17 +7,16 @@
         <button type="button" class="btn-close" @click="closeAlert" aria-label="Close"></button>
       </div>
       <!-- Admin Page Header --> 
-      <div class="row mb-4">
-        <div class="col-12 col-md-8">
+      <div class="row pad-btm">
+        <div class="col-6  col-md-8">
           <h1 class="mb-0">Admin Page</h1>
         </div>
-        <div class="col-12 col-md-4 d-flex justify-content-md-end ">
+        <div class="col-6 col-md-4 d-flex justify-content-md-end ">
           <!-- Logout button to log out user-->
           <button @click="logout" class="btn btn-danger"><font-awesome-icon icon="fa-solid fa-right-from-bracket" /> Logout</button>
         </div>
       </div>
       <div class="row">
-       <!-- <p v-if="currentUser" class="mb-0 me-3">Logged in as: {{ currentUser.email }}</p> -->
        <div v-if="currentUser && userDetails" class="user-info">
             <p><strong>Logged in as: </strong> {{ currentUser.email }}</p>
             <p>
@@ -31,7 +30,7 @@
             </p>
       </div>
       <!-- Vending Machine + Add Machine Button-->
-      <div class="row mb-3">
+      <div class="row pad-btm">
       <div class="col">
         <h2>Your Vending Machines</h2>
       </div>
@@ -156,8 +155,8 @@
         </div>
       </div>
       <!-- Search input and Sort select -->
-      <div class="mb-3">
-        <div class="row g-2">
+      <div>
+        <div class="row g-2 pad-btm">
           <div class="col-10 col-md-8">
             <div class="input-group">
               <span class="input-group-text">
@@ -186,7 +185,7 @@
         </div>
       </div>
       <!-- Vending Machines in Bootstrap Card -->
-      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3  row-cols-xl-4 g-4 justify-content-start">
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4 justify-content-start mt-0">
         <div v-for="machine in filteredAndSortedMachines" :key="machine.id" class="col">
           <!-- Details of each vending machine in bootstrap Card-->
           <div class="card h-100" :class="getRatingColorClass(machine.avgRating)">
@@ -672,7 +671,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #001f3f; 
+  background: linear-gradient(to bottom, #003061, #001f3f, black);
 }
 
 /* Button hover and animation */
@@ -840,6 +839,9 @@ label {
   margin-bottom: 0.5rem;
 }
 
+.pad-btm {
+  padding-bottom: 10px;
+}
 /* Add some spacing between form elements */
 .mb-3 {
   margin-bottom: 1rem !important;
