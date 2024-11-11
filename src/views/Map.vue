@@ -212,8 +212,6 @@ export default {
           this.mapVisible = false;
         }
       }
-      console.log("Map" + this.mapVisible)
-      console.log("sidebar" + this.sidebarVisible)
     },
 
     async fetchVendingMachines() {
