@@ -1,6 +1,6 @@
 <template>
   <div class="app d-flex">
-    <div class="sidebar col-4">
+    <nav id="sidebarMenu" class="col-md-3 sidebar" :class="{'sidebar-hidden': !sidebarVisible }">
       <h1>Vending Machines Near You</h1>
 
       <!-- Search Bar -->
@@ -58,10 +58,15 @@
           <button class="action-btn" @click="writeReview(machine.id)">Review</button>
         </div>
       </div>
-    </div>
+    </nav>
+
+    <!-- Toggle Button for Small Screens -->
+    <button v-if="isSmallScreen" @click="toggleMap" class="map-toggle-btn">
+      {{ mapVisible ? 'View Machines' : 'View Map' }}
+    </button>
 
     <!-- Map element -->
-    <div id="map-container">
+    <div id="map-container" :class="{'map-hidden': !mapVisible }">
       <div id="map"></div>
     </div>
 
@@ -74,7 +79,7 @@
         <div :class="getStatusClass(selectedMachine.status)">
           <p>{{ selectedMachine.status }}</p>
         </div>
-        <div class="rating" @click="writeReview(selectedMachine.id)">
+        <div class="rating rating-click" @click="writeReview(selectedMachine.id)">
           <span v-if = "selectedMachine.numReviews==0">★ No reviews yet... </span>
           <span v-else-if = "selectedMachine.numReviews==1">★ {{ selectedMachine.avgRating }}/5, 1 review </span>
           <span v-else>★ {{ selectedMachine.avgRating }}/5, {{ selectedMachine.numReviews }} reviews </span>
@@ -107,6 +112,9 @@ export default {
       sortOption: 'type', // Default sort option
       filterType: '', // No filter by default
       userLocation: null,
+      sidebarVisible: false,
+      mapVisible: true,
+      isSmallScreen: false,
     };
   },
 
@@ -137,6 +145,11 @@ export default {
         }
       }
     });
+    this.checkScreenWidth();
+    window.addEventListener('resize', this.checkScreenWidth);
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.checkScreenWidth);
   },
 
   created() {
@@ -179,6 +192,30 @@ export default {
   },
 
   methods: {
+    toggleMap() {
+      this.mapVisible = !this.mapVisible;
+      if(this.mapVisible == true){
+        this.sidebarVisible = false;
+      }
+      else{
+        this.sidebarVisible = true;
+      }
+    },
+    checkScreenWidth() {
+      this.isSmallScreen = (window.innerWidth <= 768); // Define your threshold for "small screen"
+      if (!this.isSmallScreen) {
+        this.mapVisible = true; // Show map by default on larger screens
+        this.sidebarVisible = true;
+      }
+      else {
+        if(this.sidebarVisible == true){
+          this.mapVisible = false;
+        }
+      }
+      console.log("Map" + this.mapVisible)
+      console.log("sidebar" + this.sidebarVisible)
+    },
+
     async fetchVendingMachines() {
       try {
         const vendingMachinesRef = collection(db, 'vendingMachines');
@@ -316,6 +353,8 @@ export default {
   }
 
   .sidebar {
+    animation: popup 0.5s ease forwards;
+    display: block;
     width: 300px;
     height: calc(100% - 60px);
     padding: 20px;
@@ -324,6 +363,10 @@ export default {
     overflow-y: auto;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+  }
+
+  #sidebarMenu.sidebar-hidden {
+    display: none;
   }
 
   .sidebar h1 {
@@ -452,7 +495,7 @@ export default {
     z-index: 5;
   }
 
-  .rating span:hover {
+  .rating-click span:hover {
     text-decoration: underline;
     cursor: pointer;
   }
@@ -485,12 +528,33 @@ export default {
 
   /* Map and zoom controls styling */
   #map-container {
-    position: relative;
+    animation: popup 0.5s ease forwards;
+    display: block;
     flex-grow: 1;
     padding: 0;
     margin: 0;
     height: 100%;
     width: 100%;
+  }
+
+  /* Hidden map style */
+  #map-container.map-hidden {
+    display: none;
+  }
+
+  /* Button styling */
+  .map-toggle-btn {
+    position: fixed;
+    bottom: 15px;
+    right: 55px;
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1010;
+    display: none; /* Hide by default */
   }
 
   #map {
@@ -501,7 +565,7 @@ export default {
   /* Modal Styles */
   @keyframes popup {
     0% {
-      transform: scale(0.5);
+      transform: scale(0.8);
       opacity: 0;
     }
     100% {
@@ -621,27 +685,32 @@ export default {
     background-color: #ffd633;
   }
 
+  @media (min-width: 769px) {
+    .sidebar {
+        display: block;
+    }
+  }
+
   @media only screen and (max-width: 768px) {
 
     .app {
       flex-direction: column;
     }
 
+    .map-toggle-btn {
+      display: block;
+    }
+
     .sidebar {
       width: 100%;
-      height: 40vh;
     }
 
     #map-container {
       width: 100%;
-      height: 60vh; /* map takes up the top 60% */
+      height: 100vh;
       flex-grow: 1;
     }
 
-    #map {
-      width: 100%;
-      height: %;
-    }
 
     .vending-thumbnail{
       position: absolute;
