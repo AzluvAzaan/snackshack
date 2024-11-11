@@ -51,7 +51,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 0.4rem 2rem;
-  background-color: #333;
+  background-color: #003061;
   color: white;
   position: fixed;
   top: 0;
@@ -120,7 +120,6 @@ export default {
   display: none; /* Hidden by default, shown in mobile view */
   font-size: 1.5rem;
   background: none;
-  border: none;
   color: white;
   cursor: pointer;
 }
