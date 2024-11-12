@@ -1,6 +1,5 @@
 <template>
   <nav class="navbar">
-    <!-- Logo section -->
     <div class="navbar-logo">
       <img src="@/assets/snackshack.png" alt="SnackShack logo" class="logo-image" />
       <span class="logo-text">SnackShack</span>
@@ -8,7 +7,7 @@
 
     <!-- Toggle button for mobile -->
     <button class="navbar-toggle" @click="toggleMenu">
-      &#9776; <!-- Hamburger icon -->
+      &#9776;
     </button>
 
     <!-- Navigation links -->

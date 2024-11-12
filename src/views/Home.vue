@@ -1,6 +1,5 @@
 <template>
   <div id="vending-machine-page">
-    <!-- Left typing text (desktop only) -->
     <div v-if="!isMobile" class="typing-text-container left">
       <span
         class="typing-text"
@@ -12,12 +11,9 @@
       </span>
     </div>      
     
-    <!-- Vending machine container -->
     <div class="vending-machine">
-      <!-- Logo positioned at the top right corner -->
       <img src="@/assets/snackshack.png" alt="SnackShack Logo" class="vending-machine-logo">
 
-      <!-- Left side: Glass container + Snack output -->
       <div class="snack-section">
         <div class="glass-container">
           <div class="snack-container">
@@ -36,17 +32,14 @@
             </div>
           </div>
         </div>
-        <!-- Snack output tray -->
         <div class="snack-output"></div>
       </div>
 
-      <!-- Right side with controls -->
       <div class="controls-container">
         <div class="screen" :class="{ zoomed: isZoomed }">
           <div v-if="screenDisplay || errorFlash" class="screen-display" :class="{ error: errorFlash }">
             {{ errorFlash ? 'ERROR' : screenDisplay }}
           </div>
-          <!-- Overlay for displaying details and back button (renders after zoom completes) -->
           <div
             v-if="showDetails"
             class="overlay"
@@ -61,7 +54,6 @@
           </div>
         </div>
 
-        <!-- Keypad -->
         <div class="keypad">
           <div class="keypad-button" v-for="key in [1, 2, 3, 4, 5, 6, 7, 8, 9]" :key="key" @click="handleKeypadInput(key)">
             {{ key }}
@@ -71,7 +63,6 @@
           <div class="keypad-button green" @click="handleSubmit"></div>
         </div>
 
-        <!-- Cash and coin containers -->
         <div class="cash-coin-container">
           <div class="cash-slot"></div>
           <div class="coin-return"></div>
@@ -80,7 +71,6 @@
       </div>
     </div>
 
-    <!-- Right typing text (desktop only) -->
     <div v-if="!isMobile" class="typing-text-container right">
       <span
         class="typing-text"
