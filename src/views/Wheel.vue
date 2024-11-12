@@ -405,6 +405,7 @@ body {
 }
 
 .rainbow-btn:hover {
+  color: white;
   background-position: 100% 0;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
@@ -422,6 +423,7 @@ body {
   border: 2px black solid
 }
 .directions-btn:hover {
+  color: white;
   background: linear-gradient(90deg, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   cursor: pointer;
@@ -434,6 +436,7 @@ body {
   border: 2px black solid
 }
 .menu-btn:hover {
+  color: white;
   background: linear-gradient(90deg, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   cursor: pointer;
