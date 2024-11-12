@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <div class="navbar-logo">
-      <img src="@/assets/snackshack.png" alt="SnackShack logo" class="logo-image" />
+      <img src="@/assets/snackshack-logo.png" alt="SnackShack logo" class="logo-image" />
       <span class="logo-text">SnackShack</span>
     </div>
 

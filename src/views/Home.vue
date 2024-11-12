@@ -12,7 +12,7 @@
     </div>      
     
     <div class="vending-machine">
-      <img src="@/assets/snackshack.png" alt="SnackShack Logo" class="vending-machine-logo">
+      <img src="@/assets/snackshack-logo.png" alt="SnackShack Logo" class="vending-machine-logo">
 
       <div class="snack-section">
         <div class="glass-container">
