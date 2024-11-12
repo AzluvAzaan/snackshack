@@ -644,7 +644,7 @@ html, body {
   position: absolute;
   top: 40px;
   right: 0px;
-  width: 80px;
+  width: 92px;
   height: auto;
   }
   .vending-machine {
