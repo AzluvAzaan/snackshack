@@ -48,7 +48,7 @@
               @click="toggleSidebar"
               aria-label="Toggle sidebar"
             >
-            &#9776;
+            Browse
             </button>
           </div>
         </div>
@@ -231,7 +231,7 @@ data() {
     reviews: [],       // Array to store multiple reviews
     machines: [],
     selectedMachineId: null,
-    sidebarOpen: true,
+    sidebarOpen: false,
     isMobile: false,
     ownerEmail: '',
     ownerContact: '',
@@ -388,7 +388,7 @@ return 'just now';
     handleResize() {
       this.isMobile = window.innerWidth < 768;
       if (!this.isMobile) {
-        this.sidebarOpen = true;
+        this.sidebarOpen = false;
       }
     },
 
@@ -661,16 +661,19 @@ background: linear-gradient(to bottom right, #ffd700, #ffa500);
 }
 
 .navbar-toggler {
-padding: 0px 15px;
+padding: 5px 15px;
+margin-right: 10px;
 margin-top: 10px;
-font-size: 1.5rem;
+font-size: 1rem;
 color: white;
 cursor: pointer;
-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+background-color: #007bff;
+border-radius: 4px;
 }
 
 button:hover {
-background-color: #0056b3;
+background-color: #0f4680;
 border-radius: 4px;
 padding:5px 15px;
 }
@@ -954,7 +957,6 @@ color: #666;
 .machine-card {
   margin-bottom: 2rem;
 }
-
 
 .card {
   border: none;
