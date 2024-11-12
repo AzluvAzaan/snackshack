@@ -275,6 +275,7 @@ html, body {
   padding: 0;
   height: 100%;
   width: 100%;
+  background: linear-gradient(to bottom, #003061, #001f3f, black);
 }
 
 #vending-machine-page {
@@ -282,8 +283,8 @@ html, body {
   justify-content: center;
   align-items: center;
   position: relative;
-  background-color: #001f3f;
-  height: 100vh;
+  background: linear-gradient(to bottom, #003061, #001f3f, black);
+  height: 90vh;
   padding: 0 20px;
   box-sizing: border-box;
 }
@@ -619,7 +620,7 @@ html, body {
   }
 
 .screen.zoomed {
-  transform: scale(5) translate(-30%, 8%);
+  transform: scale(4.5) translate(-34%, 8%);
   z-index: 999;
   }
 

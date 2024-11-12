@@ -50,8 +50,8 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
-  background-color: #333;
+  padding: 0.4rem 2rem;
+  background-color: #003061;
   color: white;
   position: fixed;
   top: 0;
@@ -74,8 +74,8 @@ export default {
 }
 
 .logo-image {
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 50px;
   margin-right: 10px;
 }
 
@@ -87,6 +87,7 @@ export default {
 
 /* Navigation links */
 .navbar-links {
+  padding-top: 8px;
   display: flex;
   list-style-type: none;
   padding-left: 0;
@@ -119,7 +120,6 @@ export default {
   display: none; /* Hidden by default, shown in mobile view */
   font-size: 1.5rem;
   background: none;
-  border: none;
   color: white;
   cursor: pointer;
 }
