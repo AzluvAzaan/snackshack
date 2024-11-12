@@ -339,14 +339,15 @@ return 'just now';
   calculateCollectiveBarWidth(star) {
     const maxCount = Math.max(...[1, 2, 3, 4, 5].map(this.countRatings));
     const count = this.countRatings(star);
-    const maxWidth = 100; // Maximum width in percentage
+    if (this.isMobile){
+      const maxWidth = 60;
+    } else {
+      const maxWidth = 80; // Maximum width in percentage
+    };
+    const maxWidth = this.isMobile ? 60 : 80;; // Maximum width in percentage
     let width = maxCount ? (count / maxCount) * maxWidth : 1;
    // Check if the width is 100% and return a special class
-   if (width === 100) {
-      return { width: `${width}%`, class: 'full-bar-adjustment' };
-    } else {
-      return { width: `${width}%`, class: '' };
-    }
+    return { width: `${width}%`, class: '' };
   },
 
   async selectMachine(machineId) {
@@ -737,12 +738,7 @@ background-color: gold;
 margin-right: 10px;
 border-radius: 5px;
 transition: width 0.3s ease;
-width: 100%;
 min-width: 5px;
-}
-
-.full-bar-adjustment {
-  margin-left: 13px; /* Adjust this value based on alignment needs */
 }
 
 .collective-bar:hover{
@@ -958,6 +954,7 @@ color: #666;
 .machine-card {
   margin-bottom: 2rem;
 }
+
 
 .card {
   border: none;
