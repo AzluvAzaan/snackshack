@@ -3,7 +3,7 @@
     <!-- Logo section -->
     <div class="navbar-logo">
       <img src="@/assets/snackshack.png" alt="SnackShack logo" class="logo-image" />
-      <span class="logo-text">SnackShack</span>
+      <span class="logo-text">SnackShack - testing</span>
     </div>
 
     <!-- Toggle button for mobile -->
