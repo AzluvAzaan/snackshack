@@ -55,9 +55,9 @@
         <p><strong>Rating:</strong> {{ rating }} Stars</p>
       </div>
     </div>
-</template>
+  </template>
   
-<script>
+  <script>
   export default {
     data() {
       return {
@@ -84,9 +84,9 @@
       },
     },
   };
-</script>
+  </script>
   
-<style scoped>
+  <style scoped>
   .review-container {
     max-width: 400px;
     margin: 20px auto;
@@ -168,5 +168,5 @@
     border-radius: 5px;
     background-color: #e9f7ff;
   }
-</style>
+  </style>
   

@@ -172,30 +172,5 @@ export default {
         await batch.commit();
       },
 
-      async getVendingMachineById(machineId) {
-        try {
-          const machineRef = doc(db, "vendingMachines", machineId);
-          const machineSnap = await getDoc(machineRef);
-          
-          if (machineSnap.exists()) {
-            return { id: machineSnap.id, ...machineSnap.data() };
-          } else {
-            console.warn("No vending machine found with the given ID");
-            return null;
-          }
-        } catch (error) {
-          console.error("Error fetching vending machine by ID:", error);
-          throw error;
-        }
-      },
 
-      async getUserDetails(userId) {
-        const userRef = doc(db, "users", userId);
-        const userDoc = await getDoc(userRef);
-        if (userDoc.exists()) {
-          return userDoc.data();
-        } else {
-          return null;
-        }
-      },
   };
