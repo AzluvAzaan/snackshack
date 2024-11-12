@@ -7,7 +7,7 @@
         <div class="position-sticky pt-3">
           <div class="d-flex justify-content-between align-items-center px-3 mb-3">
             <h3 class="sidebar-heading text-muted border-bottom">Vending Machines</h3>
-            <button class="btn-close d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-label="Close sidebar">
+            <button class="btn-close d-md-none" type="button" @click="toggleSidebar" aria-label="Close sidebar">
             </button>
           </div>
           <ul class="nav flex-column">
@@ -48,9 +48,7 @@
               @click="toggleSidebar"
               aria-label="Toggle sidebar"
             >
-              <span class="navbar-toggler-icon">
-                <img src="../assets/3-lines-icon.png" style="height:2rem; display:flexbox; align-items:center;" alt="menu icon">
-              </span>
+            &#9776;
             </button>
           </div>
         </div>
@@ -98,6 +96,7 @@
 
         <div class="review-container">
 
+          <h2 style="text-align: center;">Review Ratings</h2>
           <div v-for="star in 5" :key="star" class="collective-bar-container">
             <span class="collective-bar-label">{{ star }} ★</span>
             <div 
@@ -392,6 +391,14 @@ return 'just now';
       }
     },
 
+    mounted() {
+      window.addEventListener('resize', this.handleResize);
+      this.handleResize(); // Initial check for screen width
+    },
+    beforeDestroy() {
+      window.removeEventListener('resize', this.handleResize);
+    },
+
     async fetchOwnerDetails() {
     if (this.selectedMachineId) {
       try {
@@ -518,7 +525,7 @@ padding: 0;
   padding: 20px 15px; /* Equal padding on all sides */
   background-color: #e9f7ff;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
 }
 
 .review-controls {
@@ -652,18 +659,19 @@ color: gold;
 background: linear-gradient(to bottom right, #ffd700, #ffa500);
 }
 
-button {
-padding: 10px 15px;
-background-color: #007bff;
+.navbar-toggler {
+padding: 0px 15px;
+margin-top: 10px;
+font-size: 1.5rem;
 color: white;
-border: none;
-border-radius: 4px;
 cursor: pointer;
 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 button:hover {
 background-color: #0056b3;
+border-radius: 4px;
+padding:5px 15px;
 }
 
 .review-result {
@@ -899,7 +907,7 @@ color: #666;
 /* Updated close button styles */
 .btn-close {
   font-size: 1.5rem;
-  padding: 0.5rem;
+  padding: 0.25rem 0.5rem;
   margin: -0.5rem -0.5rem -0.5rem auto;
   background-color: transparent;
   border: 0;
@@ -910,78 +918,7 @@ color: #666;
 
 .btn-close:hover {
   opacity: 1;
-}
-
-/* Responsive adjustments */
-@media (max-width: 767.98px) {
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    z-index: 1000;
-    padding: 20px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    background-color: #f8f9fa;
-    transition: transform 0.3s ease-in-out;
   }
-
-  .sidebar.collapse:not(.show) {
-    transform: translateX(-100%);
-  }
-
-  .sidebar .btn-close {
-    display: block;
-  }
-
-  .navbar-toggler {
-    display: block;
-    background-color: #e9f7ff;
-  }
-  .navbar-toggler:hover{
-    background-color: #e9f3ff;
-  }
-}
-
-@media (min-width: 768px) {
-  .sidebar .btn-close {
-    display: none;
-  }
-
-  .navbar-toggler {
-    display: none;
-  }
-}
-
-/* Responsive adjustments */
-@media (max-width: 767.98px) {
-  .sidebar {
-    position: static;
-    height: auto;
-    padding-top: 0;
-  }
-
-  main {
-    margin-top: 20px;
-  }
-
-  .navbar-toggler {
-    display: block;
-  }
-}
-
-@media (min-width: 768px) {
-  .navbar-toggler {
-    display: none;
-  }
-}
-
-/* Add these new styles for the close button */
-.btn-close {
-  padding: 0.25rem 0.5rem;
-  margin: -0.5rem -0.5rem -0.5rem auto;
-}
 
 @media (max-width: 767.98px) {
   .sidebar {
