@@ -453,6 +453,9 @@ html, body {
   font-size: 4px;
   color: white;
   margin: 2px 0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  font-smoothing: antialiased;
 }
 
 .back-button,
@@ -630,7 +633,7 @@ html, body {
   }
 
 .zoomed-text {
-  font-size: 2.2px;
+  font-size: 0.5vw;
   color: white;
   margin: 1px 0;
   }
@@ -639,7 +642,7 @@ html, body {
 .view-map-button {
   margin-top: 3px;
   padding: 2px 3px;
-  font-size: 2px;
+  font-size: 0.5vw;
   color: #fff;
   border: none;
   border-radius: 5px;
