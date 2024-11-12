@@ -73,7 +73,7 @@ export default {
 }
 
 .logo-image {
-  width: 45px;
+  width: 55px;
   height: 50px;
   margin-right: 10px;
 }
@@ -86,7 +86,7 @@ export default {
 
 /* Navigation links */
 .navbar-links {
-  padding-top: 8px;
+  padding-top: 12px;
   display: flex;
   list-style-type: none;
   padding-left: 0;

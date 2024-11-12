@@ -297,10 +297,11 @@ html, body {
 
 .vending-machine-logo {
   position: absolute;
-  top: 20px;
+  top: 25px;
+  padding-left: 10px;
   right: 0px;
-  width: 140px;
-  height: auto;
+  width: 155px;
+  height: 140px;
 }
 
 .snack-section {
