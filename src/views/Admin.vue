@@ -42,7 +42,7 @@
     </div>
     
       <!-- Add/Edit Vending Machine Form -->
-      <div v-if="showAddForm" class="add-form card  mb-4">
+      <div v-if="showAddForm" class="row card mb-2">
         <div class="card-body">
           <h3 class="card-title mb-4">{{ isEditing ? 'Edit' : 'Add' }} Vending Machine</h3>
           <form @submit.prevent="addOrUpdateVendingMachine">
