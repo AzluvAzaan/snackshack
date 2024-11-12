@@ -380,8 +380,8 @@ html, body {
 
 .controls-container {
   width: 120px;
-  padding-top: 180px;
-  padding-bottom: 60px;
+  padding-top: 170px;
+  padding-bottom: 40px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -389,12 +389,12 @@ html, body {
 }
 
 .screen {
-  width: 110px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   background-color: #222;
   border-radius: 4px;
   border: 2px solid #444;
-  margin-bottom: 5px;
+  margin-bottom: 15px;
   display: flex;
   justify-content: center;
   align-items: center;
