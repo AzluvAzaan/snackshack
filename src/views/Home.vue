@@ -633,7 +633,7 @@ html, body {
   }
 
 .zoomed-text {
-  font-size: 0.5vw;
+  font-size: 2.2px;
   color: white;
   margin: 1px 0;
   }
@@ -642,7 +642,7 @@ html, body {
 .view-map-button {
   margin-top: 3px;
   padding: 2px 3px;
-  font-size: 0.5vw;
+  font-size: 2px;
   color: #fff;
   border: none;
   border-radius: 5px;
