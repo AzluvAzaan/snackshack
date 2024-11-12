@@ -8,7 +8,6 @@
           <div class="d-flex justify-content-between align-items-center px-3 mb-3">
             <h3 class="sidebar-heading text-muted border-bottom">Vending Machines</h3>
             <button class="btn-close d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-label="Close sidebar">
-              <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <ul class="nav flex-column">
