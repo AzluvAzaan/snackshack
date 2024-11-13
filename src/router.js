@@ -27,16 +27,15 @@ const router = createRouter({
 
 // To check if user is logged in before accessing admin page
 // incase user types in the url/admin
-// https://router.vuejs.org/guide/advanced/navigation-guards.html
 router.beforeEach((to, from, next) => {
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-  const isAuthenticated = auth.currentUser
-
-  if (requiresAuth && !isAuthenticated) {
-    next('/login')
-  } else {
-    next()
-  }
-})
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  auth.onAuthStateChanged((user) => {
+    if (requiresAuth && !user) {
+      next('/login');
+    } else {
+      next();
+    }
+  });
+});
 
 export default router;
