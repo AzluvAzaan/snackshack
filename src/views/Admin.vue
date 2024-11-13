@@ -355,11 +355,9 @@ export default {
       try {
         //calls firebase auth signOut method to sign out user
         await signOut(auth);
-        console.log("User signed out successfully");
         //redirects user to home page after sign out
         this.$router.push('/');
       } catch (error) {
-        //console.error("Error signing out: ", error);
       }
     },
 
@@ -367,14 +365,13 @@ export default {
       try {
         const userData = await firestore.getUserData(userId);
         if (userData) {
+          // Set user details
           this.userDetails = userData;
-          //console.log("User data fetched:", this.userDetails);
         } else {
-          //console.log("No user data found");
+          //When no user data is found
           this.userDetails = null;
         }
       } catch (error) {
-        console.error("Error fetching user data:", error);
       }
     },
 
@@ -394,7 +391,6 @@ export default {
         this.editingContact = false;
         this.showAlert('Contact number updated successfully', 'success');
       } catch (error) {
-        // console.error('Error updating contact number:', error);
         this.showAlert('Failed to update contact number', 'danger');
       }
     },
@@ -479,8 +475,6 @@ export default {
         this.fetchUserMachines();
         this.showAddForm = false;
       } catch (e) {
-        //console.error("Error adding/updating document: ", e);
-        //alert('Error adding/updating vending machine. Please try again.');
         this.showAlert('Error adding/updating vending machine. Please try again.', 'danger');
         
       }
@@ -514,7 +508,6 @@ export default {
     async fetchUserMachines() {
       if (this.currentUser) {
         this.userMachines = await firestore.fetchUserMachines(this.currentUser.uid);
-        console.log(this.userMachines);
       }
     },
 
@@ -533,7 +526,6 @@ export default {
           await firestore.deleteVendingMachine(machineId);
           // Delete all reviews associated with the machine
           await firestore.deleteAllReviewsForMachine(machineId);
-          //alert("Vending machine deleted successfully!");
           this.showAlert("Vending machine deleted successfully!", 'success');
           this.fetchUserMachines();
           window.scrollTo({
@@ -541,7 +533,6 @@ export default {
             behavior: 'smooth'
           }); 
         } catch (error) {
-          //console.error("Error deleting vending machine: ", error);
           this.showAlert("Error deleting vending machine. Please try again.", 'danger');
         }
       }
@@ -603,13 +594,11 @@ export default {
         try {
           const reviews = await firestore.getRecentReviewsForMachine(machineId);
           // Find the machine and update its recentReviews
-          //console.log(reviews);
           if (this.selectedMachine) {
           this.selectedMachine = { ...this.selectedMachine, recentReviews: reviews };
           }
           
         } catch (error) {
-          console.error("Error fetching reviews:", error);
         }
       },
 

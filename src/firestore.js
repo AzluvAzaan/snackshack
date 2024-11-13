@@ -58,7 +58,7 @@ export default {
         try {
           await deleteObject(imageRef);
         } catch (error) {
-          console.error("Error deleting image: ", error);
+          //console.error("Error deleting image: ", error);
         }
     },
 
@@ -76,7 +76,7 @@ export default {
     },
 
     async getRecentReviewsForMachine(machineId) {
-        console.log("Fetching recent reviews for machine:", machineId); 
+        // Fetch the latest 3 reviews for the specified machine in descending order by timestamp
         try {
             const reviewsCollection = collection(db, "reviews");
             const q = query(
@@ -86,10 +86,8 @@ export default {
               limit(3)
             );
             const querySnapshot = await getDocs(q);
-            console.log(querySnapshot);
             return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
           } catch (error) {
-            console.error("Error fetching recent reviews:", error);
             throw error;
           }
     },
@@ -108,13 +106,12 @@ export default {
           // Update the review count for the vending machine
           const machineRef = doc(db, 'vendingMachines', reviewData.machineID);
           await updateDoc(machineRef, {
-            numReviews: increment(1)  // Assuming 'reviews' is the field name for the review count
+            numReviews: increment(1) 
           });
     
           return reviewRef;
         } catch (error) {
-          console.error("Error adding review:", error);
-          throw error;  // Re-throw the error so it can be caught by the calling function
+          throw error; 
         }
       },
 
@@ -123,16 +120,13 @@ export default {
           const machineRef = doc(db, 'vendingMachines', machineId);
           await updateDoc(machineRef, { avgRating: avgRating });
         } catch (error) {
-          console.error("Error updating machine rating:", error);
         }
       },
 
     async storeUserData(userId, userData) {
     try {
         await setDoc(doc(db, "users", userId), userData);
-        console.log("User data stored successfully");
     } catch (error) {
-        console.error("Error storing user data:", error);
         throw error;
     }
     },
@@ -141,15 +135,14 @@ export default {
         try {
           const userRef = doc(db, "users", userId);
           const userSnap = await getDoc(userRef);
-          
+          // User found
           if (userSnap.exists()) {
             return userSnap.data();
           } else {
-            console.log("No such user!");
+            // No user found
             return null;
           }
         } catch (error) {
-          console.error("Error getting user data:", error);
           throw error;
         }
       },
@@ -180,11 +173,10 @@ export default {
           if (machineSnap.exists()) {
             return { id: machineSnap.id, ...machineSnap.data() };
           } else {
-            console.warn("No vending machine found with the given ID");
+            /// No machine found
             return null;
           }
         } catch (error) {
-          console.error("Error fetching vending machine by ID:", error);
           throw error;
         }
       },
