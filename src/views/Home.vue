@@ -12,7 +12,7 @@
       </span>
     </div>
 
-    <!-- Mobile Text Container -->
+    <!-- Mobile Text Container (appears above the vending machine) -->
     <div v-if="isMobile" class="typing-text-container mobile-top">
       <span
         class="typing-text"
@@ -78,6 +78,18 @@
           <div class="keypad-button" @click="handleKeypadInput(0)">0</div>
           <div class="keypad-button green" @click="handleSubmit"></div>
         </div>
+
+        <!-- Cash Slot and Coin Return -->
+        <div class="cash-coin-container">
+          <!-- Cash Slot -->
+          <div class="cash-slot"></div>
+
+          <!-- Coin Return Button -->
+          <div class="coin-return" @click="handleCoinReturn"></div>
+        </div>
+
+        <!-- Coin Return Tray -->
+        <div class="coin-return-tray"></div>
       </div>
     </div>
 
@@ -93,7 +105,7 @@
       </span>
     </div>
 
-    <!-- Mobile Text Container -->
+    <!-- Mobile Text Container (appears below the vending machine) -->
     <div v-if="isMobile" class="typing-text-container mobile-bottom">
       <span
         class="typing-text"
