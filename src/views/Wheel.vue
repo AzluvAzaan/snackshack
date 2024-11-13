@@ -262,6 +262,9 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: linear-gradient(to bottom, #003061, #001f3f, black);
+  margin: 0;
+  padding: 0;
 }
 
 #app {
@@ -275,22 +278,12 @@ body {
   flex: 1;
 }
 
-body {
-  background: linear-gradient(to bottom, #003061, #001f3f, black);
-  margin: 0;
-  padding: 0;
-}
 
 .header-container {
   padding-top: 20px;
   padding-bottom: 20px;
   position: relative;
   text-align: center;
-}
-
-.header {
-  font-size: 3em;
-  color: white;
 }
 
 .header {
@@ -453,9 +446,7 @@ body {
 .close-btn:hover {
   background-color: #6A5C53; /* Change this color as needed */
 }
-.close-button:hover {
-    background-color: #E85850; /* Slightly darker coral on hover */
-}
+
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.5s;
 }
@@ -613,7 +604,7 @@ body {
           transition: background-size 0.5s ease-in-out, box-shadow 0.3s ease;
           background-size: 400%;
           position: absolute;
-          top: 75px;
+          top: 375px;
           right: 17px;
           z-index: 1;
         }
