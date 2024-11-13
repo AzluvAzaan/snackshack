@@ -235,6 +235,7 @@ data() {
     isMobile: false,
     ownerEmail: '',
     ownerContact: '',
+    sortOption: 'date_desc',
   };
 },
 methods: {
@@ -261,11 +262,8 @@ methods: {
         machineID: this.machineID, // Save the current time for the review
       };
 
-      
-      console.log('New review rating:', newReview.rating);
       await firestore.addReview(newReview);
 
-      // this.reviews.push(newReview); // Add the new review to the list
       this.reviews = await firestore.getReviewsForMachine(this.machineID);
       await this.updateMachineRating(); // Update the machine's rating
       this.showForm = false; // Hide the form after submission
@@ -358,6 +356,8 @@ return 'just now';
 
   // Update the URL when a machine is selected
   this.$router.push({ name: 'Review', query: { machine: machineId } });
+  this.sortOption = "date_desc";
+  this.sortReviews();
   
   // Close the sidebar on mobile after selection
   if (window.innerWidth < 768) {
@@ -406,24 +406,14 @@ return 'just now';
         // First, get the user ID of the machine owner
         const machineDoc = await firestore.getVendingMachineById(this.selectedMachineId);
 
-        // Check if the machineDoc is retrieved correctly
-        console.log('Fetched machineDoc:', machineDoc);
-
         if (machineDoc && machineDoc.userId) {
           // Then, fetch the user details using the user ID
           const userDetails = await firestore.getUserDetails(machineDoc.userId);
-
-          // Check if userDetails are retrieved correctly
-          console.log('Fetched userDetails:', userDetails);
 
           if (userDetails) {
             // Assign email and contact if they exist in the userDetails
             this.ownerEmail = userDetails.email || 'N/A';
             this.ownerContact = userDetails.contact || 'N/A';
-
-            // Log the ownerEmail and ownerContact values
-            console.log('Owner Email:', this.ownerEmail);
-            console.log('Owner Contact:', this.ownerContact);
           } else {
             console.warn('User details not found for user ID:', machineDoc.userId);
           }
@@ -494,7 +484,7 @@ async created() {
   // Fetch the reviews for this machine
   if (this.selectedMachineId) {
     this.reviews = await firestore.getReviewsForMachine(this.selectedMachineId);
-    console.log('Fetched reviews:', this.reviews);
+    // console.log('Fetched reviews:', this.reviews);
 
     // Fetch owner details for the initially selected machine
     await this.fetchOwnerDetails();
@@ -520,6 +510,7 @@ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
 margin:0;
 padding: 0;
 }
+
 .review-container {
   max-width: 600px;
   margin: 20px auto;
@@ -536,6 +527,7 @@ padding: 0;
   margin-bottom: 20px;
 }
 
+.submit-review-btn,
 .write-review-btn {
   padding: 10px 20px;
   background-color: #007bff;
@@ -546,23 +538,22 @@ padding: 0;
   margin-right: 10px;
 }
 
-.write-review-btn,
 .sorting-dropdown select {
   transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
+.submit-review-btn:hover,
 .write-review-btn:hover,
 .sorting-dropdown select:hover {
   transform: scale(1.05);
+  cursor: pointer;
 }
 
-.sorting-dropdown {
+ .sorting-dropdown {
   display: flex;
   align-items: center;
-  flex-wrap: wrap; /* Allow the dropdown to wrap */
-  gap: 5px; /* Adds space between the label and the select */
-  max-width: 100%; /* Prevents it from exceeding screen width */
-}
+  flex-wrap: wrap; 
+}  
 
 .sorting-dropdown label {
   margin-right: 5px;
@@ -573,23 +564,7 @@ padding: 0;
   padding: 5px;
   border-radius: 5px;
   border: 1px solid #ccc;
-  width: 100%; /* Ensure dropdown takes full available width on small screens */
-  box-sizing: border-box;
-}
-
-@media (max-width: 767.98px) {
-  .sorting-dropdown label {
-    font-size: 0.9rem; /* Smaller font for better fit */
-    flex: 1 0 100%; /* Label takes full width */
-  }
-  
-  .sorting-dropdown select {
-    font-size: 0.9rem;
-  }
-}
-
-.write-review-btn:hover {
-background-color: #0056b3;
+  width: 100%; 
 }
 
 .review-form {
@@ -655,11 +630,6 @@ color: #ccc;
 color: gold;
 }
 
-/* Gradient effect for filled stars */
-.stars-review .star.filled {
-background: linear-gradient(to bottom right, #ffd700, #ffa500);
-}
-
 .navbar-toggler {
 padding: 5px 15px;
 margin-right: 10px;
@@ -672,10 +642,10 @@ background-color: #007bff;
 border-radius: 4px;
 }
 
-button:hover {
-background-color: #0f4680;
-border-radius: 4px;
-padding:5px 15px;
+.navbar-toggler:hover {
+  transform: scale(1.05);
+  border-radius: 4px;
+  padding:5px 15px;
 }
 
 .review-result {
@@ -684,13 +654,6 @@ padding:5px 15px;
   border: 1px solid #ccc;
   border-radius: 8px;
   background-color: white;
-}
-
-.review-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0px; 
 }
 
 .reviewer-info {
@@ -712,14 +675,8 @@ margin-right: 10px;
   margin-left:20px;
 }
 
-
 .posted-time {
 margin-left: 10px;
-}
-
-/* Styles for the collective bar graph */
-.collective-bar-graph {
-display: block;
 }
 
 .collective-bar-container {
@@ -745,7 +702,6 @@ min-width: 5px;
 }
 
 .collective-bar:hover{
-cursor: pointer;
 background-color: #ffa500;
 }
 
@@ -781,20 +737,16 @@ transition: color 0.3s ease;
 }
 
 .average-rating-average {
-  color: #FF7546; /* Orange/Yellow for average ratings */
+  color: #fba81b; /* Orange/Yellow for average ratings */
 }
 
 .average-rating-poor {
-  color: #F3727F; /* Red for poor ratings */
+  color: #e4172c; /* Red for poor ratings */
 }
 
 .stars-container {
 position: relative;
 display: inline-block;
-}
-
-.stars-empty, .stars-filled {
-display: flex;
 }
 
 .stars-empty {
@@ -919,40 +871,6 @@ color: #666;
   opacity: 1;
   }
 
-@media (max-width: 767.98px) {
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    z-index: 1000;
-    padding: 20px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    background-color: #f8f9fa;
-    transition: 0.3s;
-  }
-
-  .sidebar.collapse:not(.show) {
-    display: none;
-  }
-
-  .sidebar.collapsing {
-    height: auto;
-    transition: height 0.35s ease;
-  }
-
-  .sidebar .btn-close {
-    display: block;
-  }
-}
-
-@media (min-width: 768px) {
-  .sidebar .btn-close {
-    display: none;
-  }
-}
-
 /* Updated Machine Card Styles */
 .machine-card {
   margin-bottom: 2rem;
@@ -1023,6 +941,7 @@ color: #666;
 .owner-info {
   margin-top: 1rem;
   padding-bottom: 5rem;
+  margin-right: 0.5rem;
 }
 
 .owner-title {
@@ -1050,12 +969,45 @@ color: #666;
   padding-right: 0.5rem;
 }
 
-.owner-info i {
-  margin-right: 0.5rem;
-  color: #007bff;
+/* Responsive adjustments (Phone) */
+@media (max-width: 767.98px) {
+  .sorting-dropdown label {
+    font-size: 0.9rem; /* Smaller font for better fit */
+    flex: 1 0 100%; /* Label takes full width */
+  }
+  
+  .sorting-dropdown select {
+    font-size: 0.9rem;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    transition: 0.3s;
+  }
+
+  .sidebar.collapse:not(.show) {
+    display: none;
+  }
+
+  .sidebar.collapsing {
+    height: auto;
+    transition: height 0.35s ease;
+  }
+
+  .sidebar .btn-close {
+    display: block;
+  }
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments (Computer) */
 @media (min-width: 768px) {
   .card-content {
     flex-direction: row;
@@ -1091,5 +1043,9 @@ color: #666;
 .submit-review-btn:hover {
   background-color: #0056b3;
 }
+
+.sidebar .btn-close {
+    display: none;
+  }
 }
 </style>
