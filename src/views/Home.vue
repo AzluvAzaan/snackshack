@@ -13,7 +13,7 @@
     </div>
 
     <!-- Mobile Text Container (appears above the vending machine) -->
-    <div v-if="isMobile" class="typing-text-container mobile-top">
+    <div v-if="isMobile" class="typing-text-container mobile-top sticky-text">
       <span
         class="typing-text"
         v-for="(line, index) in leftTextMobile"
@@ -106,7 +106,7 @@
     </div>
 
     <!-- Mobile Text Container (appears below the vending machine) -->
-    <div v-if="isMobile" class="typing-text-container mobile-bottom">
+    <div v-if="isMobile" class="typing-text-container mobile-bottom sticky-text">
       <span
         class="typing-text"
         v-for="(line, index) in rightTextMobile"
@@ -128,7 +128,7 @@
       return {
         leftText: ["Find", "vending", "machines", "near", "you."],
         rightText: ["Satisfy", "your", "cravings."],
-        leftTextMobile: ["Find vending", "machines near", "you."],
+        leftTextMobile: ["Find vending", "machines near you."],
         rightTextMobile: ["Satisfy your", "cravings."],
         machines: [],
         closestMachines: [],
@@ -330,6 +330,14 @@
     z-index: 1;
   }
 
+  .sticky-text {
+    position: sticky;
+    width: 100%;
+    text-align: center;
+    background-color: none;
+    padding: 10px;
+  }
+
   .vending-machine-logo {
     position: absolute;
     top: 25px;
@@ -449,7 +457,7 @@
   }
 
   .screen.zoomed {
-    transform: scale(7) translate(-22%, 8%);
+    transform: scale(7) translate(-18%, 8%);
     z-index: 999;
   }
 
@@ -587,7 +595,7 @@
 
   .typing-text-container.right {
     top: 45%;
-    right: 10%;
+    right: 8%;
     transform: translateY(-50%);
   }
 
@@ -663,11 +671,11 @@
     }
 
     .typing-text-container.mobile-top {
-      top: 0.7rem;
+      top: 0.2rem;
     }
 
     .typing-text-container.mobile-bottom {
-      bottom: 3rem;
+      bottom: 0.5rem;
     }
 
     .typing-text {
