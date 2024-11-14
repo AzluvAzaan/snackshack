@@ -262,6 +262,9 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: linear-gradient(to bottom, #003061, #001f3f, black);
+  margin: 0;
+  padding: 0;
 }
 
 #app {
@@ -275,22 +278,12 @@ body {
   flex: 1;
 }
 
-body {
-  background: linear-gradient(to bottom, #003061, #001f3f, black);
-  margin: 0;
-  padding: 0;
-}
 
 .header-container {
   padding-top: 20px;
   padding-bottom: 20px;
   position: relative;
   text-align: center;
-}
-
-.header {
-  font-size: 3em;
-  color: white;
 }
 
 .header {
@@ -453,9 +446,7 @@ body {
 .close-btn:hover {
   background-color: #6A5C53; /* Change this color as needed */
 }
-.close-button:hover {
-    background-color: #E85850; /* Slightly darker coral on hover */
-}
+
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.5s;
 }
@@ -591,38 +582,49 @@ body {
 
 
 @media (max-width: 382px) {
-        .header {
-          font-size: 2em;
-          color: white;
-          margin-bottom: 20px;
-          font-weight: bold;
-          margin-top: 5px;
-        }
+  .header {
+    font-size: 2em;
+    color: white;
+    margin-bottom: 20px;
+    font-weight: bold;
+    margin-top: 5px;
+  }
 
-        .rainbow-btn {
-          background: linear-gradient(90deg, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9);
-          color: black;
-          border: none;
-          padding: 5px 10px;
-          border-radius: 50px;
-          text-transform: uppercase;
-          font-weight: bold;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          transition: background-size 0.5s ease-in-out, box-shadow 0.3s ease;
-          background-size: 400%;
-          position: absolute;
-          top: 75px;
-          right: 17px;
-          z-index: 1;
-        }
+  .rainbow-btn {
+    background: linear-gradient(90deg, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9, #ff5f6d, #ffc371, #47e495, #6A82FB, #8E54E9, #8E54E9);
+    color: black;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background-size 0.5s ease-in-out, box-shadow 0.3s ease;
+    background-size: 400%;
+    position: static;
+    margin: 10px auto;
+    width: 80%;
+    max-width: 200px;
+  }
 
-        #description-snack-img {
-          width:200px;
-          height:200px;
-        }
-      }
+  .button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+  }
+
+  #description-snack-img {
+    width: 320px;
+    height: auto;
+    max-width: 200px;
+    max-height: 200px;
+  }
+  
+}
 
 @media (max-width: 548px) { 
     .snack-description {
