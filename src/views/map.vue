@@ -106,18 +106,15 @@ export default {
     return {
       vendingMachines: [],
       selectedMachine: null,
-      infoWindow: null,
       markers: [],
       searchQuery: '',
-      sortOption: 'type', // Default sort option
-      filterType: '', // No filter by default
+      filterType: '',
       userLocation: null,
       sidebarVisible: false,
       mapVisible: true,
       isSmallScreen: false,
     };
   },
-
 
   mounted() {
     this.fetchVendingMachines().then(() => {
@@ -137,7 +134,6 @@ export default {
           const marker = selectedMarker[1];
           marker.setAnimation(google.maps.Animation.BOUNCE);
           
-          // Optional: Select the machine to show details if you want a modal or info window
           this.selectedMachine = this.vendingMachines.find(machine => machine.id === machineId);
 
           // Stop the bounce animation after a short period
@@ -202,7 +198,7 @@ export default {
       }
     },
     checkScreenWidth() {
-      this.isSmallScreen = (window.innerWidth <= 768); // Define your threshold for "small screen"
+      this.isSmallScreen = (window.innerWidth <= 768);
       if (!this.isSmallScreen) {
         this.mapVisible = true; // Show map by default on larger screens
         this.sidebarVisible = true;
@@ -341,26 +337,26 @@ export default {
   @import 'bootstrap/dist/css/bootstrap.css';
 
   .app {
-    position:fixed;
-    top:0px;
-    bottom:0px;
-    left:0px;
-    right:0px;
+    position: fixed;
     display: flex;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
     height: 100vh;
   }
 
   .sidebar {
-    animation: popup 0.5s ease forwards;
     display: block;
     width: 300px;
     height: calc(100% - 60px);
     padding: 20px;
     background: linear-gradient(to bottom, #003061, #001f3f, black);
     color: white;
-    overflow-y: auto;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+    animation: popup 0.5s ease forwards;
+    overflow-y: auto;
   }
 
   #sidebarMenu.sidebar-hidden {
@@ -381,12 +377,12 @@ export default {
   }
 
   .search-bar {
+    font-size: 0.9rem;
     width: 100%;
     padding: 10px;
     margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    font-size: 0.9rem;
   }
 
   .sort-by, .filter-type {
@@ -415,7 +411,6 @@ export default {
     border-radius: 10px;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease;
-
   }
 
   .vending-card::before {
@@ -425,7 +420,7 @@ export default {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Adjust for darker effect */
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
     z-index: 1; /* Overlay below text */
   }
@@ -437,9 +432,9 @@ export default {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Adjust the opacity for darkness */
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
-    z-index: 1; /* Make sure overlay is above the background but below text */
+    z-index: 1;
   }
 
   .vending-card:hover {
@@ -448,16 +443,16 @@ export default {
   }
 
   .vending-thumbnail {
-      width: 80px;
-      height: 80px;
-      object-fit: cover;
-      border-radius: 20px;
-      filter: brightness(1.2); /* Brighter effect */
-      opacity: 0.9; /* Slight transparency */
-      position: absolute;
-      top: 50px;
-      right: 10px;
-      z-index: 9;
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 20px;
+    filter: brightness(1.2);
+    opacity: 0.9;
+    top: 50px;
+    right: 10px;
+    z-index: 9;
   }
 
   .vending-thumbnail:hover {
@@ -475,15 +470,15 @@ export default {
   }
 
   .status-running {
-    color: #28a745; /* Green */
+    color: #28a745;
   }
 
   .status-maintenance {
-    color: #ffa500; /* Orange */
+    color: #ffa500;
   }
 
   .status-out-of-order {
-    color: #dc3545; /* Red */
+    color: #dc3545;
   }
 
   .rating span {
@@ -508,6 +503,7 @@ export default {
   }
 
   .action-btn {
+    position: relative;
     background-color: #ffcc00;
     border: none;
     padding: 10px 15px;
@@ -516,7 +512,6 @@ export default {
     margin-right: 5px;
     color: black;
     transition: background-color 0.3s ease;
-    position: relative;
     z-index: 2
   }
  
@@ -526,13 +521,13 @@ export default {
 
   /* Map and zoom controls styling */
   #map-container {
-    animation: popup 0.5s ease forwards;
     display: block;
     flex-grow: 1;
     padding: 0;
     margin: 0;
     height: 100%;
     width: 100%;
+    animation: popup 0.5s ease forwards;
   }
 
   /* Hidden map style */
@@ -590,29 +585,29 @@ export default {
 
 
   .details-modal::after {
-    content: '';
     position: fixed;
+    content: '';
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6); /* Adjust the opacity for darkness */
-    z-index: 1; /* Make sure overlay is above the background but below text */
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1;
   }
 
   .vending-card h2, .details-modal h2 {
+    position: relative; /* Ensure text is above the overlay */
     padding: 5px;
     border-radius: 5px;
     margin-bottom: 10px;
-    position: relative; /* Ensure text is above the overlay */
     z-index: 2; /* Bring the text above the overlay */
   }
   
 
   .vending-card p, .details-modal p {
+    position: relative; /* Ensure text is above the overlay */
     padding: 5px;
     border-radius: 5px;
-    position: relative; /* Ensure text is above the overlay */
     z-index: 2; /* Bring the text above the overlay */
   }
 
@@ -624,26 +619,15 @@ export default {
     background: transparent;
     border: none; 
     cursor: pointer;
-    z-index: 1001; /* Make sure it's above other modal content */
-    padding: 0; /* No padding for better alignment */
+    z-index: 1001;
+    padding: 0;
     line-height: 1; /* Ensures button height aligns with font-size */
   }
 
   /* Optional Hover and Focus Effect */
-  .close-btn:hover,
-  .close-btn:focus {
+  .close-btn:hover, .close-btn:focus {
     color: #ff9900; /* Slightly darker color on hover */
     outline: none; /* Removes default focus outline */
-  }
-
-  /* Temporary outline to debug clickable area */
-  .close-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
   }
 
   .details-modal h2 {
@@ -723,7 +707,7 @@ export default {
 
     .details-modal {
       position: absolute;
-      bottom: 0; /* position it at the bottom */
+      bottom: 0;
       width: 300px;
       max-height: 70vh;
       max-width: 100%;
@@ -764,6 +748,5 @@ export default {
       transform: scale(1.0)
     }
   }
-
 
 </style>
