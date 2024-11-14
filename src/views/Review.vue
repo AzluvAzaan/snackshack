@@ -1,14 +1,13 @@
 <template>
-   <div class="container-fluid" style="background-color: #001f3f">
+   <div class="container-fluid" style="background: linear-gradient(to bottom, #003061, #001f3f, black);">
     <div class="row">
       <!-- Sidebar -->
-      <nav id="sidebarMenu" class="col-md-3 col-lg-3 d-md-block bg-light sidebar" 
+      <nav id="sidebarMenu" class="col-md-3 col-lg-3 d-md-block sidebar" 
       :class="{ 'show': sidebarOpen || !isMobile, 'd-none': !sidebarOpen && isMobile }">
         <div class="position-sticky pt-3">
           <div class="d-flex justify-content-between align-items-center px-3 mb-3">
             <h3 class="sidebar-heading text-muted border-bottom">Vending Machines</h3>
-            <button class="btn-close d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-label="Close sidebar">
-              <span aria-hidden="true">&times;</span>
+            <button class="btn-close d-md-none" type="button" @click="toggleSidebar" aria-label="Close sidebar">
             </button>
           </div>
           <ul class="nav flex-column">
@@ -49,9 +48,7 @@
               @click="toggleSidebar"
               aria-label="Toggle sidebar"
             >
-              <span class="navbar-toggler-icon">
-                <img src="../assets/3-lines-icon.png" style="height:2rem; display:block; align-items:center" alt="menu icon">
-              </span>
+            Browse
             </button>
           </div>
         </div>
@@ -99,13 +96,15 @@
 
         <div class="review-container">
 
-          <div class="collective-bar-graph">
-            <h2 style="text-align: center;">Review Ratings</h2>
-            <div v-for="star in 5" :key="star" class="collective-bar-container">
-              <span class="collective-bar-label">{{ star }} ★</span>
-              <div class="collective-bar" :style="{ width: calculateCollectiveBarWidth(star) }"></div>
-              <span class="collective-bar-count">{{ countRatings(star) }}</span>
-            </div>
+          <h2 style="text-align: center;">Review Ratings</h2>
+          <div v-for="star in 5" :key="star" class="collective-bar-container">
+            <span class="collective-bar-label">{{ star }} ★</span>
+            <div 
+              class="collective-bar"
+              :style="{ width: calculateCollectiveBarWidth(star).width }"
+              :class="calculateCollectiveBarWidth(star).class"
+            ></div>
+            <span class="collective-bar-count">{{ countRatings(star) }}</span>
           </div>
 
           <!-- Average Rating Display -->
@@ -232,7 +231,7 @@ data() {
     reviews: [],       // Array to store multiple reviews
     machines: [],
     selectedMachineId: null,
-    sidebarOpen: true,
+    sidebarOpen: false,
     isMobile: false,
     ownerEmail: '',
     ownerContact: '',
@@ -340,11 +339,15 @@ return 'just now';
   calculateCollectiveBarWidth(star) {
     const maxCount = Math.max(...[1, 2, 3, 4, 5].map(this.countRatings));
     const count = this.countRatings(star);
-    const maxWidth = 100; // Maximum width in percentage
-    if(count===0){
-      return '1%';
-    }
-    return maxCount ? `${(count / maxCount) * maxWidth}%` : '1%';
+    if (this.isMobile){
+      const maxWidth = 60;
+    } else {
+      const maxWidth = 80; // Maximum width in percentage
+    };
+    const maxWidth = this.isMobile ? 60 : 80;; // Maximum width in percentage
+    let width = maxCount ? (count / maxCount) * maxWidth : 1;
+   // Check if the width is 100% and return a special class
+    return { width: `${width}%`, class: '' };
   },
 
   async selectMachine(machineId) {
@@ -385,28 +388,54 @@ return 'just now';
     handleResize() {
       this.isMobile = window.innerWidth < 768;
       if (!this.isMobile) {
-        this.sidebarOpen = true;
+        this.sidebarOpen = false;
       }
     },
 
-    async fetchOwnerDetails() {
-      if (this.selectedMachineId) {
-        try {
-          // First, get the user ID of the machine owner
-          const machineDoc = await firestore.getVendingMachineById(this.selectedMachineId);
-          if (machineDoc && machineDoc.userId) {
-            // Then, fetch the user details using the user ID
-            const userDetails = await firestore.getUserDetails(machineDoc.userId);
-            if (userDetails) {
-              this.ownerEmail = userDetails.email || 'N/A';
-              this.ownerContact = userDetails.contact || 'N/A';
-            }
-          }
-        } catch (error) {
-          console.error("Error fetching owner details:", error);
-        }
-      }
+    mounted() {
+      window.addEventListener('resize', this.handleResize);
+      this.handleResize(); // Initial check for screen width
     },
+    beforeDestroy() {
+      window.removeEventListener('resize', this.handleResize);
+    },
+
+    async fetchOwnerDetails() {
+    if (this.selectedMachineId) {
+      try {
+        // First, get the user ID of the machine owner
+        const machineDoc = await firestore.getVendingMachineById(this.selectedMachineId);
+
+        // Check if the machineDoc is retrieved correctly
+        console.log('Fetched machineDoc:', machineDoc);
+
+        if (machineDoc && machineDoc.userId) {
+          // Then, fetch the user details using the user ID
+          const userDetails = await firestore.getUserDetails(machineDoc.userId);
+
+          // Check if userDetails are retrieved correctly
+          console.log('Fetched userDetails:', userDetails);
+
+          if (userDetails) {
+            // Assign email and contact if they exist in the userDetails
+            this.ownerEmail = userDetails.email || 'N/A';
+            this.ownerContact = userDetails.contact || 'N/A';
+
+            // Log the ownerEmail and ownerContact values
+            console.log('Owner Email:', this.ownerEmail);
+            console.log('Owner Contact:', this.ownerContact);
+          } else {
+            console.warn('User details not found for user ID:', machineDoc.userId);
+          }
+        } else {
+          console.warn('Machine document or user ID not found for machine ID:', this.selectedMachineId);
+        }
+      } catch (error) {
+        console.error("Error fetching owner details:", error);
+      }
+    }
+  }
+
 },
 
 watch: {
@@ -497,7 +526,7 @@ padding: 0;
   padding: 20px 15px; /* Equal padding on all sides */
   background-color: #e9f7ff;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
 }
 
 .review-controls {
@@ -525,7 +554,6 @@ padding: 0;
 .write-review-btn:hover,
 .sorting-dropdown select:hover {
   transform: scale(1.05);
-  /* background-color: #0056b3; */
 }
 
 .sorting-dropdown {
@@ -632,18 +660,22 @@ color: gold;
 background: linear-gradient(to bottom right, #ffd700, #ffa500);
 }
 
-button {
-padding: 10px 15px;
-background-color: #007bff;
+.navbar-toggler {
+padding: 5px 15px;
+margin-right: 10px;
+margin-top: 10px;
+font-size: 1rem;
 color: white;
-border: none;
-border-radius: 4px;
 cursor: pointer;
-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+background-color: #007bff;
+border-radius: 4px;
 }
 
 button:hover {
-background-color: #0056b3;
+background-color: #0f4680;
+border-radius: 4px;
+padding:5px 15px;
 }
 
 .review-result {
@@ -709,7 +741,7 @@ background-color: gold;
 margin-right: 10px;
 border-radius: 5px;
 transition: width 0.3s ease;
-max-width: 450px;
+min-width: 5px;
 }
 
 .collective-bar:hover{
@@ -806,6 +838,7 @@ color: #666;
   overflow-y: auto;
   transition: transform 0.3s ease-in-out;
   border-right: 1px solid #ddd;
+  background-color: #e9f7ff;
 }
 
 .sidebar.collapse:not(.show) {
@@ -822,13 +855,13 @@ color: #666;
 
 .nav-link:hover {
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  background-color: #e9ecef;
+  background-color: #e4e7eb;
 }
 
 .nav-link.active {
-  background-color: #e6f6ff;
-  box-shadow: 0 0px 4px #33b4ff;
-  color: black;
+  background-color:#eaedf0;
+  box-shadow: 0 0px 4px #3069a2;
+  color: #3069a2;
 }
 
 .machine-item {
@@ -861,15 +894,6 @@ color: #666;
   font-size: 0.8em;
 }
 
-.stars {
-  color: #ccc;
-  margin-right: 5px;
-}
-
-.stars .filled {
-  color: gold;
-}
-
 .rating-value {
   font-weight: bold;
   margin-right: 5px;
@@ -882,7 +906,7 @@ color: #666;
 /* Updated close button styles */
 .btn-close {
   font-size: 1.5rem;
-  padding: 0.5rem;
+  padding: 0.25rem 0.5rem;
   margin: -0.5rem -0.5rem -0.5rem auto;
   background-color: transparent;
   border: 0;
@@ -893,78 +917,7 @@ color: #666;
 
 .btn-close:hover {
   opacity: 1;
-}
-
-/* Responsive adjustments */
-@media (max-width: 767.98px) {
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    z-index: 1000;
-    padding: 20px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    background-color: #f8f9fa;
-    transition: transform 0.3s ease-in-out;
   }
-
-  .sidebar.collapse:not(.show) {
-    transform: translateX(-100%);
-  }
-
-  .sidebar .btn-close {
-    display: block;
-  }
-
-  .navbar-toggler {
-    display: block;
-    background-color: #e9f7ff;
-  }
-  .navbar-toggler:hover{
-    background-color: #e9f3ff;
-  }
-}
-
-@media (min-width: 768px) {
-  .sidebar .btn-close {
-    display: none;
-  }
-
-  .navbar-toggler {
-    display: none;
-  }
-}
-
-/* Responsive adjustments */
-@media (max-width: 767.98px) {
-  .sidebar {
-    position: static;
-    height: auto;
-    padding-top: 0;
-  }
-
-  main {
-    margin-top: 20px;
-  }
-
-  .navbar-toggler {
-    display: block;
-  }
-}
-
-@media (min-width: 768px) {
-  .navbar-toggler {
-    display: none;
-  }
-}
-
-/* Add these new styles for the close button */
-.btn-close {
-  padding: 0.25rem 0.5rem;
-  margin: -0.5rem -0.5rem -0.5rem auto;
-}
 
 @media (max-width: 767.98px) {
   .sidebar {

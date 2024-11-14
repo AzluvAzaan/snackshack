@@ -1,14 +1,13 @@
 <template>
   <nav class="navbar">
-    <!-- Logo section -->
     <div class="navbar-logo">
-      <img src="@/assets/snackshack.png" alt="SnackShack logo" class="logo-image" />
+      <img src="@/assets/snackshack-logo.png" alt="SnackShack logo" class="logo-image" />
       <span class="logo-text">SnackShack</span>
     </div>
 
     <!-- Toggle button for mobile -->
     <button class="navbar-toggle" @click="toggleMenu">
-      &#9776; <!-- Hamburger icon -->
+      &#9776;
     </button>
 
     <!-- Navigation links -->
@@ -33,7 +32,7 @@
 export default {
   data() {
     return {
-      isMobileMenuOpen: false, // Controls mobile menu visibility
+      isMobileMenuOpen: false,
     };
   },
   methods: {
@@ -45,7 +44,7 @@ export default {
 </script>
 
 <style scoped>
-/* General navbar styling */
+
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -62,19 +61,17 @@ export default {
   box-sizing: border-box;
 }
 
-/* Padding to prevent content overlap */
 .navbar + * {
   margin-top: 60px;
 }
 
-/* Logo styling */
 .navbar-logo {
   display: flex;
   align-items: center;
 }
 
 .logo-image {
-  width: 45px;
+  width: 55px;
   height: 50px;
   margin-right: 10px;
 }
@@ -85,9 +82,8 @@ export default {
   color: white;
 }
 
-/* Navigation links */
 .navbar-links {
-  padding-top: 8px;
+  padding-top: 12px;
   display: flex;
   list-style-type: none;
   padding-left: 0;
@@ -105,7 +101,6 @@ export default {
   transition: color 0.3s ease;
 }
 
-/* Active link styling */
 .navbar-item .active-link {
   font-weight: bold;
   color: #f0a500 !important; /* Ensures active color overrides other styles */
@@ -115,9 +110,8 @@ export default {
   color: #f0a500;
 }
 
-/* Mobile menu toggle button */
 .navbar-toggle {
-  display: none; /* Hidden by default, shown in mobile view */
+  display: none;
   font-size: 1.5rem;
   background: none;
   color: white;
@@ -127,7 +121,7 @@ export default {
 /* Mobile menu styles */
 @media (max-width: 768px) {
   .navbar-links {
-    display: none; /* Hide links by default on mobile */
+    display: none;
     flex-direction: column;
     position: absolute;
     top: 60px;
@@ -138,11 +132,11 @@ export default {
   }
 
   .navbar-links.navbar-links-mobile {
-    display: flex; /* Show when mobile menu is open */
+    display: flex;
   }
 
   .navbar-toggle {
-    display: block; /* Show toggle button on mobile */
+    display: block;
   }
 }
 </style>
