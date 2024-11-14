@@ -536,6 +536,7 @@ padding: 0;
   border-radius: 5px;
   cursor: pointer;
   margin-right: 10px;
+  margin-top: 20px;
 }
 
 .sorting-dropdown select {
