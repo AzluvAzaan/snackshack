@@ -33,3 +33,6 @@ coverage
 .firebase
 .firebaserc
 firebase.json
+
+# env files
+.env
