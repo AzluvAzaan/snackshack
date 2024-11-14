@@ -3,10 +3,11 @@ import { getFirestore } from 'firebase/firestore';
 import { getAuth, setPersistence, browserSessionPersistence } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 
+const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
 
 //Firebase Configuration (remember to change with your own firebase credentials)
 const firebaseConfig = {
-  apiKey: "AIzaSyDyYJxjK1AtM01msUxUSqGHlaz9wrBSGzs",
+  apiKey: apiKey,
   authDomain: "snackshack-c06ac.firebaseapp.com",
   projectId: "snackshack-c06ac",
   storageBucket: "snackshack-c06ac.appspot.com",
