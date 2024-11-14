@@ -62,7 +62,7 @@ export default {
 
         await firestore.storeUserData(user.uid, {
           email: this.email,
-          contactNumber: this.contactNumber
+          contact: this.contactNumber
         });
         //console.log("Registered as:", userCredential.user.email);
         this.$router.push("/login"); // Redirect to login page after successful registration
