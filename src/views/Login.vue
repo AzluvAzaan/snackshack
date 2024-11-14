@@ -65,43 +65,43 @@ export default {
 }
 
 .card {
-  border-color: #f0a500; /* Gold color for card border */
+  border-color: #f0a500;
   border-radius: 15px;
-  background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white */
+  background-color: rgba(255, 255, 255, 0.9);
   width: 90%;
   max-width: 400px;
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 }
 
 .card-title {
-  color: #001f3f; /* Dark blue for title */
+  color: #001f3f;
   font-size: 1.8rem;
 }
 
 .btn-primary {
-  background-color: #f0a500; /* Gold color for button */
+  background-color: #f0a500;
   border-color: #f0a500;
-  color: #001f3f; /* Dark text on gold button */
+  color: #001f3f;
   border-radius: 15px;
 }
 
 .btn-primary:hover, .btn-primary:focus {
-  background-color: #e09500; /* Slightly darker gold on hover */
+  background-color: #e09500;
   border-color: #e09500;
   color: #001f3f;
 }
 
 .btn-link {
-  color: #f0a500; /* Gold color for link */
+  color: #f0a500;
 }
 
 .form-control:focus {
-  border-color: #f0a500; /* Gold color for focus */
+  border-color: #f0a500;
   box-shadow: 0 0 0 0.2rem rgba(240, 165, 0, 0.25);
 }
 
 .text-danger {
-  color: #ff6b6b !important; /* Lighter red for error messages on dark background */
+  color: #ff6b6b !important;
 }
 
 body {
@@ -130,21 +130,17 @@ body {
   margin-bottom: 0.5rem;
 }
 
-/* Increase contrast for placeholder text */
 .form-control::placeholder {
   color: #6c757d;
   opacity: 0.7;
 }
 
-/* Add some spacing between form elements */
 .mb-3 {
   margin-bottom: 1.5rem !important;
 }
 
-/* Ensure text is visible on the dark background */
 .card-body {
   color: #001f3f;
 }
-
 
 </style>

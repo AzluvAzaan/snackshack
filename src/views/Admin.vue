@@ -253,7 +253,6 @@ export default {
     return {
       currentUser: null,
       userDetails: null,
-      // New Vending Machine Object
       newMachine: {
         machineName: '',
         description: '',
@@ -267,33 +266,30 @@ export default {
         },
         contents: [],
       },
-      userMachines: [], // Array to store user's machines
-      showAddForm: false, // Boolean to display form for add/edit machine
+      userMachines: [],
+      showAddForm: false,
       isEditing: false,
       editingMachineId: null,
       selectedFile: null,
-      newContent: '', 
-      //Alert 
+      newContent: '',  
       alert: {
         show: false,
         message: '',
         type: 'success'
       },
-      searchQuery: '', // Search query
-      editingContact: false, // Check if editing contact
+      searchQuery: '', 
+      editingContact: false, 
       newContactNumber: '', 
-      sortOption: '', // Sorting option
+      sortOption: '', 
       showModal: false,
-      selectedMachine: null, // Check if showing machine details
+      selectedMachine: null, 
       }
     },
     computed: {
 
-      // Search Bar Function
       filteredAndSortedMachines() {
       let result = this.userMachines;
       
-      // Apply search to find machine by name, location, description, type, and status
       if (this.searchQuery) {
         const query = this.searchQuery.toLowerCase();
         result = result.filter(machine => 
@@ -305,7 +301,6 @@ export default {
         );
       }
       
-      // Apply sorting by Ascending or Descending based on rating
       if (this.sortOption) {
         result.sort((a, b) => {
           if (this.sortOption === 'Asc') {
@@ -319,10 +314,9 @@ export default {
       return result;
     },
 
-    // Assign glowing class to vending machine card based on rating
     getRatingColorClass() {
     return (rating) => {
-      if (!rating) return ''; // No glow for 0 or undefined rating
+      if (!rating) return '';
       if (rating < 1.5) return 'glow-red';
       if (rating < 2.5) return 'glow-orange';
       if (rating < 3.5) return 'glow-yellow';
@@ -353,9 +347,7 @@ export default {
   methods: {
     async logout() {
       try {
-        //calls firebase auth signOut method to sign out user
         await signOut(auth);
-        //redirects user to home page after sign out
         this.$router.push('/');
       } catch (error) {
       }
@@ -365,23 +357,19 @@ export default {
       try {
         const userData = await firestore.getUserData(userId);
         if (userData) {
-          // Set user details
           this.userDetails = userData;
         } else {
-          //When no user data is found
           this.userDetails = null;
         }
       } catch (error) {
       }
     },
 
-    // For users to edit contact number
     startEditContact() {
       this.editingContact = true;
       this.newContactNumber = this.userDetails.contact;
     },
   
-    // Update contact number in Firestore
     async updateContact() {
       try {
         await firestore.updateUserData(this.currentUser.uid, {
@@ -395,21 +383,17 @@ export default {
       }
     },
 
-    // Cancels editing contact number
     cancelEditContact() {
       this.editingContact = false;
       this.newContactNumber = '';
       this.showAlert('Cancelled update contact number', 'info');
     },
 
-    //stores uploaded file as selectedFile
     onFileSelected(event) {
       this.selectedFile = event.target.files[0];
     },
 
-    // Uploads image to Firebase Storage and returns the download URL
     async uploadImage() {
-      //return null if no file is selected
       if (!this.selectedFile) return null;
       //stores image in firebase storage, rename it to current timestamp+file name to prevent duplicate names
       const storageRef = ref(storage, `machine-images/${Date.now()}_${this.selectedFile.name}`);
@@ -418,7 +402,6 @@ export default {
       return await getDownloadURL(storageRef);
     },
 
-    // Add item to vending machine
     addContent() {
       if (this.newContent.trim()) {
         this.newMachine.contents.push(this.newContent.trim());
@@ -426,12 +409,10 @@ export default {
       }
     },
 
-    // Removes item from vending machine
     removeContent(index) {
       this.newMachine.contents.splice(index, 1);
     },
 
-    // Add or update user selected vending machine
     async addOrUpdateVendingMachine() {
       try {
         let imageUrl = null;
@@ -538,14 +519,12 @@ export default {
       }
     },
 
-    // Show image of vending machine in new tab
     showImage(machine) {
       if (machine.imageUrl) {
         window.open(machine.imageUrl, '_blank');
       } 
     },
 
-    //Edit vending machine
     editMachine(machine) {
       this.newMachine = { 
         ...machine,
@@ -665,7 +644,6 @@ export default {
   padding-left: 1.5em ;
 }
 
-/* Button hover and animation */
 .btn {
   transition: transform 0.3s ease-in-out;
   border-radius: 15px;
@@ -675,8 +653,6 @@ export default {
   transform: translateY(-5px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-
-/* Had to do below because importing bootstrap.css caused issues with other pages */
 
 body, #admin-page {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -833,7 +809,7 @@ label {
 .pad-btm {
   padding-bottom: 10px;
 }
-/* Add some spacing between form elements */
+
 .mb-3 {
   margin-bottom: 1rem !important;
 }
@@ -903,7 +879,6 @@ label {
   color: inherit;
 }
 
-/* Glow effect for different average Rating */
 .glow-red {
   box-shadow: 0 0 20px 8px rgba(255, 0, 0, 0.5);
 }
@@ -920,13 +895,11 @@ label {
   box-shadow: 0 0 20px 8px rgba(0, 255, 0, 0.5);
 }
 
-/* Placeholder styling */
 .darker-placeholder::placeholder {
   color: #555 !important;
   opacity: 1 !important;
 } 
 
-/* Review styling */
 .review-item {
   margin-bottom: 1rem;
   padding-bottom: 1rem;
@@ -936,8 +909,6 @@ label {
 .review-item:last-child {
   border-bottom: none;
 }
-
-/* Modal Styling */
 
 .modal {
   position: fixed;
